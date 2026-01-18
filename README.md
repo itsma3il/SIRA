@@ -19,8 +19,21 @@ Frontend → Clerk Auth → FastAPI → LlamaIndex (Mistral) → Pinecone → Po
 Phase 0 setup is in progress. Pending steps:
 
 - Add environment variables to `.env.local`/`.env` using `.env.example` (to be provided).
-- Install dependencies for both frontend and backend.
-- Run `docker-compose up` (compose file forthcoming) for dev stack.
+- Install dependencies for both frontend and backend using Bun and uv.
+- Run `docker-compose up` for the full dev stack.
+
+### Local Development (Bun + uv)
+
+Frontend:
+
+- Install deps: `bun install`
+- Start dev server: `bun dev`
+
+Backend:
+
+- Create a virtual environment (recommended)
+- Install deps: `uv pip install -r backend/requirements.txt`
+- Start API: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
 
 ## Development Guidelines
 

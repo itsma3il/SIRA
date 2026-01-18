@@ -1,16 +1,23 @@
-FROM node:22-alpine
+FROM oven/bun:1-alpine AS base
 
 WORKDIR /app
 
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
-RUN if [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm install; \
-    elif [ -f yarn.lock ]; then yarn install; \
-    else npm install; fi
+# Install dependencies into temp folder to cache them
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lock /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
 
+# Release stage
+FROM base AS release
+COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-RUN npm run build
+# Next.js specific build
+ENV NODE_ENV=production
+RUN bun run build
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Start with bun
+CMD ["bun", "run", "start"]

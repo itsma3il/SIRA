@@ -3,7 +3,7 @@
 .vscode/
 .env
 .env.local
-.env.*
+.env.development.local
 node_modules/
 .next/
 out/
@@ -29,3 +29,4 @@ backend/.ruff_cache/
 *.db
 *.DS_Store
 Thumbs.db
+bun.*
