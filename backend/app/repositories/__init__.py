@@ -1,0 +1,4 @@
+"""Repository exports."""
+from app.repositories import user_repository
+
+__all__ = ["user_repository"]

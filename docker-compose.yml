@@ -1,6 +1,10 @@
 services:
+  # -----------------------------
+  # DATABASE
+  # -----------------------------
   db:
-    image: postgres:17-alpine # 18 is not officially stable yet; 16/17 is standard
+    image: postgres:17-alpine
+    container_name: sira_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -16,42 +20,68 @@ services:
       timeout: 5s
       retries: 5
 
+  # -----------------------------
+  # BACKEND (FastAPI + uv)
+  # -----------------------------
   backend:
     build: 
       context: ./backend
+      dockerfile: Dockerfile
+    container_name: sira_backend
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/sira
-      PYTHONPATH: /app
-    depends_on:
-      db:
-        condition: service_healthy
+      # Override DB URL for Docker network (uses service name 'db' instead of localhost)
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sira}
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
-    # Overriding the CMD for development to enable auto-reload
+      - ./backend:/app # Hot reload
+    depends_on:
+      db:
+        condition: service_healthy
+    # Command to run in dev mode
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  # -----------------------------
+  # FRONTEND (Next.js 16 + Bun)
+  # -----------------------------
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
+      # 1. Pass non-secret public vars as ARGs
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+      # 2. Pass sensitive keys as SECRETS (secure build)
+      secrets:
+        - clerk_publishable_key
+        - clerk_secret_key
+    container_name: sira_frontend
     restart: unless-stopped
     env_file: .env
     ports:
       - "3000:3000"
     environment:
-      - WATCHPACK_POLLING=true # Essential for WSL2 hot-reload
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+      # Runtime secrets (Next.js needs them at runtime too)
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
     volumes:
       - ./frontend:/app
-      - /app/node_modules # Anonymous volume: keeps dependencies in Linux
-      - /app/.next       # Anonymous volume: speeds up Next.js builds
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - backend
-    command: bun dev
+
+# -----------------------------
+# SECRETS CONFIGURATION
+# -----------------------------
+secrets:
+  clerk_publishable_key:
+    environment: "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+  clerk_secret_key:
+    environment: "CLERK_SECRET_KEY"
 
 volumes:
   db_data:

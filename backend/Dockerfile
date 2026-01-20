@@ -28,5 +28,5 @@ COPY . .
 
 EXPOSE 8000
 
-# Use --reload for development (handled by compose)
+# We use the command in docker-compose, but this is a good default
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

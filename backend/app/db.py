@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import get_settings
+from app import models
 
 
 def _engine_url() -> str:
