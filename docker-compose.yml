@@ -63,6 +63,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - WATCHPACK_POLLING=true
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       # Runtime secrets (Next.js needs them at runtime too)
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}

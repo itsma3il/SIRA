@@ -2,7 +2,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
 from app.core.security import extract_email_from_claims, get_current_user, get_token_claims

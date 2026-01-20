@@ -1,7 +1,7 @@
 """API dependencies."""
 from collections.abc import Generator
 
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 
 from app.db import get_engine
 

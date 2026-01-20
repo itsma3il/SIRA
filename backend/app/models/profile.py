@@ -1,101 +1,317 @@
-"""Profile-related database models."""
+"""Profile-related database models for academic data management."""
+
 from __future__ import annotations
 
-from datetime import datetime
-from typing import TYPE_CHECKING
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB, TEXT
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, TEXT, UUID as PostgreSQL_UUID
+from sqlalchemy.orm import Mapped, relationship
+
+from app.db import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
 
 
-class Profile(SQLModel, table=True):
-    """Student profile metadata with draft payloads."""
+class Profile(Base):
+    """
+    Student profile with multi-profile support and draft functionality.
+    
+    Users can create multiple profiles for different academic scenarios
+    (e.g., "Computer Science Track", "Medicine Track"). Each profile
+    maintains its own academic records and preferences.
+    
+    Attributes:
+        id: Unique identifier (UUID v4)
+        user_id: Foreign key to users table
+        profile_name: User-defined profile name
+        status: Profile status (draft|active|archived)
+        draft_payload: JSONB field for storing incomplete profile data
+        created_at: Profile creation timestamp (UTC)
+        updated_at: Last modification timestamp (UTC)
+    """
 
     __tablename__ = "profiles"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    user_id: UUID = Field(foreign_key="users.id", nullable=False)
-    profile_name: str = Field(nullable=False, max_length=255)
-    status: str = Field(default="draft", max_length=50)
-    draft_payload: dict | None = Field(default=None, sa_column=Column(JSONB))
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-
-    user: "User" = Relationship(back_populates="profiles")
-    academic_record: "AcademicRecord" | None = Relationship(
-        back_populates="profile",
-        sa_relationship_kwargs={"uselist": False},
+    id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+        nullable=False,
+        doc="Primary key (UUID v4)"
     )
-    preferences: "StudentPreferences" | None = Relationship(
-        back_populates="profile",
-        sa_relationship_kwargs={"uselist": False},
+    user_id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+        doc="Owner user ID"
+    )
+    profile_name: Mapped[str] = Column(
+        String(255),
+        nullable=False,
+        doc="Profile display name"
+    )
+    status: Mapped[str] = Column(
+        String(50),
+        default="draft",
+        doc="Profile status: draft, active, or archived"
+    )
+    draft_payload: Mapped[Optional[dict[str, Any]]] = Column(
+        JSONB,
+        default=None,
+        nullable=True,
+        doc="Temporary storage for incomplete profile data"
+    )
+    created_at: Mapped[datetime] = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        doc="Profile creation timestamp (UTC)"
+    )
+    updated_at: Mapped[datetime] = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        doc="Last modification timestamp (UTC)"
     )
 
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="profiles")
+    academic_record: Mapped[Optional["AcademicRecord"]] = relationship(back_populates="profile")
+    preferences: Mapped[Optional["StudentPreferences"]] = relationship(back_populates="profile")
 
-class AcademicRecord(SQLModel, table=True):
-    """Academic history for a profile."""
+
+class AcademicRecord(Base):
+    """
+    Academic history and current educational status for a profile.
+    
+    Stores comprehensive academic information including current status,
+    institution details, GPA, and transcripts. Links to detailed
+    subject-level grades through SubjectGrade relationship.
+    
+    Attributes:
+        id: Unique identifier (UUID v4)
+        profile_id: Foreign key to profiles table
+        current_status: Educational status (e.g., "Undergraduate", "High School")
+        current_institution: Name of current educational institution
+        current_field: Field of study or major
+        gpa: Grade point average (0.0-4.0 or equivalent)
+        transcript_url: Link to uploaded transcript document
+        language_preference: Preferred instruction language
+        created_at: Record creation timestamp (UTC)
+    """
 
     __tablename__ = "academic_records"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    profile_id: UUID = Field(foreign_key="profiles.id", nullable=False)
-    current_status: str | None = Field(default=None, max_length=100)
-    current_institution: str | None = Field(default=None, max_length=255)
-    current_field: str | None = Field(default=None, max_length=255)
-    gpa: float | None = Field(default=None)
-    transcript_url: str | None = Field(default=None, max_length=500)
-    language_preference: str | None = Field(default=None, max_length=50)
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+        nullable=False,
+        doc="Primary key (UUID v4)"
+    )
+    profile_id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        ForeignKey("profiles.id"),
+        nullable=False,
+        unique=True,
+        index=True,
+        doc="Associated profile ID (one-to-one)"
+    )
+    current_status: Mapped[Optional[str]] = Column(
+        String(100),
+        default=None,
+        nullable=True,
+        doc="Current educational status"
+    )
+    current_institution: Mapped[Optional[str]] = Column(
+        String(255),
+        default=None,
+        nullable=True,
+        doc="Current institution name"
+    )
+    current_field: Mapped[Optional[str]] = Column(
+        String(255),
+        default=None,
+        nullable=True,
+        doc="Current field of study"
+    )
+    gpa: Mapped[Optional[float]] = Column(
+        Float,
+        default=None,
+        nullable=True,
+        doc="Grade point average (0.0-4.0)"
+    )
+    transcript_url: Mapped[Optional[str]] = Column(
+        String(500),
+        default=None,
+        nullable=True,
+        doc="URL to transcript document"
+    )
+    language_preference: Mapped[Optional[str]] = Column(
+        String(50),
+        default=None,
+        nullable=True,
+        doc="Preferred language for instruction"
+    )
+    created_at: Mapped[datetime] = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        doc="Record creation timestamp (UTC)"
+    )
 
-    profile: "Profile" = Relationship(back_populates="academic_record")
-    subject_grades: list["SubjectGrade"] = Relationship(back_populates="academic_record")
+    # Relationships
+    profile: Mapped["Profile"] = relationship(back_populates="academic_record")
+    subject_grades: Mapped[list["SubjectGrade"]] = relationship(back_populates="academic_record")
 
 
-class SubjectGrade(SQLModel, table=True):
-    """Subject-level grades for an academic record."""
+class SubjectGrade(Base):
+    """
+    Individual subject grade for detailed academic performance tracking.
+    
+    Allows storage of granular subject-level performance data to support
+    advanced RAG queries and recommendation accuracy. Each grade can be
+    weighted to reflect different credit hours or importance.
+    
+    Attributes:
+        id: Unique identifier (UUID v4)
+        academic_record_id: Foreign key to academic_records table
+        subject_name: Name of the subject/course
+        grade: Numeric grade value
+        weight: Subject weight/credit hours (for weighted GPA calculation)
+    """
 
     __tablename__ = "subject_grades"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    academic_record_id: UUID = Field(foreign_key="academic_records.id", nullable=False)
-    subject_name: str | None = Field(default=None, max_length=255)
-    grade: float | None = Field(default=None)
-    weight: float | None = Field(default=None)
+    id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+        nullable=False,
+        doc="Primary key (UUID v4)"
+    )
+    academic_record_id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        ForeignKey("academic_records.id"),
+        nullable=False,
+        index=True,
+        doc="Parent academic record ID"
+    )
+    subject_name: Mapped[Optional[str]] = Column(
+        String(255),
+        default=None,
+        nullable=True,
+        doc="Subject/course name"
+    )
+    grade: Mapped[Optional[float]] = Column(
+        Float,
+        default=None,
+        nullable=True,
+        doc="Numeric grade (0-100 scale)"
+    )
+    weight: Mapped[Optional[float]] = Column(
+        Float,
+        default=None,
+        nullable=True,
+        doc="Subject weight/credit hours"
+    )
 
-    academic_record: "AcademicRecord" = Relationship(back_populates="subject_grades")
+    # Relationships
+    academic_record: Mapped["AcademicRecord"] = relationship(back_populates="subject_grades")
 
 
-class StudentPreferences(SQLModel, table=True):
-    """Preferences and constraints for a profile."""
+class StudentPreferences(Base):
+    """
+    Student preferences and constraints for personalized recommendations.
+    
+    Captures student interests, skills, constraints, and aspirations to
+    power the RAG-based recommendation engine. Uses PostgreSQL ARRAY
+    type for efficient storage of multi-valued attributes.
+    
+    Attributes:
+        id: Unique identifier (UUID v4)
+        profile_id: Foreign key to profiles table
+        favorite_subjects: List of preferred subjects/fields
+        disliked_subjects: List of subjects to avoid
+        soft_skills: Student's self-reported soft skills
+        hobbies: Personal interests and hobbies
+        geographic_preference: Preferred study location/region
+        budget_range_min: Minimum budget (annual, in currency units)
+        budget_range_max: Maximum budget (annual, in currency units)
+        career_goals: Free-text career aspirations
+    """
 
     __tablename__ = "student_preferences"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
-    profile_id: UUID = Field(foreign_key="profiles.id", nullable=False)
-    favorite_subjects: list[str] | None = Field(
-        default=None,
-        sa_column=Column(ARRAY(TEXT)),
+    id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+        nullable=False,
+        doc="Primary key (UUID v4)"
     )
-    disliked_subjects: list[str] | None = Field(
-        default=None,
-        sa_column=Column(ARRAY(TEXT)),
+    profile_id: Mapped[UUID] = Column(
+        PostgreSQL_UUID(as_uuid=True),
+        ForeignKey("profiles.id"),
+        nullable=False,
+        unique=True,
+        index=True,
+        doc="Associated profile ID (one-to-one)"
     )
-    soft_skills: list[str] | None = Field(
+    favorite_subjects: Mapped[Optional[list[str]]] = Column(
+        ARRAY(TEXT),
         default=None,
-        sa_column=Column(ARRAY(TEXT)),
+        nullable=True,
+        doc="List of favorite subjects/fields"
     )
-    hobbies: list[str] | None = Field(
+    disliked_subjects: Mapped[Optional[list[str]]] = Column(
+        ARRAY(TEXT),
         default=None,
-        sa_column=Column(ARRAY(TEXT)),
+        nullable=True,
+        doc="List of subjects to avoid"
     )
-    geographic_preference: str | None = Field(default=None, max_length=100)
-    budget_range_min: int | None = Field(default=None)
-    budget_range_max: int | None = Field(default=None)
-    career_goals: str | None = Field(default=None)
+    soft_skills: Mapped[Optional[list[str]]] = Column(
+        ARRAY(TEXT),
+        default=None,
+        nullable=True,
+        doc="Student's soft skills (e.g., leadership, teamwork)"
+    )
+    hobbies: Mapped[Optional[list[str]]] = Column(
+        ARRAY(TEXT),
+        default=None,
+        nullable=True,
+        doc="Personal interests and hobbies"
+    )
+    geographic_preference: Mapped[Optional[str]] = Column(
+        String(100),
+        default=None,
+        nullable=True,
+        doc="Preferred geographic location for study"
+    )
+    budget_range_min: Mapped[Optional[int]] = Column(
+        Integer,
+        default=None,
+        nullable=True,
+        doc="Minimum annual budget (in currency units)"
+    )
+    budget_range_max: Mapped[Optional[int]] = Column(
+        Integer,
+        default=None,
+        nullable=True,
+        doc="Maximum annual budget (in currency units)"
+    )
+    career_goals: Mapped[Optional[str]] = Column(
+        TEXT,
+        default=None,
+        nullable=True,
+        doc="Career aspirations and goals (free text)"
+    )
 
-    profile: "Profile" = Relationship(back_populates="preferences")
+    # Relationships
+    profile: Mapped["Profile"] = relationship(back_populates="preferences")

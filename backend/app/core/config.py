@@ -1,14 +1,14 @@
 """Application configuration loaded from environment variables."""
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-
+from typing import List
 
 class Settings(BaseSettings):
     app_name: str = "SIRA API"
     environment: str = "development"
     database_url: str = "postgresql+psycopg2://postgres:postgres@db:5432/sira"
     clerk_jwks_url: str | None = None
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
     model_config = {
         "env_file": ".env",

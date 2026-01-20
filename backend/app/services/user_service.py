@@ -1,7 +1,7 @@
 """User service layer for business logic."""
 from uuid import UUID
 
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories import user_repository

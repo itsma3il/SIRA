@@ -2,10 +2,12 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base
 
 from app.core.config import get_settings
-from app import models
+
+Base = declarative_base()
 
 
 def _engine_url() -> str:
@@ -26,5 +28,8 @@ def session_scope() -> Iterator[Session]:
 
 def init_db() -> None:
     """Create database tables if they do not exist."""
+    # Import models here to ensure they're registered with Base.metadata
+    from app import models
+    
     engine = get_engine()
-    SQLModel.metadata.create_all(engine)
+    Base.metadata.create_all(engine)

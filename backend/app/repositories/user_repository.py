@@ -1,13 +1,14 @@
 """User repository for database access."""
 from uuid import UUID
 
-from sqlmodel import Session, select
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.models.user import User
 
 
 def get_by_clerk_id(session: Session, clerk_user_id: str) -> User | None:
-    return session.exec(select(User).where(User.clerk_user_id == clerk_user_id)).first()
+    return session.execute(select(User).where(User.clerk_user_id == clerk_user_id)).scalar_one_or_none()
 
 
 def get_by_id(session: Session, user_id: UUID) -> User | None:

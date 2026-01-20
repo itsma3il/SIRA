@@ -37,7 +37,7 @@ export default function Home() {
             Explore recommendations
           </Button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        {/* <div className="grid gap-4 sm:grid-cols-3">
           {homeCards.map((card) => (
             <div
               key={card.title}
@@ -47,7 +47,7 @@ export default function Home() {
               <p className="mt-2 text-sm text-muted-foreground">{card.description}</p>
             </div>
           ))}
-        </div>
+        </div> */}
       </section>
       <aside className="rounded-2xl border border-border/70 bg-muted/40 p-6 shadow-sm">
         <div className="space-y-3">
