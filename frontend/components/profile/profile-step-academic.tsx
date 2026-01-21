@@ -6,6 +6,7 @@ import type {
   SubjectGradeForm,
   TranscriptUploadResult,
 } from "@/lib/profile-form-types"
+import MultipleSelector, { type Option } from "@/components/ui/multi-select"
 import { FancyMultiSelect, type MultiSelectOption } from "@/components/fancy-multi-select"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,6 +17,11 @@ import { TranscriptUploadField } from "@/components/profile/transcript-upload"
 const toOption = (label: string): MultiSelectOption => ({
   label,
   value: label.toLowerCase().replace(/\s+/g, "-"),
+})
+
+const toSelectOption = (label: string): Option => ({
+  label,
+  value: label,
 })
 
 const mergeOptions = (base: string[], current?: string) => {
@@ -35,6 +41,15 @@ const parseSelection = (value?: string) =>
 
 const joinSelection = (items: MultiSelectOption[]) =>
   items.map((item) => item.label).join(", ")
+
+const singleSelection = (value?: string): Option[] =>
+  value ? [toSelectOption(value)] : []
+
+const singleOptions = (base: string[], current?: string) => {
+  const options = new Set(base)
+  if (current) options.add(current)
+  return Array.from(options).map((item) => toSelectOption(item))
+}
 
 const statusOptions = [
   "High School Senior",
@@ -96,16 +111,19 @@ export function ProfileStepAcademic({
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="current_status">Current status</Label>
-            <FancyMultiSelect
-              options={mergeOptions(statusOptions, value.current_status)}
-              value={parseSelection(value.current_status)}
+            <MultipleSelector
+              options={singleOptions(statusOptions, value.current_status)}
+              value={singleSelection(value.current_status)}
               onChange={(nextValue) =>
                 onChange({
                   ...value,
-                  current_status: joinSelection(nextValue),
+                  current_status: nextValue[0]?.label ?? "",
                 })
               }
               placeholder="Select status"
+              maxSelected={1}
+              hidePlaceholderWhenSelected
+              creatable
               disabled={disabled}
             />
           </div>
@@ -125,16 +143,19 @@ export function ProfileStepAcademic({
 
           <div className="grid gap-2">
             <Label htmlFor="current_field">Current field</Label>
-            <FancyMultiSelect
-              options={mergeOptions(fieldOptions, value.current_field)}
-              value={parseSelection(value.current_field)}
+            <MultipleSelector
+              options={singleOptions(fieldOptions, value.current_field)}
+              value={singleSelection(value.current_field)}
               onChange={(nextValue) =>
                 onChange({
                   ...value,
-                  current_field: joinSelection(nextValue),
+                  current_field: nextValue[0]?.label ?? "",
                 })
               }
-              placeholder="Select field(s)"
+              placeholder="Select field"
+              maxSelected={1}
+              hidePlaceholderWhenSelected
+              creatable
               disabled={disabled}
             />
           </div>
@@ -220,7 +241,7 @@ export function ProfileStepAcademic({
             >
               <div className="grid gap-2">
                 <Label htmlFor={`subject_name_${index}`}>Subject name</Label>
-                <FancyMultiSelect
+                <MultipleSelector
                   options={mergeOptions(subjectOptions, grade.subject_name)}
                   value={parseSelection(grade.subject_name)}
                   onChange={(nextValue) =>
@@ -230,6 +251,9 @@ export function ProfileStepAcademic({
                     })
                   }
                   placeholder="Add subject(s)"
+                  maxSelected={1}
+                  hidePlaceholderWhenSelected
+                  creatable
                   disabled={disabled}
                 />
               </div>

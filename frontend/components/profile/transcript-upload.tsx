@@ -4,9 +4,18 @@ import * as React from "react"
 
 import type { TranscriptUploadResult } from "@/lib/profile-form-types"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadList,
+  FileUploadItem,
+  FileUploadItemMetadata,
+  FileUploadItemProgress,
+  FileUploadItemDelete,
+  useFileUpload,
+} from "@/components/ui/file-upload"
 
 export type TranscriptUploadFieldProps = {
   value?: TranscriptUploadResult | null
@@ -25,16 +34,28 @@ export function TranscriptUploadField({
   error,
   disabled = false,
 }: TranscriptUploadFieldProps) {
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
-
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+  const handleUpload = async (
+    files: File[],
+    handlers: {
+      onProgress: (file: File, progress: number) => void
+      onSuccess: (file: File) => void
+      onError: (file: File, error: Error) => void
+    }
   ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    await onUpload(file)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+    for (const file of files) {
+      try {
+        handlers.onProgress(file, 20)
+        await onUpload(file)
+        handlers.onProgress(file, 100)
+        handlers.onSuccess(file)
+      } catch (uploadError) {
+        handlers.onError(
+          file,
+          uploadError instanceof Error
+            ? uploadError
+            : new Error("Upload failed")
+        )
+      }
     }
   }
 
@@ -55,13 +76,25 @@ export function TranscriptUploadField({
           )}
         </div>
 
-        <Input
-          ref={fileInputRef}
-          type="file"
+        <FileUpload
           accept="application/pdf,image/jpeg,image/png"
-          onChange={handleFileChange}
+          maxFiles={1}
+          onUpload={handleUpload}
           disabled={disabled || uploading}
-        />
+        >
+          <FileUploadDropzone>
+            <div className="text-center">
+              <p className="text-sm font-medium">Drop a file here</p>
+              <p className="text-xs text-muted-foreground">
+                or click to browse
+              </p>
+            </div>
+          </FileUploadDropzone>
+
+          <FileUploadList>
+            <TranscriptUploadListItems />
+          </FileUploadList>
+        </FileUpload>
 
         {value ? (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
@@ -87,5 +120,23 @@ export function TranscriptUploadField({
         ) : null}
       </div>
     </Card>
+  )
+}
+
+function TranscriptUploadListItems() {
+  const files = useFileUpload((state) => Array.from(state.files.keys()))
+
+  return (
+    <>
+      {files.map((file) => (
+        <FileUploadItem key={file.name} value={file}>
+          <FileUploadItemMetadata />
+          <FileUploadItemProgress />
+          <FileUploadItemDelete className="ml-auto text-xs text-destructive" type="button">
+            Remove
+          </FileUploadItemDelete>
+        </FileUploadItem>
+      ))}
+    </>
   )
 }

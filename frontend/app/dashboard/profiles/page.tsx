@@ -10,14 +10,16 @@ import { profilesApi } from "@/lib/profile-api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 
 const statusVariant = (status: ProfileListResponse["status"]) => {
   switch (status) {
@@ -35,6 +37,9 @@ export default function ProfilesPage() {
   const [profiles, setProfiles] = React.useState<ProfileListResponse[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [search, setSearch] = React.useState("")
+  const [sortBy, setSortBy] = React.useState("updated_desc")
+  const [showActions, setShowActions] = React.useState(true)
 
   const loadProfiles = React.useCallback(async () => {
     try {
@@ -82,6 +87,31 @@ export default function ProfilesPage() {
     }
   }
 
+  const filteredProfiles = React.useMemo(() => {
+    const query = search.trim().toLowerCase()
+    const result = profiles.filter((profile) =>
+      profile.profile_name.toLowerCase().includes(query)
+    )
+
+    return result.sort((a, b) => {
+      switch (sortBy) {
+        case "name_asc":
+          return a.profile_name.localeCompare(b.profile_name)
+        case "name_desc":
+          return b.profile_name.localeCompare(a.profile_name)
+        case "created_asc":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        case "created_desc":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        case "updated_asc":
+          return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+        case "updated_desc":
+        default:
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      }
+    })
+  }, [profiles, search, sortBy])
+
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -99,75 +129,105 @@ export default function ProfilesPage() {
       </div>
 
       <Card className="p-4">
-        {loading ? (
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex min-w-50 flex-1 items-center gap-2">
+            <Label htmlFor="profile-search" className="text-xs text-muted-foreground">
+              Search
+            </Label>
+            <Input
+              id="profile-search"
+              placeholder="Search profiles"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-muted-foreground">Sort by</Label>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="updated_desc">Recently updated</SelectItem>
+                <SelectItem value="updated_asc">Least recently updated</SelectItem>
+                <SelectItem value="created_desc">Newest created</SelectItem>
+                <SelectItem value="created_asc">Oldest created</SelectItem>
+                <SelectItem value="name_asc">Name (A-Z)</SelectItem>
+                <SelectItem value="name_desc">Name (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-muted-foreground">Show actions</Label>
+            <Switch checked={showActions} onCheckedChange={setShowActions} />
+          </div>
+        </div>
+      </Card>
+
+      {loading ? (
+        <Card className="p-4">
           <p className="text-sm text-muted-foreground">Loading profiles...</p>
-        ) : error ? (
+        </Card>
+      ) : error ? (
+        <Card className="p-4">
           <p className="text-sm text-destructive">{error}</p>
-        ) : profiles.length === 0 ? (
+        </Card>
+      ) : filteredProfiles.length === 0 ? (
+        <Card className="p-4">
           <div className="rounded-md border border-dashed border-border p-8 text-center">
-            <p className="text-sm font-medium">No profiles yet</p>
+            <p className="text-sm font-medium">No profiles found</p>
             <p className="text-xs text-muted-foreground">
-              Create your first profile to begin receiving recommendations.
+              Try adjusting your search or create a new profile.
             </p>
           </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Profile</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {profiles.map((profile) => (
-                <TableRow key={profile.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {profile.profile_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Created {new Date(profile.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant(profile.status)}>
-                      {profile.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(profile.updated_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/dashboard/profiles/${profile.id}`}>
-                          View
-                        </Link>
-                      </Button>
-                      <Button size="sm" variant="ghost" asChild>
-                        <Link href={`/dashboard/profiles/${profile.id}/edit`}>
-                          Edit
-                        </Link>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => void handleDelete(profile.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {filteredProfiles.map((profile) => (
+            <Card key={profile.id} className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-foreground">
+                    {profile.profile_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Created {new Date(profile.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <Badge variant={statusVariant(profile.status)}>
+                  {profile.status}
+                </Badge>
+              </div>
+
+              <div className="mt-3 text-xs text-muted-foreground">
+                Updated {new Date(profile.updated_at).toLocaleDateString()}
+              </div>
+
+              {showActions ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/dashboard/profiles/${profile.id}`}>View</Link>
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
+                    <Link href={`/dashboard/profiles/${profile.id}/edit`}>
+                      Edit
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => void handleDelete(profile.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ) : null}
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
