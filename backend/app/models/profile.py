@@ -82,8 +82,14 @@ class Profile(Base):
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="profiles")
-    academic_record: Mapped[Optional["AcademicRecord"]] = relationship(back_populates="profile")
-    preferences: Mapped[Optional["StudentPreferences"]] = relationship(back_populates="profile")
+    academic_record: Mapped[Optional["AcademicRecord"]] = relationship(
+        back_populates="profile",
+        cascade="all, delete-orphan"
+    )
+    preferences: Mapped[Optional["StudentPreferences"]] = relationship(
+        back_populates="profile",
+        cascade="all, delete-orphan"
+    )
 
 
 class AcademicRecord(Base):
@@ -168,7 +174,10 @@ class AcademicRecord(Base):
 
     # Relationships
     profile: Mapped["Profile"] = relationship(back_populates="academic_record")
-    subject_grades: Mapped[list["SubjectGrade"]] = relationship(back_populates="academic_record")
+    subject_grades: Mapped[list["SubjectGrade"]] = relationship(
+        back_populates="academic_record",
+        cascade="all, delete-orphan"
+    )
 
 
 class SubjectGrade(Base):

@@ -37,6 +37,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app # Hot reload
+      - uploads_data:/app/uploads # Persistent file storage
     depends_on:
       db:
         condition: service_healthy
@@ -86,3 +87,4 @@ secrets:
 
 volumes:
   db_data:
+  uploads_data:

@@ -1,0 +1,89 @@
+"use client"
+
+import * as React from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@clerk/nextjs"
+import { toast } from "sonner"
+
+import type { ProfileFormData } from "@/lib/profile-form-types"
+import { profilesApi, uploadTranscript, deleteTranscript } from "@/lib/profile-api"
+import { buildProfileCreatePayload } from "@/lib/profile-mappers"
+import { useProfileWizardStore } from "@/stores/profile-wizard-store"
+import { ProfileWizard } from "@/components/profile/profile-wizard"
+import { Card } from "@/components/ui/card"
+
+export default function NewProfilePage() {
+  const router = useRouter()
+  const { getToken, isLoaded } = useAuth()
+  const [error, setError] = React.useState<string | null>(null)
+  const reset = useProfileWizardStore((state) => state.reset)
+
+  React.useEffect(() => {
+    reset()
+  }, [reset])
+
+  if (!isLoaded) {
+    return (
+      <Card className="p-4">
+        <p className="text-sm text-muted-foreground">Loading profile wizard...</p>
+      </Card>
+    )
+  }
+
+  const handleSubmit = async (data: ProfileFormData) => {
+    setError(null)
+    const token = await getToken()
+    if (!token) {
+      setError("Authentication required")
+      return
+    }
+
+    try {
+      const payload = buildProfileCreatePayload(data)
+      const profile = await profilesApi.create(token, payload)
+      toast.success("Profile created")
+      router.push(`/dashboard/profiles/${profile.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save profile")
+      toast.error(
+        err instanceof Error ? err.message : "Unable to save profile"
+      )
+    }
+  }
+
+  const handleUploadTranscript = async (file: File) => {
+    const token = await getToken()
+    if (!token) throw new Error("Authentication required")
+    return uploadTranscript(token, file)
+  }
+
+  const handleRemoveTranscript = async (value: { filename: string } | null) => {
+    const token = await getToken()
+    if (!token || !value) return
+    await deleteTranscript(token, value.filename)
+    toast.success("Transcript removed")
+  }
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <h1 className="text-2xl font-semibold text-foreground">New profile</h1>
+        <p className="text-sm text-muted-foreground">
+          Create a profile to personalize recommendations.
+        </p>
+      </div>
+
+      {error ? (
+        <Card className="border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+          {error}
+        </Card>
+      ) : null}
+
+      <ProfileWizard
+        onSubmit={handleSubmit}
+        onUploadTranscript={handleUploadTranscript}
+        onRemoveTranscript={handleRemoveTranscript}
+      />
+    </div>
+  )
+}

@@ -22,6 +22,15 @@ export function UserSync() {
           return;
         }
 
+        const syncKey = `sira:user-synced:${user.id}`;
+        if (typeof window !== "undefined") {
+          const alreadySynced = window.sessionStorage.getItem(syncKey);
+          if (alreadySynced) {
+            hasSynced.current = true;
+            return;
+          }
+        }
+
         await fetch(`${API_BASE_URL}/api/users/sync`, {
           method: "POST",
           headers: {
@@ -30,7 +39,10 @@ export function UserSync() {
           },
           body: JSON.stringify({ email: user.primaryEmailAddress?.emailAddress ?? null }),
         });
-        console.log("[UserSync] User synced successfully", token);
+
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(syncKey, "true");
+        }
         hasSynced.current = true;
       } catch {
         // Intentionally silent to avoid blocking the UI.

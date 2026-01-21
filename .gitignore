@@ -30,3 +30,4 @@ backend/.ruff_cache/
 *.DS_Store
 Thumbs.db
 bun.*
+uploads/

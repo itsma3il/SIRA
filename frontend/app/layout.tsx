@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { UserSync } from "@/components/user-sync";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Providers } from "./providers";
 
 const geistSans = Geist({
@@ -34,17 +35,18 @@ export default function RootLayout({
       >
         <Providers>
           <div className="container flex min-h-screen items-center justify-center">
-            <div className="relative w-full max-w-5xl sm:h-160 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_32px_80px_-52px_rgba(15,23,42,0.55)]">
-              <header className="flex items-center justify-between border-b border-border/70 bg-card/80 px-6 py-5 backdrop-blur sm:px-8">
+            <div className="relative w-full max-w-4xl sm:h-160 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_32px_80px_-52px_rgba(15,23,42,0.55)]">
+              <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-card/80 px-6 py-5 backdrop-blur sm:px-8">
                 <div className="flex items-center gap-3">
                   <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                     S
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                       SIRA
                     </p>
                     <p className="text-lg font-semibold text-foreground">Academic Intelligence</p>
+                    <Breadcrumbs />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

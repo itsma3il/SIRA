@@ -49,7 +49,7 @@ export default function Home() {
           ))}
         </div> */}
       </section>
-      <aside className="rounded-2xl border border-border/70 bg-muted/40 p-6 shadow-sm">
+      <aside className="rounded-2xl border border-border/70 bg-muted/40 p-4 shadow-sm">
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Recommendation Flow
