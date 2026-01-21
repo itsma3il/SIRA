@@ -3,7 +3,6 @@
 import type { ProfileStepProps, StudentPreferencesForm } from "@/lib/profile-form-types"
 import { FancyMultiSelect, type MultiSelectOption } from "@/components/fancy-multi-select"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -47,6 +46,25 @@ const hobbiesOptions = [
   "Sports",
   "Art",
 ]
+
+const geographyOptions = [
+  "Casablanca",
+  "Rabat",
+  "Marrakesh",
+  "Tangier",
+  "Fes",
+  "Agadir",
+]
+
+const parseSelection = (value?: string) =>
+  (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map(toOption)
+
+const joinSelection = (items: MultiSelectOption[]) =>
+  items.map((item) => item.label).join(", ")
 
 export function ProfileStepPreferences({
   value,
@@ -122,13 +140,16 @@ export function ProfileStepPreferences({
 
         <div className="grid gap-2">
           <Label htmlFor="geographic_preference">Geographic preference</Label>
-          <Input
-            id="geographic_preference"
-            placeholder="e.g., Casablanca, Rabat"
-            value={value.geographic_preference ?? ""}
-            onChange={(event) =>
-              onChange({ ...value, geographic_preference: event.target.value })
+          <FancyMultiSelect
+            options={mergeOptions(geographyOptions, value.geographic_preference)}
+            value={parseSelection(value.geographic_preference)}
+            onChange={(nextValue) =>
+              onChange({
+                ...value,
+                geographic_preference: joinSelection(nextValue),
+              })
             }
+            placeholder="Add locations"
             disabled={disabled}
           />
         </div>

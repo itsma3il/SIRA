@@ -6,11 +6,65 @@ import type {
   SubjectGradeForm,
   TranscriptUploadResult,
 } from "@/lib/profile-form-types"
+import { FancyMultiSelect, type MultiSelectOption } from "@/components/fancy-multi-select"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TranscriptUploadField } from "@/components/profile/transcript-upload"
+
+const toOption = (label: string): MultiSelectOption => ({
+  label,
+  value: label.toLowerCase().replace(/\s+/g, "-"),
+})
+
+const mergeOptions = (base: string[], current?: string) => {
+  const currentItems = current
+    ? current.split(",").map((item) => item.trim()).filter(Boolean)
+    : []
+  const merged = new Set([...base, ...currentItems])
+  return Array.from(merged).map((item) => toOption(item))
+}
+
+const parseSelection = (value?: string) =>
+  (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map(toOption)
+
+const joinSelection = (items: MultiSelectOption[]) =>
+  items.map((item) => item.label).join(", ")
+
+const statusOptions = [
+  "High School Senior",
+  "High School Graduate",
+  "Undergraduate",
+  "Graduate",
+  "Career Switcher",
+]
+
+const fieldOptions = [
+  "Sciences",
+  "Mathematics",
+  "Computer Science",
+  "Economics",
+  "Literature",
+  "Engineering",
+]
+
+const languageOptions = ["French", "English", "Arabic", "Spanish"]
+
+const subjectOptions = [
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science",
+  "Economics",
+  "Literature",
+  "History",
+]
 
 export type ProfileStepAcademicProps = ProfileStepProps<AcademicRecordForm> & {
   onAddSubjectGrade: () => void
@@ -42,13 +96,16 @@ export function ProfileStepAcademic({
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="current_status">Current status</Label>
-            <Input
-              id="current_status"
-              placeholder="e.g., High School Senior"
-              value={value.current_status ?? ""}
-              onChange={(event) =>
-                onChange({ ...value, current_status: event.target.value })
+            <FancyMultiSelect
+              options={mergeOptions(statusOptions, value.current_status)}
+              value={parseSelection(value.current_status)}
+              onChange={(nextValue) =>
+                onChange({
+                  ...value,
+                  current_status: joinSelection(nextValue),
+                })
               }
+              placeholder="Select status"
               disabled={disabled}
             />
           </div>
@@ -68,13 +125,16 @@ export function ProfileStepAcademic({
 
           <div className="grid gap-2">
             <Label htmlFor="current_field">Current field</Label>
-            <Input
-              id="current_field"
-              placeholder="e.g., علوم تجريبية"
-              value={value.current_field ?? ""}
-              onChange={(event) =>
-                onChange({ ...value, current_field: event.target.value })
+            <FancyMultiSelect
+              options={mergeOptions(fieldOptions, value.current_field)}
+              value={parseSelection(value.current_field)}
+              onChange={(nextValue) =>
+                onChange({
+                  ...value,
+                  current_field: joinSelection(nextValue),
+                })
               }
+              placeholder="Select field(s)"
               disabled={disabled}
             />
           </div>
@@ -101,13 +161,16 @@ export function ProfileStepAcademic({
 
           <div className="grid gap-2">
             <Label htmlFor="language_preference">Language preference</Label>
-            <Input
-              id="language_preference"
-              placeholder="e.g., French, English"
-              value={value.language_preference ?? ""}
-              onChange={(event) =>
-                onChange({ ...value, language_preference: event.target.value })
+            <FancyMultiSelect
+              options={mergeOptions(languageOptions, value.language_preference)}
+              value={parseSelection(value.language_preference)}
+              onChange={(nextValue) =>
+                onChange({
+                  ...value,
+                  language_preference: joinSelection(nextValue),
+                })
               }
+              placeholder="Select language(s)"
               disabled={disabled}
             />
           </div>
@@ -157,16 +220,16 @@ export function ProfileStepAcademic({
             >
               <div className="grid gap-2">
                 <Label htmlFor={`subject_name_${index}`}>Subject name</Label>
-                <Input
-                  id={`subject_name_${index}`}
-                  placeholder="e.g., Mathematics"
-                  value={grade.subject_name}
-                  onChange={(event) =>
+                <FancyMultiSelect
+                  options={mergeOptions(subjectOptions, grade.subject_name)}
+                  value={parseSelection(grade.subject_name)}
+                  onChange={(nextValue) =>
                     onUpdateSubjectGrade(index, {
                       ...grade,
-                      subject_name: event.target.value,
+                      subject_name: joinSelection(nextValue),
                     })
                   }
+                  placeholder="Add subject(s)"
                   disabled={disabled}
                 />
               </div>
