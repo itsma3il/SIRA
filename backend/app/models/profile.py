@@ -14,6 +14,7 @@ from app.db import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.recommendation import Recommendation
 
 
 class Profile(Base):
@@ -87,6 +88,10 @@ class Profile(Base):
         cascade="all, delete-orphan"
     )
     preferences: Mapped[Optional["StudentPreferences"]] = relationship(
+        back_populates="profile",
+        cascade="all, delete-orphan"
+    )
+    recommendations: Mapped[list["Recommendation"]] = relationship(
         back_populates="profile",
         cascade="all, delete-orphan"
     )

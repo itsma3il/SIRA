@@ -16,6 +16,14 @@ from app.schemas.profile import (
     SubjectGradeUpdate,
     SubjectGradeResponse,
 )
+from app.schemas.recommendation import (
+    RecommendationCreate,
+    RecommendationFeedback,
+    RecommendationResponse,
+    RecommendationList,
+    RetrievedProgram,
+    StreamChunk,
+)
 
 __all__ = [
     "UserSyncRequest",
@@ -34,4 +42,10 @@ __all__ = [
     "SubjectGradeCreate",
     "SubjectGradeUpdate",
     "SubjectGradeResponse",
+    "RecommendationCreate",
+    "RecommendationFeedback",
+    "RecommendationResponse",
+    "RecommendationList",
+    "RetrievedProgram",
+    "StreamChunk",
 ]

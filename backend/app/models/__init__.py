@@ -2,6 +2,7 @@
 from app.models.user import User
 from app.models.profile import AcademicRecord, Profile, StudentPreferences, SubjectGrade
 from app.models.document import Document
+from app.models.recommendation import Recommendation
 
 __all__ = [
     "User",
@@ -10,4 +11,5 @@ __all__ = [
     "SubjectGrade",
     "StudentPreferences",
     "Document",
+    "Recommendation",
 ]
