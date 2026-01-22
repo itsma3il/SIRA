@@ -1,0 +1,192 @@
+[
+  {
+    "university": "Mohammed VI Polytechnic University (UM6P)",
+    "program_name": "Bachelor of Science in Computer Science",
+    "degree_type": "Bachelor",
+    "duration_years": 3,
+    "tuition_fee_mad": 80000,
+    "location": "Benguerir, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Computer Science",
+    "language_of_instruction": "English",
+    "requirements": {
+      "min_gpa": 14.0,
+      "required_subjects": ["Mathematics", "Physics", "Computer Science"]
+    },
+    "description": "The Bachelor of Science in Computer Science at UM6P provides comprehensive training in software development, algorithms, data structures, artificial intelligence, and cybersecurity. The program combines theoretical foundations with practical projects.",
+    "career_paths": ["Software Engineer", "Data Scientist", "AI/ML Engineer", "Cybersecurity Analyst"],
+    "admission_rate_percentage": 25,
+    "scholarships_available": true
+  },
+  {
+    "university": "Al Akhawayn University",
+    "program_name": "Bachelor of Science in Computer Science",
+    "degree_type": "Bachelor",
+    "duration_years": 4,
+    "tuition_fee_mad": 95000,
+    "location": "Ifrane, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Computer Science",
+    "language_of_instruction": "English",
+    "requirements": {
+      "min_gpa": 13.0,
+      "required_subjects": ["Mathematics", "English"]
+    },
+    "description": "American-style liberal arts computer science program with emphasis on software engineering, data science, and human-computer interaction. ABET accredited program with strong industry connections.",
+    "career_paths": ["Software Developer", "Systems Analyst", "Database Administrator", "IT Consultant"],
+    "admission_rate_percentage": 40,
+    "scholarships_available": true
+  },
+  {
+    "university": "École Mohammadia d'Ingénieurs (EMI)",
+    "program_name": "Diplôme d'Ingénieur en Génie Informatique",
+    "degree_type": "Engineering",
+    "duration_years": 5,
+    "tuition_fee_mad": 5000,
+    "location": "Rabat, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Computer Engineering",
+    "language_of_instruction": "French",
+    "requirements": {
+      "min_gpa": 16.0,
+      "required_subjects": ["Mathematics", "Physics", "Chemistry"]
+    },
+    "description": "Prestigious public engineering school offering rigorous computer engineering education. Highly competitive admission based on national exam (CNC). Strong focus on mathematics and systems engineering.",
+    "career_paths": ["Systems Engineer", "Network Architect", "Embedded Systems Developer", "Research Engineer"],
+    "admission_rate_percentage": 5,
+    "scholarships_available": false
+  },
+  {
+    "university": "ENSIAS",
+    "program_name": "Diplôme d'Ingénieur en Génie Logiciel",
+    "degree_type": "Engineering",
+    "duration_years": 5,
+    "tuition_fee_mad": 3000,
+    "location": "Rabat, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Software Engineering",
+    "language_of_instruction": "French",
+    "requirements": {
+      "min_gpa": 15.5,
+      "required_subjects": ["Mathematics", "Physics"]
+    },
+    "description": "National school of computer science offering software engineering specialization. Strong curriculum in software architecture, project management, and quality assurance.",
+    "career_paths": ["Software Architect", "DevOps Engineer", "Quality Assurance Engineer", "Scrum Master"],
+    "admission_rate_percentage": 8,
+    "scholarships_available": false
+  },
+  {
+    "university": "INPT",
+    "program_name": "Diplôme d'Ingénieur en Télécommunications et Réseaux",
+    "degree_type": "Engineering",
+    "duration_years": 3,
+    "tuition_fee_mad": 4000,
+    "location": "Rabat, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Telecommunications",
+    "language_of_instruction": "French",
+    "requirements": {
+      "min_gpa": 15.0,
+      "required_subjects": ["Mathematics", "Physics"]
+    },
+    "description": "Specialized engineering education in telecommunications, networks, and cybersecurity. Strong partnerships with Maroc Telecom and international tech companies.",
+    "career_paths": ["Network Engineer", "Telecom Engineer", "Security Specialist", "IoT Engineer"],
+    "admission_rate_percentage": 10,
+    "scholarships_available": true
+  },
+  {
+    "university": "ENSET Mohammedia",
+    "program_name": "Licence Professionnelle en Développement Web et Mobile",
+    "degree_type": "Bachelor",
+    "duration_years": 3,
+    "tuition_fee_mad": 2000,
+    "location": "Mohammedia, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Web Development",
+    "language_of_instruction": "French",
+    "requirements": {
+      "min_gpa": 12.0,
+      "required_subjects": ["Mathematics"]
+    },
+    "description": "Practical professional bachelor's degree focused on modern web technologies (React, Node.js, Flutter) and mobile app development. Includes 6-month industry internship.",
+    "career_paths": ["Full-Stack Developer", "Mobile Developer", "Frontend Developer", "UI/UX Developer"],
+    "admission_rate_percentage": 30,
+    "scholarships_available": false
+  },
+  {
+    "university": "Université Internationale de Rabat (UIR)",
+    "program_name": "Bachelor in Data Science and AI",
+    "degree_type": "Bachelor",
+    "duration_years": 3,
+    "tuition_fee_mad": 75000,
+    "location": "Rabat, Morocco",
+    "field": "Data Science and AI",
+    "subfield": "Artificial Intelligence",
+    "language_of_instruction": "English",
+    "requirements": {
+      "min_gpa": 13.5,
+      "required_subjects": ["Mathematics", "Computer Science"]
+    },
+    "description": "Modern data science program covering machine learning, deep learning, big data technologies, and AI ethics. Hands-on projects with real datasets and industry collaboration.",
+    "career_paths": ["Data Analyst", "Machine Learning Engineer", "Business Intelligence Analyst", "AI Researcher"],
+    "admission_rate_percentage": 35,
+    "scholarships_available": true
+  },
+  {
+    "university": "HEM Business School",
+    "program_name": "Bachelor in Digital Marketing and E-Business",
+    "degree_type": "Bachelor",
+    "duration_years": 3,
+    "tuition_fee_mad": 60000,
+    "location": "Casablanca, Morocco",
+    "field": "Business and Management",
+    "subfield": "Digital Marketing",
+    "language_of_instruction": "French/English",
+    "requirements": {
+      "min_gpa": 12.0,
+      "required_subjects": ["None specific"]
+    },
+    "description": "Business degree focused on digital transformation, social media marketing, SEO/SEM, e-commerce, and data analytics. Combines business strategy with technical skills.",
+    "career_paths": ["Digital Marketing Manager", "SEO Specialist", "Social Media Manager", "E-commerce Manager"],
+    "admission_rate_percentage": 50,
+    "scholarships_available": true
+  },
+  {
+    "university": "ENSA Marrakech",
+    "program_name": "Cycle Ingénieur en Génie Informatique",
+    "degree_type": "Engineering",
+    "duration_years": 5,
+    "tuition_fee_mad": 3500,
+    "location": "Marrakech, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Computer Science",
+    "language_of_instruction": "French",
+    "requirements": {
+      "min_gpa": 14.5,
+      "required_subjects": ["Mathematics", "Physics"]
+    },
+    "description": "Public engineering school providing solid foundation in computer science, software engineering, and embedded systems. Affordable tuition with quality education.",
+    "career_paths": ["Software Engineer", "Systems Developer", "Embedded Engineer", "IT Project Manager"],
+    "admission_rate_percentage": 12,
+    "scholarships_available": false
+  },
+  {
+    "university": "Mundiapolis University",
+    "program_name": "Bachelor in Cybersecurity",
+    "degree_type": "Bachelor",
+    "duration_years": 3,
+    "tuition_fee_mad": 70000,
+    "location": "Casablanca, Morocco",
+    "field": "Engineering and Technology",
+    "subfield": "Cybersecurity",
+    "language_of_instruction": "English/French",
+    "requirements": {
+      "min_gpa": 13.0,
+      "required_subjects": ["Mathematics", "Computer Science"]
+    },
+    "description": "Specialized cybersecurity program covering network security, ethical hacking, cryptography, and digital forensics. Prepares for industry certifications (CEH, CISSP).",
+    "career_paths": ["Cybersecurity Analyst", "Penetration Tester", "Security Consultant", "SOC Analyst"],
+    "admission_rate_percentage": 40,
+    "scholarships_available": true
+  }
+]

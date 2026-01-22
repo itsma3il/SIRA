@@ -35,9 +35,9 @@ export default function RootLayout({
       >
         <Providers>
           <div className="container flex min-h-screen items-center justify-center">
-            <div className="relative w-full max-w-4xl min-h-screen sm:h-160 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_32px_80px_-52px_rgba(15,23,42,0.55)]">
+            <div className="relative w-full max-w-5xl min-h-screen sm:min-h-160 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_32px_80px_-52px_rgba(15,23,42,0.55)]">
               <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-card/80 px-6 py-5 backdrop-blur sm:px-8">
-                <div className="flex flex-col items-center justify-start gap-3">
+                <div className="flex items-center justify-start gap-3">
                   <div className="space-y-1 flex items-center gap-2">
                     <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                       S

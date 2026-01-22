@@ -1,0 +1,61 @@
+{
+  "university": "Mohammed VI Polytechnic University (UM6P)",
+  "program_name": "Bachelor of Science in Computer Science",
+  "degree_type": "Bachelor",
+  "duration_years": 3,
+  "tuition_fee_mad": 80000,
+  "location": "Benguerir, Morocco",
+  "field": "Engineering and Technology",
+  "subfield": "Computer Science",
+  "language_of_instruction": "English",
+  "requirements": {
+    "min_gpa": 14.0,
+    "required_subjects": ["Mathematics", "Physics", "Computer Science"],
+    "language_requirements": {
+      "english": "TOEFL 80+ or IELTS 6.0+",
+      "french": "Not required"
+    },
+    "entrance_exam": "Yes",
+    "application_deadline": "June 30"
+  },
+  "description": "The Bachelor of Science in Computer Science at UM6P provides comprehensive training in software development, algorithms, data structures, artificial intelligence, and cybersecurity. The program combines theoretical foundations with practical projects, preparing students for careers in technology companies, research institutions, and startups. Students benefit from modern facilities, industry partnerships, and a multicultural environment.",
+  "curriculum_overview": {
+    "year_1": "Fundamentals: Programming (Python, Java), Mathematics, Physics, Digital Systems",
+    "year_2": "Core CS: Data Structures, Algorithms, Databases, Operating Systems, Computer Networks",
+    "year_3": "Specialization: AI/Machine Learning, Cybersecurity, Software Engineering, Capstone Project"
+  },
+  "career_paths": [
+    "Software Engineer",
+    "Data Scientist",
+    "AI/ML Engineer",
+    "Cybersecurity Analyst",
+    "Full-Stack Developer",
+    "Research Scientist"
+  ],
+  "admission_rate_percentage": 25,
+  "international_students_accepted": true,
+  "scholarships_available": true,
+  "scholarship_details": "Merit-based scholarships covering up to 50% of tuition fees. Need-based financial aid available.",
+  "accreditation": "Moroccan Ministry of Higher Education",
+  "contact_info": {
+    "website": "https://um6p.ma",
+    "email": "admissions@um6p.ma",
+    "phone": "+212 5243-09000"
+  },
+  "notable_features": [
+    "State-of-the-art campus and facilities",
+    "Strong industry partnerships with OCP Group, Microsoft, IBM",
+    "Research opportunities in AI and renewable energy",
+    "English-medium instruction",
+    "International faculty",
+    "Entrepreneurship support and incubators"
+  ],
+  "program_outcomes": "Graduates will be able to design, implement, and analyze computer systems and software solutions. They will possess strong problem-solving skills, understanding of ethical and social implications of technology, and ability to work in multidisciplinary teams.",
+  "additional_costs": {
+    "accommodation_mad_per_year": 25000,
+    "books_and_supplies_mad_per_year": 3000,
+    "estimated_living_expenses_mad_per_year": 20000
+  },
+  "source": "UM6P Official Catalog 2026",
+  "last_updated": "2026-01-20"
+}

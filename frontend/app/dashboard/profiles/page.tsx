@@ -206,7 +206,7 @@ export default function ProfilesPage() {
               </div>
 
               {showActions ? (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" asChild>
                     <Link href={`/dashboard/profiles/${profile.id}`}>View</Link>
                   </Button>
