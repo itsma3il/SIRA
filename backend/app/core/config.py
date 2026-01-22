@@ -7,7 +7,11 @@ class Settings(BaseSettings):
     app_name: str = "SIRA API"
     environment: str = "development"
     database_url: str = "postgresql+psycopg2://postgres:postgres@db:5432/sira"
+    
+    # Clerk Authentication
     clerk_jwks_url: str | None = None
+    clerk_frontend_api: str | None = None
+    
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     
     # Pinecone Configuration

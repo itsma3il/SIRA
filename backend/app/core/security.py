@@ -20,6 +20,7 @@ _JWKS_TTL_SECONDS = 3600
 
 
 def _get_bearer_token(request: Request) -> str:
+    """Extract Bearer token from Authorization header."""
     auth_header = request.headers.get("authorization")
     if not auth_header:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authorization header")
@@ -27,6 +28,33 @@ def _get_bearer_token(request: Request) -> str:
     if scheme.lower() != "bearer" or not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authorization header")
     return token
+
+
+def _get_bearer_token_flexible(request: Request) -> str:
+    """Extract Bearer token from Authorization header OR query parameter.
+    
+    This is necessary for Server-Sent Events (EventSource) which doesn't support
+    custom headers. For security:
+    - Query param tokens should be short-lived
+    - Only use this for SSE endpoints
+    - Regular endpoints should use header-only authentication
+    """
+    # Try header first (preferred)
+    auth_header = request.headers.get("authorization")
+    if auth_header:
+        scheme, _, token = auth_header.partition(" ")
+        if scheme.lower() == "bearer" and token:
+            return token
+    
+    # Fallback to query parameter for EventSource compatibility
+    token = request.query_params.get("token")
+    if token:
+        return token
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, 
+        detail="Missing authentication token. Provide via Authorization header or 'token' query parameter."
+    )
 
 
 async def _get_jwks() -> dict[str, Any]:
@@ -48,24 +76,67 @@ async def _get_jwks() -> dict[str, Any]:
 
 
 async def get_token_claims(request: Request) -> dict[str, Any]:
+    """Validate JWT token from Authorization header and return claims."""
     token = _get_bearer_token(request)
     jwks = await _get_jwks()
-    header = jwt.get_unverified_header(token)
-    kid = header.get("kid")
-    keys = jwks.get("keys", [])
-    key = next((item for item in keys if item.get("kid") == kid), None)
-    if not key:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token key")
+    settings = get_settings()
 
     try:
-        return jwt.decode(
-            token,
-            key,
-            algorithms=["RS256"],
-            options={"verify_aud": False},
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        if not kid:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing key ID in token")
+
+        key = next((k for k in jwks.get("keys", []) if k["kid"] == kid), None)
+        if not key:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid key ID")
+
+        # Decode with optional audience verification
+        decode_options = {"verify_aud": False} if not settings.clerk_frontend_api else {}
+        claims = jwt.decode(
+            token, 
+            key, 
+            algorithms=["RS256"], 
+            audience=settings.clerk_frontend_api,
+            options=decode_options
         )
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
+        return claims
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Token validation failed: {str(e)}")
+
+
+async def get_token_claims_flexible(request: Request) -> dict[str, Any]:
+    """Validate JWT token from Authorization header OR query parameter.
+    
+    Use this ONLY for Server-Sent Events endpoints that can't send custom headers.
+    Regular endpoints should use get_token_claims() which only accepts header tokens.
+    """
+    token = _get_bearer_token_flexible(request)
+    jwks = await _get_jwks()
+    settings = get_settings()
+    
+    try:
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        if not kid:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing key ID in token")
+
+        key = next((k for k in jwks.get("keys", []) if k["kid"] == kid), None)
+        if not key:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid key ID")
+
+        # Decode with optional audience verification
+        decode_options = {"verify_aud": False} if not settings.clerk_frontend_api else {}
+        claims = jwt.decode(
+            token, 
+            key, 
+            algorithms=["RS256"], 
+            audience=settings.clerk_frontend_api,
+            options=decode_options
+        )
+        return claims
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Token validation failed: {str(e)}")
 
 
 def extract_email_from_claims(claims: dict[str, Any]) -> str | None:
@@ -80,6 +151,24 @@ async def get_current_user(
     session: Session = Depends(get_session),
     claims: dict[str, Any] = Depends(get_token_claims),
 ) -> User:
+    """Get current authenticated user from JWT token in Authorization header."""
+    clerk_user_id = claims.get("sub")
+    if not clerk_user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing subject in token")
+    user = get_user_by_clerk_id(session, clerk_user_id=clerk_user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not synced")
+    return user
+
+
+async def get_current_user_flexible(
+    session: Session = Depends(get_session),
+    claims: dict[str, Any] = Depends(get_token_claims_flexible),
+) -> User:
+    """Get current authenticated user from JWT token in header OR query parameter.
+    
+    Use this ONLY for Server-Sent Events endpoints that cannot send custom headers.
+    """
     clerk_user_id = claims.get("sub")
     if not clerk_user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing subject in token")

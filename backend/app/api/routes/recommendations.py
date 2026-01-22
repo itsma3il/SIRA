@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_current_user_flexible
 from app.db import session_scope
 from app.models.user import User
 from app.repositories import profile_repository
@@ -93,6 +93,11 @@ async def stream_recommendation(
     allowing for real-time UI updates.
     
     The response is saved to the database after streaming completes.
+    
+    Note: Uses standard Authorization header authentication (secure).
+    
+    Note: Accepts authentication token via query parameter due to EventSource
+    limitations (cannot set custom headers). Token should be short-lived.
     """
     # Verify profile belongs to user
     profile = profile_repository.get_by_id(session, profile_id)
