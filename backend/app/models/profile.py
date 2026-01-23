@@ -95,6 +95,11 @@ class Profile(Base):
         back_populates="profile",
         cascade="all, delete-orphan"
     )
+    conversation_sessions = relationship(
+        "ConversationSession",
+        back_populates="profile"
+        # NO CASCADE: Let database SET NULL handle this (sessions can exist without profiles)
+    )
 
 
 class AcademicRecord(Base):

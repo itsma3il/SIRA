@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { FeedbackModal } from "@/components/feedback-modal";
+import { Markdown } from "@/components/prompt-kit/markdown";
 
 interface RecommendationCardProps {
   recommendation: Recommendation;
@@ -93,12 +94,11 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
         )}
 
         {/* Recommendation Preview */}
-        <div className="prose prose-sm max-w-none dark:prose-invert">
-          <div className="whitespace-pre-wrap">
-            {recommendation.ai_response.slice(0, 300)}
-            {recommendation.ai_response.length > 300 && "..."}
-          </div>
-        </div>
+        <Markdown className="prose prose-sm max-w-none dark:prose-invert">
+          {recommendation.ai_response.length > 300
+            ? `${recommendation.ai_response.slice(0, 300)}...`
+            : recommendation.ai_response}
+        </Markdown>
 
         {/* Expandable Full Content */}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
@@ -118,8 +118,10 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-4">
-            <div className="prose prose-sm max-w-none dark:prose-invert rounded-lg border p-4">
-              <div className="whitespace-pre-wrap">{recommendation.ai_response}</div>
+            <div className="rounded-lg border p-4">
+              <Markdown className="prose prose-sm max-w-none dark:prose-invert">
+                {recommendation.ai_response}
+              </Markdown>
             </div>
           </CollapsibleContent>
         </Collapsible>

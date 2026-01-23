@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, users, profiles, upload, recommendations
+from app.api.routes import health, users, profiles, upload, recommendations, conversations
 from app.db import init_db
 from app.core.config import get_settings
 
@@ -27,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(profiles.router, prefix="/api")
     app.include_router(upload.router, prefix="/api")
     app.include_router(recommendations.router, prefix="/api")
+    app.include_router(conversations.router)
 
     @app.get("/")
     async def root() -> dict[str, str]:

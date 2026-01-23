@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,17 +7,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const homeCards = [
   {
     title: "Profiles",
-    description: "Multi-step wizard with drafts, Clerk-secured.",
+    description: "Draft-first wizard powered by TanStack Form and Clerk auth.",
   },
   {
-    title: "RAG Engine",
-    description: "Hybrid semantic + keyword search via Pinecone.",
+    title: "Hybrid RAG",
+    description: "Semantic + keyword retrieval with Pinecone and Mistral.",
   },
   {
-    title: "Insights",
-    description: "Match scores and timelines ready for Chart.js.",
-  }
-]
+    title: "Explainability",
+    description: "Match scores, difficulty, and citations ready for review.",
+  },
+];
 
 export default function Home() {
   return (
@@ -32,12 +34,14 @@ export default function Home() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button size="lg">Start a profile</Button>
-          <Button size="lg" variant="outline">
-            Explore recommendations
+          <Button asChild size="lg">
+            <Link href="/dashboard/profiles/new">Start a profile</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/dashboard/chat">Explore recommendations</Link>
           </Button>
         </div>
-        {/* <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {homeCards.map((card) => (
             <div
               key={card.title}
@@ -47,7 +51,7 @@ export default function Home() {
               <p className="mt-2 text-sm text-muted-foreground">{card.description}</p>
             </div>
           ))}
-        </div> */}
+        </div>
       </section>
       <aside className="rounded-2xl border border-border/70 bg-muted/40 p-4 shadow-sm">
         <div className="space-y-3">

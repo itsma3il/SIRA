@@ -18,9 +18,15 @@ class RetrievedProgram(BaseModel):
 
 
 class RecommendationCreate(BaseModel):
-    """Schema for creating a new recommendation."""
+    """
+    Schema for creating a new recommendation.
+    
+    Note: Both profile_id and session_id are required.
+    Recommendations MUST be linked to both a profile and a chat session.
+    """
     
     profile_id: UUID
+    session_id: UUID
 
 
 class RecommendationFeedback(BaseModel):
@@ -35,6 +41,7 @@ class RecommendationResponse(BaseModel):
     
     id: UUID
     profile_id: UUID
+    session_id: UUID  # Always present - recommendations are always linked to a session
     query: str
     retrieved_context: Optional[List[Dict[str, Any]]] = None
     ai_response: str

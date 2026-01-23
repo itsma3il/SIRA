@@ -38,11 +38,12 @@ class RecommendationService:
     async def generate_recommendation(
         self,
         profile_id: UUID,
+        session_id: UUID,
         top_k: int = 5,
         use_fallback: bool = True
     ) -> Recommendation:
         """
-        Generate a complete recommendation for a student profile.
+        Generate a complete recommendation for a student profile within a session.
         
         This is the main entry point that orchestrates the full RAG pipeline:
         1. Load profile from database
@@ -51,10 +52,11 @@ class RecommendationService:
         4. Construct prompt with profile + context
         5. Call LLM to generate recommendations
         6. Parse and structure response
-        7. Save to database
+        7. Save to database with session_id linkage
         
         Args:
             profile_id: UUID of the student profile
+            session_id: UUID of the conversation session
             top_k: Number of programs to retrieve
             use_fallback: Whether to use fallback retrieval strategy
             
@@ -62,10 +64,10 @@ class RecommendationService:
             Saved Recommendation object
             
         Raises:
-            ValueError: If profile not found or invalid
+            ValueError: If profile or session not found or invalid
             RuntimeError: If LLM call fails
         """
-        logger.info(f"Generating recommendation for profile {profile_id}")
+        logger.info(f"Generating recommendation for profile {profile_id} in session {session_id}")
         
         # Step 1: Load profile
         with session_scope() as db:
@@ -113,10 +115,11 @@ class RecommendationService:
             for p in programs
         ]
         
-        # Step 7: Save to database
+        # Step 7: Save to database with session_id
         with session_scope() as db:
             recommendation = Recommendation(
                 profile_id=profile_id,
+                session_id=session_id,  # REQUIRED: Link to conversation session
                 query=query_text,
                 retrieved_context=retrieved_context,
                 ai_response=ai_response,
@@ -126,7 +129,7 @@ class RecommendationService:
             db.commit()
             db.refresh(recommendation)
             
-            logger.info(f"Saved recommendation {recommendation.id}")
+            logger.info(f"Saved recommendation {recommendation.id} for session {session_id}")
             return recommendation
     
     async def _call_llm(self, user_prompt: str) -> str:
@@ -159,24 +162,26 @@ class RecommendationService:
     async def stream_recommendation(
         self,
         profile_id: UUID,
+        session_id: UUID,
         top_k: int = 5,
         use_fallback: bool = True
     ) -> AsyncGenerator[str, None]:
         """
-        Generate recommendation with streaming response.
+        Generate recommendation with streaming response within a session.
         
         This method yields chunks of the LLM response as they're generated,
         allowing for real-time UI updates.
         
         Args:
             profile_id: UUID of the student profile
+            session_id: UUID of the conversation session
             top_k: Number of programs to retrieve
             use_fallback: Whether to use fallback retrieval strategy
             
         Yields:
             Chunks of the LLM response text
         """
-        logger.info(f"Streaming recommendation for profile {profile_id}")
+        logger.info(f"Streaming recommendation for profile {profile_id} in session {session_id}")
         
         # Steps 1-4: Same as generate_recommendation
         with session_scope() as db:
@@ -221,7 +226,7 @@ class RecommendationService:
             logger.error(f"Streaming failed: {str(e)}")
             raise RuntimeError(f"Failed to stream recommendation: {str(e)}")
         
-        # Step 6-7: Save after streaming completes
+        # Step 6-7: Save after streaming completes with session_id
         ai_response = "".join(full_response)
         structured_data = parse_json_from_response(ai_response)
         
@@ -239,6 +244,7 @@ class RecommendationService:
         with session_scope() as db:
             recommendation = Recommendation(
                 profile_id=profile_id,
+                session_id=session_id,  # REQUIRED: Link to conversation session
                 query=query_text,
                 retrieved_context=retrieved_context,
                 ai_response=ai_response,
@@ -246,7 +252,7 @@ class RecommendationService:
             )
             db.add(recommendation)
             db.commit()
-            logger.info(f"Saved streamed recommendation {recommendation.id}")
+            logger.info(f"Saved streamed recommendation {recommendation.id} for session {session_id}")
     
     def get_recommendations_by_profile(
         self,

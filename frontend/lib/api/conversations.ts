@@ -1,0 +1,202 @@
+/**
+ * API client for conversation endpoints
+ */
+
+import type {
+  SessionResponse,
+  SessionListResponse,
+  SessionDetailResponse,
+  MessagePairResponse,
+  RecommendationGenerationResponse,
+  SessionCreate,
+  SessionUpdate,
+  MessageCreate,
+} from "@/lib/types/conversation";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+/**
+ * Create new conversation session
+ */
+export async function createSession(
+  token: string,
+  data: SessionCreate
+): Promise<SessionResponse> {
+  const response = await fetch(`${API_BASE}/api/conversations/sessions`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to create session: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * List user's conversation sessions
+ */
+export async function listSessions(
+  token: string,
+  params?: {
+    profile_id?: string;
+    status?: string;
+    limit?: number;
+  }
+): Promise<SessionListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params?.profile_id) queryParams.set("profile_id", params.profile_id);
+  if (params?.status) queryParams.set("status", params.status);
+  if (params?.limit) queryParams.set("limit", params.limit.toString());
+
+  const url = `${API_BASE}/api/conversations/sessions${
+    queryParams.toString() ? `?${queryParams}` : ""
+  }`;
+
+  const response = await fetch(url, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to list sessions: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get session details with messages
+ */
+export async function getSession(
+  token: string,
+  sessionId: string
+): Promise<SessionDetailResponse> {
+  const response = await fetch(
+    `${API_BASE}/api/conversations/sessions/${sessionId}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to get session: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update session title or status
+ */
+export async function updateSession(
+  token: string,
+  sessionId: string,
+  data: SessionUpdate
+): Promise<SessionResponse> {
+  const response = await fetch(
+    `${API_BASE}/api/conversations/sessions/${sessionId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to update session: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete session
+ */
+export async function deleteSession(
+  token: string,
+  sessionId: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE}/api/conversations/sessions/${sessionId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to delete session: ${error}`);
+  }
+}
+
+/**
+ * Send message and get AI response
+ */
+export async function sendMessage(
+  token: string,
+  sessionId: string,
+  data: MessageCreate
+): Promise<MessagePairResponse> {
+  const response = await fetch(
+    `${API_BASE}/api/conversations/sessions/${sessionId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to send message: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Generate initial recommendation for session
+ */
+export async function generateRecommendation(
+  token: string,
+  sessionId: string
+): Promise<RecommendationGenerationResponse> {
+  const response = await fetch(
+    `${API_BASE}/api/conversations/sessions/${sessionId}/recommend`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to generate recommendation: ${error}`);
+  }
+
+  return response.json();
+}

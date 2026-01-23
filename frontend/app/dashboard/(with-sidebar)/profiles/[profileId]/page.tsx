@@ -1,108 +1,107 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
-import { useAuth } from "@clerk/nextjs"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
-import type { ProfileResponse } from "@/lib/profile-api-types"
-import { profilesApi } from "@/lib/profile-api"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import type { ProfileResponse } from "@/lib/profile-api-types";
+import { profilesApi } from "@/lib/profile-api";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const statusVariant = (status: ProfileResponse["status"]) => {
   switch (status) {
     case "active":
-      return "secondary"
+      return "secondary";
     case "archived":
-      return "outline"
+      return "outline";
     default:
-      return "default"
+      return "default";
   }
-}
+};
 
 export default function ProfileDetailPage() {
-  const params = useParams<{ profileId: string }>()
-  const profileId = params.profileId
-  const router = useRouter()
-  const { getToken, isLoaded } = useAuth()
-  const [profile, setProfile] = React.useState<ProfileResponse | null>(null)
-  const [loading, setLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
+  const params = useParams<{ profileId: string }>();
+  const profileId = params.profileId;
+  const router = useRouter();
+  const { getToken, isLoaded } = useAuth();
+  const [profile, setProfile] = React.useState<ProfileResponse | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   const loadProfile = React.useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const token = await getToken()
+      setLoading(true);
+      setError(null);
+      const token = await getToken();
       if (!token) {
-        setError("Authentication required")
-        return
+        setError("Authentication required");
+        return;
       }
-      const data = await profilesApi.get(token, profileId)
-      setProfile(data)
+      const data = await profilesApi.get(token, profileId);
+      setProfile(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to load profile")
+      setError(err instanceof Error ? err.message : "Unable to load profile");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [getToken, profileId])
+  }, [getToken, profileId]);
 
   React.useEffect(() => {
-    if (!isLoaded) return
-    void loadProfile()
-  }, [isLoaded, loadProfile])
+    if (!isLoaded) return;
+    void loadProfile();
+  }, [isLoaded, loadProfile]);
 
   const handleDelete = async () => {
-    if (!profile) return
+    if (!profile) return;
     const confirmDelete = window.confirm(
       "Delete this profile permanently? This action cannot be undone."
-    )
-    if (!confirmDelete) return
+    );
+    if (!confirmDelete) return;
 
-    const token = await getToken()
-    if (!token) return
+    const token = await getToken();
+    if (!token) return;
 
     try {
-      await profilesApi.delete(token, profile.id)
-      toast.success("Profile deleted")
-      router.push("/dashboard/profiles")
+      await profilesApi.delete(token, profile.id);
+      toast.success("Profile deleted");
+      router.push("/dashboard/profiles");
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Unable to delete profile"
-      )
+      toast.error(err instanceof Error ? err.message : "Unable to delete profile");
     }
-  }
+  };
 
   const handleStatusChange = async (status: ProfileResponse["status"]) => {
-    if (!profile) return
-    const token = await getToken()
-    if (!token) return
+    if (!profile) return;
+    const token = await getToken();
+    if (!token) return;
 
-    const previous = profile
-    setProfile({ ...profile, status })
+    const previous = profile;
+    setProfile({ ...profile, status });
 
     try {
-      const updated = await profilesApi.changeStatus(token, profile.id, { status })
-      setProfile(updated)
-      toast.success("Profile status updated")
+      const updated = await profilesApi.changeStatus(token, profile.id, { status });
+      setProfile(updated);
+      toast.success("Profile status updated");
     } catch (err) {
-      setProfile(previous)
+      setProfile(previous);
       toast.error(
         err instanceof Error ? err.message : "Unable to update profile status"
-      )
+      );
     }
-  }
+  };
 
   if (loading) {
     return (
       <Card className="p-4">
         <p className="text-sm text-muted-foreground">Loading profile...</p>
       </Card>
-    )
+    );
   }
 
   if (error || !profile) {
@@ -110,20 +109,23 @@ export default function ProfileDetailPage() {
       <Card className="p-4 text-sm text-destructive">
         {error ?? "Profile not found"}
       </Card>
-    )
+    );
   }
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            {profile.profile_name}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Created {new Date(profile.created_at).toLocaleDateString()} · Updated{" "}
-            {new Date(profile.updated_at).toLocaleDateString()}
-          </p>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="-ml-1" />
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">
+              {profile.profile_name}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Created {new Date(profile.created_at).toLocaleDateString()} · Updated{" "}
+              {new Date(profile.updated_at).toLocaleDateString()}
+            </p>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={statusVariant(profile.status)}>{profile.status}</Badge>
@@ -134,7 +136,7 @@ export default function ProfileDetailPage() {
             Delete
           </Button>
         </div>
-      </div>
+      </header>
 
       <Card className="p-4">
         <div className="grid gap-4">
@@ -266,5 +268,5 @@ export default function ProfileDetailPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }

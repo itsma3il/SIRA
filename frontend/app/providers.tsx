@@ -5,6 +5,7 @@ import { shadcn } from "@clerk/themes";
 import { ThemeProvider } from "next-themes";
 import { useTheme } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <ThemeAwareClerkProvider>
-        {children}
+        {/* <SidebarProvider> */}
+          {children}
+        {/* </SidebarProvider> */}
         <Toaster position="top-right" richColors closeButton />
       </ThemeAwareClerkProvider>
     </ThemeProvider>
@@ -30,10 +33,10 @@ function ThemeAwareClerkProvider({ children }: { children: React.ReactNode }) {
     <ClerkProvider
       dynamic
       appearance={{
-        baseTheme: isDark ? shadcn  : 'simple',
+        baseTheme: isDark ? shadcn : 'simple',
         signIn: { theme: shadcn },
         signUp: { theme: shadcn },
-        userProfile: {theme: shadcn },
+        userProfile: { theme: shadcn },
       }}
     >
       {children}

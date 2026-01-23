@@ -1,27 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function ProfilesError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   React.useEffect(() => {
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
     <Card className="p-4">
       <div className="grid gap-3">
-        <h2 className="text-lg font-semibold text-foreground">
-          Profiles error
-        </h2>
+        <h2 className="text-lg font-semibold text-foreground">Profiles error</h2>
         <p className="text-sm text-muted-foreground">
           We could not load profile data. Please try again.
         </p>
@@ -30,5 +28,5 @@ export default function ProfilesError({
         </Button>
       </div>
     </Card>
-  )
+  );
 }

@@ -32,15 +32,18 @@ async def generate_recommendation(
     session: Session = Depends(get_session)
 ):
     """
-    Generate a new AI recommendation for a student profile.
+    Generate a new AI recommendation for a student profile within a conversation session.
     
     This endpoint:
     1. Validates that the profile exists and belongs to the current user
-    2. Retrieves relevant programs using RAG
-    3. Calls LLM to generate personalized recommendations
-    4. Saves the recommendation to the database
+    2. Validates that the session exists and belongs to the current user
+    3. Retrieves relevant programs using RAG
+    4. Calls LLM to generate personalized recommendations
+    5. Saves the recommendation to the database linked to both profile and session
     
     Returns the complete recommendation with structured data.
+    
+    Note: Both profile_id and session_id are required.
     """
     # Verify profile belongs to user
     profile = profile_repository.get_by_id(session, data.profile_id)
@@ -56,11 +59,27 @@ async def generate_recommendation(
             detail="You don't have permission to generate recommendations for this profile"
         )
     
+    # Verify session belongs to user
+    from app.repositories import conversation_repository
+    conv_session = conversation_repository.get_by_id(session, data.session_id)
+    if not conv_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Session {data.session_id} not found"
+        )
+    
+    if conv_session.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to use this session"
+        )
+    
     # Generate recommendation
     try:
         service = get_recommendation_service()
         recommendation = await service.generate_recommendation(
             profile_id=data.profile_id,
+            session_id=data.session_id,
             top_k=5,
             use_fallback=True
         )
@@ -80,9 +99,10 @@ async def generate_recommendation(
         )
 
 
-@router.get("/stream/{profile_id}")
+@router.get("/stream/{profile_id}/{session_id}")
 async def stream_recommendation(
     profile_id: UUID,
+    session_id: UUID,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
@@ -92,12 +112,10 @@ async def stream_recommendation(
     This endpoint returns chunks of the LLM response as they're generated,
     allowing for real-time UI updates.
     
-    The response is saved to the database after streaming completes.
+    The response is saved to the database after streaming completes,
+    linked to both the profile and session.
     
     Note: Uses standard Authorization header authentication (secure).
-    
-    Note: Accepts authentication token via query parameter due to EventSource
-    limitations (cannot set custom headers). Token should be short-lived.
     """
     # Verify profile belongs to user
     profile = profile_repository.get_by_id(session, profile_id)
@@ -113,11 +131,29 @@ async def stream_recommendation(
             detail="You don't have permission to access this profile"
         )
     
+    # Verify session belongs to user
+    from app.repositories import conversation_repository
+    conv_session = conversation_repository.get_by_id(session, session_id)
+    if not conv_session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Session {session_id} not found"
+        )
+    
+    if conv_session.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to use this session"
+        )
+    
     # Stream recommendation
     async def event_generator():
         try:
             service = get_recommendation_service()
-            async for chunk in service.stream_recommendation(profile_id):
+            async for chunk in service.stream_recommendation(
+                profile_id=profile_id,
+                session_id=session_id
+            ):
                 # SSE format: data: {content}\n\n
                 yield f"data: {chunk}\n\n"
             

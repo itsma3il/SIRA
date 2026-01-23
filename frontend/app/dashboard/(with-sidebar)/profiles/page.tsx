@@ -1,132 +1,136 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { useAuth } from "@clerk/nextjs"
-import { toast } from "sonner"
+import * as React from "react";
+import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
-import type { ProfileListResponse } from "@/lib/profile-api-types"
-import { profilesApi } from "@/lib/profile-api"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import type { ProfileListResponse } from "@/lib/profile-api-types";
+import { profilesApi } from "@/lib/profile-api";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 const statusVariant = (status: ProfileListResponse["status"]) => {
   switch (status) {
     case "active":
-      return "secondary"
+      return "secondary";
     case "archived":
-      return "outline"
+      return "outline";
     default:
-      return "default"
+      return "default";
   }
-}
+};
 
 export default function ProfilesPage() {
-  const { getToken, isLoaded } = useAuth()
-  const [profiles, setProfiles] = React.useState<ProfileListResponse[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [error, setError] = React.useState<string | null>(null)
-  const [search, setSearch] = React.useState("")
-  const [sortBy, setSortBy] = React.useState("updated_desc")
-  const [showActions, setShowActions] = React.useState(true)
+  const { getToken, isLoaded } = useAuth();
+  const [profiles, setProfiles] = React.useState<ProfileListResponse[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [search, setSearch] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("updated_desc");
+  const [showActions, setShowActions] = React.useState(true);
 
   const loadProfiles = React.useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const token = await getToken()
+      setLoading(true);
+      setError(null);
+      const token = await getToken();
       if (!token) {
-        setError("Authentication required")
-        return
+        setError("Authentication required");
+        return;
       }
-      const data = await profilesApi.list(token)
-      setProfiles(data)
+      const data = await profilesApi.list(token);
+      setProfiles(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to load profiles")
+      setError(err instanceof Error ? err.message : "Unable to load profiles");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [getToken])
+  }, [getToken]);
 
   React.useEffect(() => {
-    if (!isLoaded) return
-    void loadProfiles()
-  }, [isLoaded, loadProfiles])
+    if (!isLoaded) return;
+    void loadProfiles();
+  }, [isLoaded, loadProfiles]);
 
   const handleDelete = async (profileId: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this profile? This action cannot be undone."
-    )
-    if (!confirmDelete) return
+    );
+    if (!confirmDelete) return;
 
-    const token = await getToken()
-    if (!token) return
+    const token = await getToken();
+    if (!token) return;
 
-    const previous = profiles
-    setProfiles((current) => current.filter((item) => item.id !== profileId))
+    const previous = profiles;
+    setProfiles((current) => current.filter((item) => item.id !== profileId));
 
     try {
-      await profilesApi.delete(token, profileId)
-      toast.success("Profile deleted")
+      await profilesApi.delete(token, profileId);
+      toast.success("Profile deleted");
     } catch (err) {
-      setProfiles(previous)
+      setProfiles(previous);
       toast.error(
         err instanceof Error ? err.message : "Unable to delete profile"
-      )
+      );
     }
-  }
+  };
 
   const filteredProfiles = React.useMemo(() => {
-    const query = search.trim().toLowerCase()
+    const query = search.trim().toLowerCase();
     const result = profiles.filter((profile) =>
       profile.profile_name.toLowerCase().includes(query)
-    )
+    );
 
     return result.sort((a, b) => {
       switch (sortBy) {
         case "name_asc":
-          return a.profile_name.localeCompare(b.profile_name)
+          return a.profile_name.localeCompare(b.profile_name);
         case "name_desc":
-          return b.profile_name.localeCompare(a.profile_name)
+          return b.profile_name.localeCompare(a.profile_name);
         case "created_asc":
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case "created_desc":
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         case "updated_asc":
-          return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+          return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
         case "updated_desc":
         default:
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
       }
-    })
-  }, [profiles, search, sortBy])
+    });
+  }, [profiles, search, sortBy]);
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Profile management
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Create and manage student profiles for recommendations.
-          </p>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="-ml-1" />
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Profile management
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Create and manage student profiles for recommendations.
+            </p>
+          </div>
         </div>
         <Button asChild>
           <Link href="/dashboard/profiles/new">New profile</Link>
         </Button>
-      </div>
+      </header>
 
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-4">
@@ -229,5 +233,5 @@ export default function ProfilesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -62,3 +62,4 @@ class User(Base):
 
     # Relationships - One-to-many
     profiles: Mapped[list["Profile"]] = relationship(back_populates="user")
+    conversation_sessions = relationship("ConversationSession", back_populates="user", cascade="all, delete-orphan")

@@ -31,18 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-muted/30 mx-auto flex justify-center text-foreground antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
       >
         <Providers>
-          <div className="container flex min-h-screen items-center justify-center">
-            <div className="relative w-full max-w-5xl min-h-screen sm:min-h-160 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_32px_80px_-52px_rgba(15,23,42,0.55)]">
-              <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-card/80 px-6 py-5 backdrop-blur sm:px-8">
+          <div className="flex min-h-svh w-full flex-col">
+            {/* <header className="z-10 w-full border-b border-border/70 bg-card/80 backdrop-blur">
+              <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-8">
                 <div className="flex items-center justify-start gap-3">
                   <div className="space-y-1 flex items-center gap-2">
-                    <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                      S
-                    </div>
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="text-lg font-bold text-foreground">
                       SIRA
                     </p>
                   </div>
@@ -52,12 +49,12 @@ export default function RootLayout({
                   <ThemeToggle />
                   <UserNav />
                 </div>
-              </header>
-              <UserSync />
-              <div className="h-[calc(100%-72px)] overflow-auto">
-                <main className="px-6 py-8 sm:px-8 sm:py-10">{children}</main>
+                <UserSync />
               </div>
-            </div>
+            </header> */}
+            {/* <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-8"> */}
+              <main className="flex-1">{children}</main>
+            {/* </div> */}
           </div>
         </Providers>
       </body>
