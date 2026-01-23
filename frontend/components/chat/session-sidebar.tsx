@@ -35,6 +35,16 @@ export function SessionSidebar({
 }: SessionSidebarProps) {
   const [search, setSearch] = useState("");
 
+  // Debug logging
+  console.log("[SessionSidebar] Render state:", {
+    hasSessionsObject: !!sessions,
+    sessionsArray: sessions?.sessions,
+    sessionsCount: sessions?.sessions?.length,
+    total: sessions?.total,
+    isLoading,
+    error,
+  });
+
   const filteredSessions = useMemo(() => {
     if (!sessions?.sessions?.length) return [];
     const query = search.trim().toLowerCase();

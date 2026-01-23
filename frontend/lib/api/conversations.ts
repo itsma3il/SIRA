@@ -59,18 +59,25 @@ export async function listSessions(
     queryParams.toString() ? `?${queryParams}` : ""
   }`;
 
+  console.log("[API] Fetching sessions from:", url);
+
   const response = await fetch(url, {
     headers: {
       "Authorization": `Bearer ${token}`,
     },
   });
 
+  console.log("[API] Sessions response status:", response.status);
+
   if (!response.ok) {
     const error = await response.text();
+    console.error("[API] Sessions error:", error);
     throw new Error(`Failed to list sessions: ${error}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log("[API] Sessions data received:", data);
+  return data;
 }
 
 /**

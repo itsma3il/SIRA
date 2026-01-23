@@ -62,15 +62,17 @@ async def list_sessions(
     """
     try:
         service = get_conversation_service()
-        return service.get_user_sessions(
+        result = service.get_user_sessions(
             db=db,
             user_id=current_user.id,
             profile_id=profile_id,
             status=status,
             limit=limit
         )
+        logger.info(f"Listing sessions: total={result.total}, groups={len(result.sessions)}")
+        return result
     except Exception as e:
-        logger.error(f"Error listing sessions: {str(e)}")
+        logger.error(f"Error listing sessions: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to list sessions")
 
 
@@ -166,10 +168,10 @@ async def send_message(
         raise HTTPException(status_code=500, detail="Failed to send message")
 
 
-@router.get("/sessions/{session_id}/stream")
+@router.post("/sessions/{session_id}/stream")
 async def stream_message(
     session_id: UUID,
-    message: str = Query(..., description="User message to send"),
+    message_data: MessageCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db_session)
 ):
@@ -188,6 +190,9 @@ async def stream_message(
         if session.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized")
         
+        # Extract message content
+        message = message_data.content
+        
         # Add user message
         conversation_repository.add_message(
             db=db,
@@ -198,7 +203,8 @@ async def stream_message(
         
         # Get context
         profile = session.profile
-        recommendation = session.recommendation
+        # Get first recommendation if exists (relationships is plural)
+        recommendation = session.recommendations[0] if session.recommendations else None
         message_history = conversation_repository.get_recent_messages(db, session_id, limit=10)
         
         # Stream AI response
@@ -272,7 +278,7 @@ async def generate_recommendation(
         raise HTTPException(status_code=500, detail="Failed to generate recommendation")
 
 
-@router.get("/sessions/{session_id}/recommend/stream")
+@router.post("/sessions/{session_id}/recommend/stream")
 async def stream_recommendation(
     session_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -292,7 +298,9 @@ async def stream_recommendation(
             raise HTTPException(status_code=404, detail="Session not found")
         if session.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized")
-        if session.recommendation:
+        if not session.profile_id:
+            raise HTTPException(status_code=400, detail="Session must have a profile to generate recommendations")
+        if session.recommendations:
             raise HTTPException(status_code=400, detail="Session already has recommendation")
         
         # Import recommendation service
@@ -304,64 +312,28 @@ async def stream_recommendation(
             try:
                 # Stream recommendation generation
                 full_response = ""
-                recommendation_id = None
-                structured_data = None
                 
-                async for event in rec_service.stream_recommendation(db, session.profile_id):
-                    event_type = event.get("type")
-                    
-                    if event_type == "progress":
-                        yield f"data: {event['message']}\n\n"
-                    
-                    elif event_type == "chunk":
-                        chunk = event["content"]
-                        full_response += chunk
-                        yield f"data: {chunk}\n\n"
-                    
-                    elif event_type == "complete":
-                        recommendation_id = event["recommendation_id"]
-                        structured_data = event.get("structured_data")
-                        
-                        # Link recommendation to session
-                        from app.models.recommendation import Recommendation
-                        rec = db.query(Recommendation).filter(
-                            Recommendation.id == recommendation_id
-                        ).first()
-                        if rec:
-                            rec.session_id = session_id
-                            db.commit()
-                        
-                        # Add welcome message
-                        programs = structured_data.get("program_names", [])[:5] if structured_data else []
-                        welcome_content = f"""# Academic Recommendations Generated
-
-I've analyzed your profile and found **{len(programs)}** graduate programs that match your goals.
-
-**Top Recommendations:**
-"""
-                        for i, prog in enumerate(programs, 1):
-                            match_scores = structured_data.get("match_scores", []) if structured_data else []
-                            match_score = match_scores[i-1] if i-1 < len(match_scores) else "N/A"
-                            welcome_content += f"\n{i}. **{prog}** (Match: {match_score}%)"
-                        
-                        welcome_content += "\n\nFeel free to ask me any questions about these programs!"
-                        
-                        conversation_repository.add_message(
-                            db=db,
-                            session_id=session_id,
-                            role="assistant",
-                            content=welcome_content,
-                            metadata={"type": "recommendation_generated", "recommendation_id": str(recommendation_id)}
-                        )
-                        
-                        yield "data: [DONE]\n\n"
-                    
-                    elif event_type == "error":
-                        yield f"data: [ERROR] {event['message']}\n\n"
-                        return
-            
+                async for chunk in rec_service.stream_recommendation(
+                    profile_id=session.profile_id,
+                    session_id=session_id
+                ):
+                    # stream_recommendation yields text chunks directly
+                    full_response += chunk
+                    yield f"data: {chunk}\n\n"
+                
+                # Signal completion
+                yield "data: [DONE]\n\n"
+                
+                # Add welcome message with recommendation summary
+                conversation_repository.add_message(
+                    db=db,
+                    session_id=session_id,
+                    role="assistant",
+                    content=f"I've generated a personalized recommendation for you! {full_response[:200]}..."
+                )
+                
             except Exception as e:
-                logger.error(f"Error streaming recommendation: {str(e)}")
+                logger.error(f"Error streaming recommendation: {str(e)}", exc_info=True)
                 yield f"data: [ERROR] {str(e)}\n\n"
         
         return StreamingResponse(
@@ -376,5 +348,5 @@ I've analyzed your profile and found **{len(programs)}** graduate programs that 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error in recommendation stream setup: {str(e)}")
+        logger.error(f"Error in recommendation stream setup: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to setup recommendation stream")

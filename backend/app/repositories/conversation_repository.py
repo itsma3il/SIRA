@@ -202,11 +202,18 @@ def group_sessions_by_period_with_items(session_items: List[dict]) -> List[dict]
     This is used for the session list API response where sessions are
     already transformed into dicts with computed fields.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Grouping {len(session_items)} session items")
+    
     now = datetime.utcnow()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday_start = today_start - timedelta(days=1)
     week_ago = today_start - timedelta(days=7)
     month_ago = today_start - timedelta(days=30)
+    
+    logger.info(f"Time boundaries - Today: {today_start}, Yesterday: {yesterday_start}, Week: {week_ago}, Month: {month_ago}")
     
     grouped = {
         "Today": [],
@@ -217,22 +224,34 @@ def group_sessions_by_period_with_items(session_items: List[dict]) -> List[dict]
     
     for item in session_items:
         timestamp = item.get("last_message_at") or item.get("created_at")
+        logger.info(f"Session {item.get('id')}: timestamp={timestamp}, last_message_at={item.get('last_message_at')}, created_at={item.get('created_at')}")
         if not timestamp:
+            # Skip sessions without any timestamp
+            logger.warning(f"Skipping session {item.get('id')} - no timestamp")
             continue
             
         if timestamp >= today_start:
             grouped["Today"].append(item)
+            logger.info(f"  -> Added to Today")
         elif timestamp >= yesterday_start:
             grouped["Yesterday"].append(item)
+            logger.info(f"  -> Added to Yesterday")
         elif timestamp >= week_ago:
             grouped["Last 7 days"].append(item)
+            logger.info(f"  -> Added to Last 7 days")
         elif timestamp >= month_ago:
             grouped["Last month"].append(item)
+            logger.info(f"  -> Added to Last month")
+        else:
+            logger.warning(f"  -> Not added to any group (too old)")
     
     # Convert to list of period groups (remove empty periods)
-    return [
+    result = [
         {"period": period, "sessions": sessions_list}
         for period, sessions_list in grouped.items()
         if sessions_list
     ]
+    
+    logger.info(f"Grouping result: {len(result)} groups with {sum(len(g['sessions']) for g in result)} total sessions")
+    return result
 

@@ -59,21 +59,26 @@ Guidelines:
         
         if hasattr(profile, 'academic_record') and profile.academic_record:
             record = profile.academic_record
-            if record.degree_level:
-                prompt += f"- Current Degree: {record.degree_level}\n"
-            if record.field_of_study:
-                prompt += f"- Field of Study: {record.field_of_study}\n"
+            if record.current_status:
+                prompt += f"- Current Status: {record.current_status}\n"
+            if record.current_field:
+                prompt += f"- Field of Study: {record.current_field}\n"
             if record.gpa:
                 prompt += f"- GPA: {record.gpa}/4.0\n"
+            if record.current_institution:
+                prompt += f"- Current Institution: {record.current_institution}\n"
         
         if hasattr(profile, 'student_preferences') and profile.student_preferences:
             prefs = profile.student_preferences
-            if prefs.budget_max:
-                prompt += f"- Budget: Up to ${prefs.budget_max:,.0f}/year\n"
-            if prefs.preferred_locations:
-                locations = json.loads(prefs.preferred_locations) if isinstance(prefs.preferred_locations, str) else prefs.preferred_locations
-                if locations:
-                    prompt += f"- Preferred Locations: {', '.join(locations[:3])}\n"
+            if prefs.budget_range_max:
+                prompt += f"- Budget: Up to ${prefs.budget_range_max:,.0f}/year\n"
+            if prefs.geographic_preference:
+                prompt += f"- Preferred Location: {prefs.geographic_preference}\n"
+            if prefs.career_goals:
+                prompt += f"- Career Goals: {prefs.career_goals}\n"
+            if prefs.favorite_subjects:
+                subjects = prefs.favorite_subjects[:3]
+                prompt += f"- Favorite Subjects: {', '.join(subjects)}\n"
         
         # Add recommendation context if exists
         if recommendation and recommendation.structured_data:

@@ -28,15 +28,15 @@ export function useConversationStream(options: UseConversationStreamOptions = {}
       abortControllerRef.current = new AbortController();
 
       try {
-        const url = `${API_BASE}/api/conversations/sessions/${sessionId}/stream?message=${encodeURIComponent(
-          message
-        )}`;
+        const url = `${API_BASE}/api/conversations/sessions/${sessionId}/stream`;
 
         await fetchEventSource(url, {
-          method: "GET",
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({ content: message }),
           signal: abortControllerRef.current.signal,
           onmessage(event) {
             if (event.data === "[DONE]") {
@@ -92,7 +92,7 @@ export function useConversationStream(options: UseConversationStreamOptions = {}
         const url = `${API_BASE}/api/conversations/sessions/${sessionId}/recommend/stream`;
 
         await fetchEventSource(url, {
-          method: "GET",
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },

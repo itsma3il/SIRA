@@ -129,14 +129,21 @@ class ConversationService:
                 "title": session.title,
                 "last_message": last_message,
                 "last_message_at": session.last_message_at,
-                "message_count": message_count
+                "message_count": message_count,
+                "created_at": session.created_at  # Add for grouping fallback
             })
+        
+        logger.info(f"Built {len(session_items)} session items for grouping")
+        if session_items:
+            logger.info(f"Sample item: {session_items[0]}")
         
         # Group by time periods
         grouped = conversation_repository.group_sessions_by_period_with_items(session_items)
         
         total = len(sessions)
-        logger.info(f"Retrieved {total} sessions for user {user_id}")
+        logger.info(f"Retrieved {total} sessions for user {user_id}, creating {len(grouped)} period groups")
+        logger.info(f"Session items before grouping: {len(session_items)}")
+        logger.info(f"Period groups after grouping: {[g['period'] for g in grouped]}")
         
         return SessionListResponse(
             sessions=grouped,
