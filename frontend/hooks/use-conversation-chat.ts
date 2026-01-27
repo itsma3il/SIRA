@@ -42,6 +42,7 @@ interface UseConversationChatResult {
   deleteExistingSession: (token: string, sessionId: string) => Promise<boolean>;
   sendMessageStream: (token: string, sessionId: string, content: string) => Promise<void>;
   streamRecommendation: (token: string, sessionId: string) => Promise<void>;
+  stopStreaming: () => void;
   resetSessionState: () => void;
 }
 
@@ -134,7 +135,7 @@ export function useConversationChat(): UseConversationChatResult {
     []
   );
 
-  const loadSession = useCallback(async (token: string, sessionId: string) => {
+  const loadSession = useCallback(async (token: string, sessionId: string, retryCount = 0) => {
     try {
       setSessionLoading(true);
       setSessionError(null);
@@ -142,9 +143,25 @@ export function useConversationChat(): UseConversationChatResult {
       setSessionDetail(detail);
       setMessages(detail.messages ?? []);
     } catch (error) {
-      setSessionError(
-        error instanceof Error ? error.message : "Unable to load session"
-      );
+      const errorMessage = error instanceof Error ? error.message : "Unable to load session";
+      
+      // If token expired and we haven't retried yet, try to get a fresh token
+      if (errorMessage.includes("expired") && retryCount === 0) {
+        console.log("[useConversationChat] Token expired, attempting refresh...");
+        try {
+          // Wait a moment and retry - Clerk should auto-refresh
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const newToken = await (window as any).Clerk?.session?.getToken();
+          if (newToken && newToken !== token) {
+            console.log("[useConversationChat] Token refreshed, retrying...");
+            return loadSession(newToken, sessionId, retryCount + 1);
+          }
+        } catch (refreshError) {
+          console.error("[useConversationChat] Token refresh failed:", refreshError);
+        }
+      }
+      
+      setSessionError(errorMessage);
     } finally {
       setSessionLoading(false);
     }
@@ -289,6 +306,7 @@ export function useConversationChat(): UseConversationChatResult {
     deleteExistingSession,
     sendMessageStream,
     streamRecommendation: streamRecommendationHandler,
+    stopStreaming: cancel,
     resetSessionState,
   };
 }

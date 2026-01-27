@@ -291,62 +291,103 @@ async def stream_recommendation(
     - Streams response in real-time
     - Links recommendation to session when complete
     """
-    try:
-        # Verify session
-        session = conversation_repository.get_by_id(db, session_id)
-        if not session:
-            raise HTTPException(status_code=404, detail="Session not found")
-        if session.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized")
-        if not session.profile_id:
-            raise HTTPException(status_code=400, detail="Session must have a profile to generate recommendations")
-        if session.recommendations:
-            raise HTTPException(status_code=400, detail="Session already has recommendation")
-        
-        # Import recommendation service
-        from app.services.recommendation_service import RecommendationService
-        rec_service = RecommendationService()
-        
-        async def event_generator():
-            """Generate SSE events for recommendation."""
-            try:
-                # Stream recommendation generation
-                full_response = ""
-                
-                async for chunk in rec_service.stream_recommendation(
-                    profile_id=session.profile_id,
-                    session_id=session_id
-                ):
-                    # stream_recommendation yields text chunks directly
-                    full_response += chunk
-                    yield f"data: {chunk}\n\n"
-                
-                # Signal completion
-                yield "data: [DONE]\n\n"
-                
-                # Add welcome message with recommendation summary
-                conversation_repository.add_message(
-                    db=db,
-                    session_id=session_id,
-                    role="assistant",
-                    content=f"I've generated a personalized recommendation for you! {full_response[:200]}..."
-                )
-                
-            except Exception as e:
-                logger.error(f"Error streaming recommendation: {str(e)}", exc_info=True)
-                yield f"data: [ERROR] {str(e)}\n\n"
-        
-        return StreamingResponse(
-            event_generator(),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive"
-            }
-        )
     
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in recommendation stream setup: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to setup recommendation stream")
+    async def event_generator():
+        """Generate SSE events for recommendation."""
+        try:
+            # Verify session
+            session = conversation_repository.get_by_id(db, session_id)
+            if not session:
+                yield "data: [ERROR] Session not found\n\n"
+                return
+            if session.user_id != current_user.id:
+                yield "data: [ERROR] Not authorized to access this session\n\n"
+                return
+            if not session.profile_id:
+                yield "data: [ERROR] Session must have a profile to generate recommendations. Please attach a profile first.\n\n"
+                return
+            
+            # Get conversation context for subsequent recommendations
+            recommendation_count = len(session.recommendations) if session.recommendations else 0
+            conversation_context = None
+            
+            if recommendation_count > 0:
+                # For subsequent recommendations, include recent conversation
+                recent_messages = conversation_repository.get_recent_messages(db, session_id, limit=10)
+                conversation_context = "\n".join([
+                    f"{msg.role}: {msg.content[:200]}" for msg in recent_messages
+                ])
+                yield f"data: Generating recommendation #{recommendation_count + 1} based on our conversation...\n\n"
+            else:
+                yield "data: Generating your first personalized recommendation...\n\n"
+            
+            # Import recommendation service
+            from app.services.recommendation_service import RecommendationService
+            rec_service = RecommendationService()
+            
+            # Stream recommendation generation
+            full_response = ""
+            
+            async for chunk in rec_service.stream_recommendation(
+                profile_id=session.profile_id,
+                session_id=session_id,
+                conversation_context=conversation_context
+            ):
+                # stream_recommendation yields text chunks directly
+                full_response += chunk
+                yield f"data: {chunk}\n\n"
+            
+            # Signal completion
+            yield "data: [DONE]\n\n"
+            
+            # Get the newly created recommendation (last one added)
+            db.refresh(session)
+            latest_recommendation = session.recommendations[-1] if session.recommendations else None
+            
+            # Add structured welcome message without verbose AI response
+            rec_num = recommendation_count + 1
+            
+            # Extract structured data for concise summary
+            structured = latest_recommendation.structured_data if latest_recommendation else {}
+            program_count = len(structured.get("program_names", []))
+            top_programs = structured.get("program_names", [])[:3]
+            
+            if rec_num == 1:
+                welcome_msg = f"**Recommendation Generated**\n\nI've analyzed your profile and found **{program_count} graduate programs** that match your goals."
+            else:
+                welcome_msg = f"**Recommendation #{rec_num} Generated**\n\nBased on our conversation, I've found **{program_count} programs** tailored to your interests."
+            
+            # Add top programs if available
+            if top_programs:
+                welcome_msg += "\n\n**Top Matches:**\n"
+                for i, prog in enumerate(top_programs, 1):
+                    match_scores = structured.get("match_scores", [])
+                    score = match_scores[i-1] if i-1 < len(match_scores) else "N/A"
+                    welcome_msg += f"{i}. {prog} ({score}% match)\n"
+                
+                welcome_msg += "\nView the full details in the recommendation card above."
+            
+            conversation_repository.add_message(
+                db=db,
+                session_id=session_id,
+                role="assistant",
+                content=welcome_msg,
+                metadata={
+                    "type": "recommendation_generated",
+                    "recommendation_id": str(latest_recommendation.id) if latest_recommendation else None,
+                    "recommendation_number": rec_num
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Error streaming recommendation: {str(e)}", exc_info=True)
+            yield f"data: [ERROR] {str(e)}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive"
+        }
+    )

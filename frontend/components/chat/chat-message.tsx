@@ -2,16 +2,21 @@
 
 import { Copy, Loader2 } from "lucide-react";
 import { Message, MessageAction, MessageActions, MessageContent } from "@/components/prompt-kit/message";
+import { RecommendationCard } from "@/components/recommendation-card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/hooks/use-conversation-chat";
+import type { RecommendationSummary } from "@/lib/types/conversation";
+import type { Recommendation } from "@/lib/types/recommendation";
 
 interface ChatMessageProps {
   message: ChatMessage;
+  recommendationSummary?: RecommendationSummary | null;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, recommendationSummary }: ChatMessageProps) {
   const isAssistant = message.role !== "user";
+  const isRecommendation = message.metadata?.type === "recommendation_generated";
 
   const handleCopy = async () => {
     try {
@@ -30,12 +35,52 @@ export function ChatMessage({ message }: ChatMessageProps) {
     >
       {isAssistant ? (
         <div className="group flex w-full flex-col gap-2">
-          <MessageContent
-            className="text-foreground prose max-w-none rounded-lg bg-transparent p-0"
-            markdown
-          >
-            {message.content || (message.isStreaming ? "…" : "")}
-          </MessageContent>
+          {isRecommendation ? (
+            <div className="relative w-full rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-primary/5 p-6 shadow-lg">
+              <div className="absolute -top-3 left-4 bg-background px-3 py-1 rounded-full border-2 border-primary/30">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  Recommendation Generated
+                </div>
+              </div>
+              <RecommendationCard
+                recommendation={
+                  recommendationSummary
+                    ? {
+                        id: recommendationSummary.id,
+                        profile_id: "",
+                        query: recommendationSummary.query,
+                        retrieved_context: recommendationSummary.retrieved_context ?? null,
+                        ai_response: recommendationSummary.ai_response,
+                        structured_data: recommendationSummary.structured_data ?? null,
+                        created_at: recommendationSummary.created_at,
+                        feedback_rating: recommendationSummary.feedback_rating ?? null,
+                        feedback_comment: recommendationSummary.feedback_comment ?? null,
+                      }
+                    : {
+                        id: message.id,
+                        profile_id: "",
+                        query: "",
+                        retrieved_context: null,
+                        ai_response: message.content || (message.isStreaming ? "…" : ""),
+                        structured_data: null,
+                        created_at: message.created_at,
+                        feedback_rating: null,
+                        feedback_comment: null,
+                      }
+                }
+              />
+            </div>
+          ) : (
+            <MessageContent
+              className="text-foreground prose max-w-none rounded-lg bg-transparent p-0"
+              markdown
+            >
+              {message.content || (message.isStreaming ? "…" : "")}
+            </MessageContent>
+          )}
           <MessageActions
             className={cn(
               "-ml-2.5 flex items-center gap-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100",

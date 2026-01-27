@@ -3,17 +3,20 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, MessagesSquare, UserSquare2 } from "lucide-react"
+import { LayoutDashboard, MessagesSquare, UserSquare2, Sparkles } from "lucide-react"
+import { UserButton } from "@clerk/nextjs"
 
 import { NavMain } from "@/components/nav-main"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navMain = [
   {
@@ -56,13 +59,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  S
+              <Link href="/dashboard" className="group">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-lg blur-sm group-hover:blur-md transition-all" />
+                  <div className="relative bg-gradient-to-br from-primary to-primary/70 size-8 rounded-lg flex items-center justify-center">
+                    <Sparkles className="size-5 text-primary-foreground" />
+                  </div>
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">SIRA</span>
-                  <span className="truncate text-xs">Academic intelligence</span>
+                <div className="flex flex-col flex-1">
+                  <span className="font-bold text-base tracking-tight">SIRA</span>
+                  <span className="text-[10px] text-muted-foreground">Smart Academic Advisor</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -72,6 +78,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={items} />
       </SidebarContent>
+      <SidebarFooter className="border-t p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "size-8",
+                },
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">Account</p>
+              <p className="text-xs text-muted-foreground">Manage settings</p>
+            </div>
+          </div>
+          <ThemeToggle />
+        </div>
+      </SidebarFooter>
     </Sidebar>
   )
 }

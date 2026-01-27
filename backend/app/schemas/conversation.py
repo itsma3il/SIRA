@@ -68,10 +68,14 @@ class ProfileSummary(BaseModel):
 
 
 class RecommendationSummary(BaseModel):
-    """Minimal recommendation info for session context."""
+    """Recommendation info for session context with full details for display."""
     id: UUID
+    query: str
+    retrieved_context: Optional[list] = None
+    ai_response: str
     structured_data: Optional[dict] = None
     feedback_rating: Optional[int] = None
+    feedback_comment: Optional[str] = None
     created_at: datetime
     
     class Config:
@@ -129,7 +133,7 @@ class SessionDetailResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     messages: List[MessageResponse]
-    recommendation: Optional[RecommendationSummary] = None
+    recommendations: List[RecommendationSummary] = []  # Multiple recommendations supported
     
     class Config:
         from_attributes = True

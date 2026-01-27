@@ -27,8 +27,8 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
 
   // Get match score badge color
   const getMatchScoreColor = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-yellow-500";
+    if (score >= 80) return "bg-emerald-500";
+    if (score >= 60) return "bg-amber-500";
     return "bg-red-500";
   };
 
@@ -46,8 +46,7 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
   // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
@@ -60,33 +59,29 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
       (recommendation.structured_data?.match_scores?.length || 1) || 0;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg">Academic Recommendation</CardTitle>
-            <CardDescription>{formatDate(recommendation.created_at)}</CardDescription>
-          </div>
-          <Badge className={`${getMatchScoreColor(avgMatchScore)} text-white`}>
+    <>
+      <div className="space-y-4">
+        {/* Match Score and Date */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{formatDate(recommendation.created_at)}</span>
+          <Badge className={`${getMatchScoreColor(avgMatchScore)} text-white font-semibold`}>
             {Math.round(avgMatchScore)}% Match
           </Badge>
         </div>
-      </CardHeader>
 
-      <CardContent className="space-y-4">
         {/* Retrieved Programs Summary */}
         {recommendation.retrieved_context && recommendation.retrieved_context.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">Based on {recommendation.retrieved_context.length} programs:</h4>
-            <div className="flex flex-wrap gap-2">
-              {recommendation.retrieved_context.slice(0, 3).map((program, idx) => (
-                <Badge key={idx} variant="outline" className="text-xs">
+            <p className="text-xs font-medium text-muted-foreground">Based on {recommendation.retrieved_context.length} programs</p>
+            <div className="flex flex-wrap gap-1.5">
+              {recommendation.retrieved_context.slice(0, 4).map((program, idx) => (
+                <Badge key={idx} variant="secondary" className="text-xs font-normal">
                   {program.university}
                 </Badge>
               ))}
-              {recommendation.retrieved_context.length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{recommendation.retrieved_context.length - 3} more
+              {recommendation.retrieved_context.length > 4 && (
+                <Badge variant="secondary" className="text-xs">
+                  +{recommendation.retrieved_context.length - 4} more
                 </Badge>
               )}
             </div>
@@ -125,60 +120,55 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
             </div>
           </CollapsibleContent>
         </Collapsible>
-      </CardContent>
 
-      <CardFooter className="flex justify-between">
-        <div className="flex gap-2">
-          {recommendation.feedback_rating ? (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-              Rated {recommendation.feedback_rating}/5
-              {recommendation.feedback_comment && (
-                <span className="text-xs ml-1">(has comment)</span>
-              )}
-            </Badge>
-          ) : (
-            onFeedback && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setFeedbackModalOpen(true)}
-                className="gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Rate Recommendation
-              </Button>
-            )
-          )}
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <div className="flex gap-2">
+            {recommendation.feedback_rating ? (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                {recommendation.feedback_rating}/5
+              </Badge>
+            ) : (
+              onFeedback && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFeedbackModalOpen(true)}
+                  className="gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Rate
+                </Button>
+              )
+            )}
+          </div>
+          <Button variant="ghost" size="sm" onClick={copyToClipboard} className="gap-2">
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Copied
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Copy
+              </>
+            )}
+          </Button>
         </div>
+      </div>
 
-        <Button variant="ghost" size="sm" onClick={copyToClipboard}>
-          {copied ? (
-            <>
-              <Check className="mr-2 h-4 w-4" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="mr-2 h-4 w-4" />
-              Copy
-            </>
-          )}
-        </Button>
-      </CardFooter>
-
-      {/* Feedback Modal */}
       {onFeedback && (
         <FeedbackModal
           open={feedbackModalOpen}
           onOpenChange={setFeedbackModalOpen}
-          onSubmit={async (feedback: RecommendationFeedback) => {
-            onFeedback(recommendation.id, feedback.feedback_rating);
+          onSubmit={(rating) => {
+            onFeedback(recommendation.id, rating);
+            setFeedbackModalOpen(false);
           }}
-          initialRating={recommendation.feedback_rating || undefined}
-          initialComment={recommendation.feedback_comment || undefined}
         />
       )}
-    </Card>
+    </>
   );
 }

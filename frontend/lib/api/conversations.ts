@@ -72,7 +72,20 @@ export async function listSessions(
   if (!response.ok) {
     const error = await response.text();
     console.error("[API] Sessions error:", error);
-    throw new Error(`Failed to list sessions: ${error}`);
+    
+    // Parse error for better messages
+    try {
+      const errorJson = JSON.parse(error);
+      if (errorJson.detail?.includes("expired")) {
+        throw new Error("Your session has expired. Please refresh the page.");
+      }
+      throw new Error(errorJson.detail || `Failed to list sessions: ${error}`);
+    } catch (e) {
+      if (e instanceof Error && e.message.includes("expired")) {
+        throw e;
+      }
+      throw new Error(`Failed to list sessions: ${error}`);
+    }
   }
 
   const data = await response.json();
@@ -98,7 +111,20 @@ export async function getSession(
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Failed to get session: ${error}`);
+    
+    // Parse error for better messages
+    try {
+      const errorJson = JSON.parse(error);
+      if (errorJson.detail?.includes("expired")) {
+        throw new Error("Your session has expired. Please refresh the page.");
+      }
+      throw new Error(errorJson.detail || `Failed to get session: ${error}`);
+    } catch (e) {
+      if (e instanceof Error && e.message.includes("expired")) {
+        throw e;
+      }
+      throw new Error(`Failed to get session: ${error}`);
+    }
   }
 
   return response.json();

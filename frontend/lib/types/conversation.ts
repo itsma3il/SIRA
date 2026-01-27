@@ -19,8 +19,12 @@ export interface ProfileSummary {
 
 export interface RecommendationSummary {
   id: string;
+  query: string;
+  retrieved_context?: any[] | null;
+  ai_response: string;
   structured_data?: Record<string, any>;
   feedback_rating?: number;
+  feedback_comment?: string | null;
   created_at: string;
 }
 
@@ -64,7 +68,7 @@ export interface SessionDetailResponse {
   updated_at: string;
   messages: MessageResponse[];
   profile?: ProfileSummary;
-  recommendation?: RecommendationSummary;
+  recommendations?: RecommendationSummary[];  // Changed to array
 }
 
 export interface MessagePairResponse {

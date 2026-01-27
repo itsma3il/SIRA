@@ -39,6 +39,7 @@ export default function ChatSessionPage() {
     deleteExistingSession,
     sendMessageStream,
     streamRecommendation,
+    stopStreaming,
   } = useConversationChat();
 
   const [input, setInput] = useState("");
@@ -143,6 +144,12 @@ export default function ChatSessionPage() {
   };
 
   const chatMessages = useMemo(() => messages ?? [], [messages]);
+  const hasProfile = Boolean(sessionDetail?.profile_id || sessionDetail?.profile);
+  
+  // Allow multiple recommendations - show button if:
+  // 1. Not currently streaming
+  // 2. Has at least 2 new messages since last recommendation (for subsequent ones)
+  const canGenerateRecommendation = !isStreaming;
 
   return (
     <SidebarProvider defaultOpen>
@@ -152,14 +159,37 @@ export default function ChatSessionPage() {
         error={sessionsError}
         activeSessionId={sessionId ?? null}
       />
-      <SidebarInset className="flex min-h-[70vh] flex-col overflow-hidden">
+      <SidebarInset className="flex h-screen flex-col overflow-hidden bg-background">
         {sessionLoading && !sessionDetail ? (
           <div className="p-6">
             <Card className="p-4 text-sm text-muted-foreground">Loading conversation...</Card>
           </div>
         ) : sessionError ? (
           <div className="p-6">
-            <Card className="p-4 text-sm text-destructive">{sessionError}</Card>
+            <Card className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-destructive/10 p-2">
+                  <svg className="h-5 w-5 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-destructive">Unable to Load Session</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{sessionError}</p>
+                  {sessionError.includes("expired") && (
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-3 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Refresh Page
+                    </button>
+                  )}
+                </div>
+              </div>
+            </Card>
           </div>
         ) : !sessionDetail ? (
           <div className="p-6">
@@ -176,50 +206,57 @@ export default function ChatSessionPage() {
               onToggleArchive={handleArchiveToggle}
               isUpdating={isStreaming}
             />
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <div className="relative flex-1 overflow-y-auto">
-                <ChatContainerRoot className="h-full">
-                  <ChatContainerContent className="space-y-6 px-5 py-8">
-                    <RecommendationOverview
-                      recommendation={sessionDetail.recommendation}
-                      profileName={sessionDetail.profile?.profile_name}
-                      isStreaming={isStreaming}
-                      profiles={profiles}
-                      onGenerate={handleGenerateRecommendation}
-                      onAttachProfile={handleAttachProfile}
-                    />
 
-                    {chatMessages.length === 0 ? (
-                      <Card className="p-6 text-sm text-muted-foreground">
-                        Ask a question to begin the conversation.
-                      </Card>
-                    ) : (
-                      chatMessages.map((message) => (
-                        <ChatMessage key={message.id} message={message} />
-                      ))
-                    )}
-                    <ChatContainerScrollAnchor />
-                  </ChatContainerContent>
-                  <div className="absolute bottom-4 right-4">
-                    <ScrollButton />
-                  </div>
-                </ChatContainerRoot>
-              </div>
+            <div className="relative flex-1 overflow-y-auto">
+              <ChatContainerRoot className="h-full">
+                <ChatContainerContent className="space-y-0 px-5 py-12">
+                  {chatMessages.length === 0 ? (
+                    <Card className="p-6 text-sm text-muted-foreground">
+                      Ask a question to begin the conversation.
+                    </Card>
+                  ) : (
+                    chatMessages.map((message) => {
+                      // Find if this message is linked to a recommendation
+                      const linkedRecommendation = message.metadata?.type === "recommendation_generated"
+                        ? sessionDetail.recommendations?.find(r => r.id === message.metadata?.recommendation_id)
+                        : null;
+                      
+                      return (
+                        <ChatMessage
+                          key={message.id}
+                          message={message}
+                          recommendationSummary={linkedRecommendation || null}
+                        />
+                      );
+                    })
+                  )}
+                  <ChatContainerScrollAnchor />
+                </ChatContainerContent>
+                <div className="absolute bottom-4 right-4">
+                  <ScrollButton />
+                </div>
+              </ChatContainerRoot>
+            </div>
 
-              <div className="border-t bg-card px-4 py-4">
-                <ChatInput
-                  value={input}
-                  onChange={setInput}
-                  onSend={handleSend}
-                  disabled={sessionDetail.status === "archived"}
-                  isStreaming={isStreaming}
-                />
-                {sessionDetail.status === "archived" && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    This session is archived. Restore it to continue chatting.
-                  </p>
-                )}
-              </div>
+            <div className="bg-background z-10 shrink-0 px-3 pb-3 md:px-5 md:pb-5">
+              <ChatInput
+                value={input}
+                onChange={setInput}
+                onSend={handleSend}
+                onStop={stopStreaming}
+                onRecommend={handleGenerateRecommendation}
+                onAttachProfile={handleAttachProfile}
+                profiles={profiles}
+                hasProfile={hasProfile}
+                recommendationDisabled={!canGenerateRecommendation}
+                disabled={sessionDetail.status === "archived"}
+                isStreaming={isStreaming}
+              />
+              {sessionDetail.status === "archived" && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  This session is archived. Restore it to continue chatting.
+                </p>
+              )}
             </div>
           </>
         )}

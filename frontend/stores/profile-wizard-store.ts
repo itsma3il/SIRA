@@ -47,6 +47,7 @@ type ProfileWizardState = {
   setTranscriptUpload: (value: TranscriptUploadResult | null) => void
   setUploadError: (error: string | null) => void
   setLastSavedAt: (timestamp: number | null) => void
+  initializeFromProfile: (data: ProfileFormData) => void
   reset: () => void
   setHasHydrated: (value: boolean) => void
 }
@@ -76,6 +77,14 @@ export const useProfileWizardStore = create<ProfileWizardState>()(
       setTranscriptUpload: (value) => set({ transcriptUpload: value }),
       setUploadError: (error) => set({ uploadError: error }),
       setLastSavedAt: (timestamp) => set({ lastSavedAt: timestamp }),
+      initializeFromProfile: (data) =>
+        set({
+          currentStep: 0,
+          data,
+          transcriptUpload: null,
+          uploadError: null,
+          lastSavedAt: null,
+        }),
       reset: () =>
         set({
           currentStep: 0,

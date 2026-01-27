@@ -163,6 +163,7 @@ class RecommendationService:
         self,
         profile_id: UUID,
         session_id: UUID,
+        conversation_context: Optional[str] = None,
         top_k: int = 5,
         use_fallback: bool = True
     ) -> AsyncGenerator[str, None]:
@@ -175,6 +176,7 @@ class RecommendationService:
         Args:
             profile_id: UUID of the student profile
             session_id: UUID of the conversation session
+            conversation_context: Optional conversation history for context-aware recommendations
             top_k: Number of programs to retrieve
             use_fallback: Whether to use fallback retrieval strategy
             
@@ -201,6 +203,12 @@ class RecommendationService:
             raise ValueError("No relevant programs found")
         
         user_prompt = create_user_prompt(profile, programs)
+        
+        # Add conversation context for subsequent recommendations
+        if conversation_context:
+            user_prompt += "\n\n---\n**Recent Conversation:**\n"
+            user_prompt += conversation_context
+            user_prompt += "\n\nBased on this conversation, refine your recommendations to address the student's specific questions and interests."
         
         # Step 5: Stream LLM response
         full_response = []
