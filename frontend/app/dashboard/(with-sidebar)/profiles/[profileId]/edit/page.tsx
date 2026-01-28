@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import type { ProfileFormData } from "@/lib/profile-form-types";
 import type { ProfileResponse } from "@/lib/profile-api-types";
-import { profilesApi, uploadTranscript, deleteTranscript } from "@/lib/profile-api";
+import { api } from "@/lib/api";
 import { buildProfileUpdatePayload, mapProfileResponseToFormData } from "@/lib/profile-mappers";
 import { useProfileWizardStore } from "@/stores/profile-wizard-store";
 import { ProfileWizard } from "@/components/profile/profile-wizard";
@@ -40,7 +40,7 @@ export default function EditProfilePage() {
           setError("Authentication required");
           return;
         }
-        const data = await profilesApi.get(token, profileId);
+        const data = await api.profiles.getById(token, profileId);
         setProfile(data);
         
         // Convert profile to form data and initialize wizard store
@@ -112,7 +112,7 @@ export default function EditProfilePage() {
 
     try {
       const payload = buildProfileUpdatePayload(data);
-      const updated = await profilesApi.update(token, profileId, payload);
+      const updated = await api.profiles.update(token, profileId, payload);
       toast.success("Profile updated");
       router.push(`/dashboard/profiles/${updated.id}`);
     } catch (err) {
@@ -124,13 +124,13 @@ export default function EditProfilePage() {
   const handleUploadTranscript = async (file: File) => {
     const token = await getToken();
     if (!token) throw new Error("Authentication required");
-    return uploadTranscript(token, file);
+    return api.profiles.uploadTranscript(token, file);
   };
 
   const handleRemoveTranscript = async (value: { filename: string } | null) => {
     const token = await getToken();
     if (!token || !value) return;
-    await deleteTranscript(token, value.filename);
+    await api.profiles.deleteTranscript(token, value.filename);
     toast.success("Transcript removed");
   };
 

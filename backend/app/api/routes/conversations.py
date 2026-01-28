@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session as get_db_session
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_current_user_flexible
 from app.models.user import User
 from app.schemas.conversation import (
     SessionCreate, SessionUpdate, MessageCreate,
@@ -172,7 +172,7 @@ async def send_message(
 async def stream_message(
     session_id: UUID,
     message_data: MessageCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_flexible),
     db: Session = Depends(get_db_session)
 ):
     """
@@ -181,6 +181,7 @@ async def stream_message(
     - Saves user message first
     - Streams AI response in real-time
     - Saves complete AI response when done
+    - Uses flexible auth to support EventSource (token via query param)
     """
     try:
         # Verify session ownership
@@ -201,17 +202,17 @@ async def stream_message(
             content=message
         )
         
-        # Get context
+        # Get context (optimize message history)
         profile = session.profile
         # Get first recommendation if exists (relationships is plural)
         recommendation = session.recommendations[0] if session.recommendations else None
-        message_history = conversation_repository.get_recent_messages(db, session_id, limit=10)
+        message_history = conversation_repository.get_recent_messages(db, session_id, limit=6)  # Reduced for speed
         
         # Stream AI response
         ai_service = get_conversational_ai_service()
         
         async def event_generator():
-            """Generate SSE events."""
+            """Generate SSE events with improved error handling."""
             full_response = ""
             
             try:
@@ -225,18 +226,24 @@ async def stream_message(
                     yield f"data: {chunk}\n\n"
                 
                 # Save complete response
-                conversation_repository.add_message(
-                    db=db,
-                    session_id=session_id,
-                    role="assistant",
-                    content=full_response
-                )
+                if full_response.strip():
+                    conversation_repository.add_message(
+                        db=db,
+                        session_id=session_id,
+                        role="assistant",
+                        content=full_response
+                    )
                 
                 yield "data: [DONE]\n\n"
             
             except Exception as e:
-                logger.error(f"Error streaming: {str(e)}")
-                yield f"data: [ERROR] {str(e)}\n\n"
+                logger.error(f"Error streaming: {str(e)}", exc_info=True)
+                error_msg = "An error occurred"
+                if "rate" in str(e).lower():
+                    error_msg = "Rate limit exceeded. Please wait and try again."
+                elif "timeout" in str(e).lower():
+                    error_msg = "Request timed out. Please try again."
+                yield f"data: [ERROR] {error_msg}\n\n"
         
         return StreamingResponse(
             event_generator(),
@@ -281,7 +288,7 @@ async def generate_recommendation(
 @router.post("/sessions/{session_id}/recommend/stream")
 async def stream_recommendation(
     session_id: UUID,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_flexible),
     db: Session = Depends(get_db_session)
 ):
     """
@@ -290,6 +297,7 @@ async def stream_recommendation(
     - Generates recommendation using RAG + Mistral AI
     - Streams response in real-time
     - Links recommendation to session when complete
+    - Uses flexible auth to support EventSource (token via query param)
     """
     
     async def event_generator():
@@ -372,7 +380,7 @@ async def stream_recommendation(
                 session_id=session_id,
                 role="assistant",
                 content=welcome_msg,
-                metadata={
+                message_metadata={
                     "type": "recommendation_generated",
                     "recommendation_id": str(latest_recommendation.id) if latest_recommendation else None,
                     "recommendation_number": rec_num

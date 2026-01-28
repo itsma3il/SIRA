@@ -130,6 +130,7 @@ class ConversationService:
                 "last_message": last_message,
                 "last_message_at": session.last_message_at,
                 "message_count": message_count,
+                "status": session.status,  # Add status field
                 "created_at": session.created_at  # Add for grouping fallback
             })
         

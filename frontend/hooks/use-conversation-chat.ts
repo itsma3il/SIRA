@@ -1,13 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import {
-  createSession,
-  deleteSession,
-  getSession,
-  listSessions,
-  updateSession,
-} from "@/lib/api/conversations";
+import { api } from "@/lib/api";
 import type {
   MessageResponse,
   SessionCreate,
@@ -17,6 +11,7 @@ import type {
   SessionUpdate,
 } from "@/lib/types/conversation";
 import { useConversationStream } from "@/hooks/use-conversation-stream";
+import { useChatStore } from "@/stores/chat-store";
 
 export type ChatMessage = MessageResponse & {
   isStreaming?: boolean;
@@ -57,6 +52,10 @@ export function useConversationChat(): UseConversationChatResult {
 
   const activeRequestRef = useRef<{ token: string; sessionId: string } | null>(null);
   const streamingAssistantId = useRef<string | null>(null);
+  const isRecommendationStream = useRef<boolean>(false);
+  
+  // Zustand store actions for streaming state
+  const { setIsStreaming, setIsStreamingRecommendation } = useChatStore();
 
   const {
     isStreaming,
@@ -89,6 +88,13 @@ export function useConversationChat(): UseConversationChatResult {
         );
       }
 
+      // Update Zustand store
+      setIsStreaming(false);
+      if (isRecommendationStream.current) {
+        setIsStreamingRecommendation(false);
+        isRecommendationStream.current = false;
+      }
+
       const active = activeRequestRef.current;
       if (active) {
         void loadSession(active.token, active.sessionId);
@@ -99,6 +105,11 @@ export function useConversationChat(): UseConversationChatResult {
     },
     onError: (error) => {
       setSessionError(error.message);
+      setIsStreaming(false);
+      if (isRecommendationStream.current) {
+        setIsStreamingRecommendation(false);
+        isRecommendationStream.current = false;
+      }
       streamingAssistantId.current = null;
     },
   });
@@ -116,7 +127,7 @@ export function useConversationChat(): UseConversationChatResult {
       try {
         setSessionsLoading(true);
         setSessionsError(null);
-        const data = await listSessions(token, params);
+        const data = await api.conversations.listSessions(token, params);
         console.log("[useConversationChat] Sessions loaded:", {
           total: data.total,
           groupsCount: data.sessions.length,
@@ -139,7 +150,7 @@ export function useConversationChat(): UseConversationChatResult {
     try {
       setSessionLoading(true);
       setSessionError(null);
-      const detail = await getSession(token, sessionId);
+      const detail = await api.conversations.getSession(token, sessionId);
       setSessionDetail(detail);
       setMessages(detail.messages ?? []);
     } catch (error) {
@@ -170,7 +181,7 @@ export function useConversationChat(): UseConversationChatResult {
   const createNewSession = useCallback(
     async (token: string, payload: SessionCreate) => {
       try {
-        const session = await createSession(token, payload);
+        const session = await api.conversations.createSession(token, payload);
         await loadSessions(token);
         return session;
       } catch (error) {
@@ -186,7 +197,7 @@ export function useConversationChat(): UseConversationChatResult {
   const updateExistingSession = useCallback(
     async (token: string, sessionId: string, payload: SessionUpdate) => {
       try {
-        const session = await updateSession(token, sessionId, payload);
+        const session = await api.conversations.updateSession(token, sessionId, payload);
         await loadSessions(token);
         return session;
       } catch (error) {
@@ -202,7 +213,7 @@ export function useConversationChat(): UseConversationChatResult {
   const deleteExistingSession = useCallback(
     async (token: string, sessionId: string) => {
       try {
-        await deleteSession(token, sessionId);
+        await api.conversations.deleteSession(token, sessionId);
         await loadSessions(token);
         if (sessionDetail?.id === sessionId) {
           setSessionDetail(null);
@@ -242,6 +253,10 @@ export function useConversationChat(): UseConversationChatResult {
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
       streamingAssistantId.current = assistantMessage.id;
       activeRequestRef.current = { token, sessionId };
+      isRecommendationStream.current = false;
+      
+      // Update Zustand store
+      setIsStreaming(true);
 
       try {
         await streamMessage(sessionId, content, token);
@@ -249,9 +264,10 @@ export function useConversationChat(): UseConversationChatResult {
         setSessionError(
           error instanceof Error ? error.message : "Unable to send message"
         );
+        setIsStreaming(false);
       }
     },
-    [streamMessage]
+    [streamMessage, setIsStreaming]
   );
 
   const streamRecommendationHandler = useCallback(
@@ -268,6 +284,11 @@ export function useConversationChat(): UseConversationChatResult {
       setMessages((prev) => [...prev, assistantMessage]);
       streamingAssistantId.current = assistantMessage.id;
       activeRequestRef.current = { token, sessionId };
+      isRecommendationStream.current = true;
+      
+      // Update Zustand store - set both flags
+      setIsStreaming(true);
+      setIsStreamingRecommendation(true);
 
       try {
         await streamRecommendation(sessionId, token);
@@ -277,9 +298,12 @@ export function useConversationChat(): UseConversationChatResult {
             ? error.message
             : "Unable to generate recommendation"
         );
+        setIsStreaming(false);
+        setIsStreamingRecommendation(false);
+        isRecommendationStream.current = false;
       }
     },
-    [streamRecommendation]
+    [streamRecommendation, setIsStreaming, setIsStreamingRecommendation]
   );
 
   const resetSessionState = useCallback(() => {
@@ -288,7 +312,10 @@ export function useConversationChat(): UseConversationChatResult {
     setMessages([]);
     setSessionError(null);
     setSessionLoading(false);
-  }, [cancel]);
+    setIsStreaming(false);
+    setIsStreamingRecommendation(false);
+    isRecommendationStream.current = false;
+  }, [cancel, setIsStreaming, setIsStreamingRecommendation]);
 
   return {
     sessions,

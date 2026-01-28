@@ -38,23 +38,12 @@ class MessageResponse(BaseModel):
     id: UUID
     role: str
     content: str
-    metadata: Optional[dict] = Field(None, alias="message_metadata")
+    metadata: Optional[dict] = Field(None, validation_alias="message_metadata")
     created_at: datetime
-    
-    @field_validator('metadata', mode='before')
-    @classmethod
-    def ensure_dict(cls, v):
-        """Convert SQLAlchemy JSONB MetaData object to dict."""
-        if v is None:
-            return None
-        # Handle SQLAlchemy's special JSONB object
-        if hasattr(v, '__dict__') and not isinstance(v, dict):
-            return dict(v) if v else None
-        return v
     
     class Config:
         from_attributes = True
-        populate_by_name = True  # Allow both 'metadata' and 'message_metadata'
+        populate_by_name = True
 
 
 class ProfileSummary(BaseModel):

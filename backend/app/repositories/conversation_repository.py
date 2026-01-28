@@ -53,7 +53,7 @@ def get_by_user(
     db: Session,
     user_id: UUID,
     profile_id: Optional[UUID] = None,
-    status: Optional[str] = "active",
+    status: Optional[str] = None,  # Changed from "active" to None
     limit: int = 50
 ) -> List[ConversationSession]:
     """Get sessions for a user, optionally filtered by profile and status."""
@@ -102,14 +102,14 @@ def add_message(
     session_id: UUID,
     role: str,
     content: str,
-    metadata: Optional[dict] = None
+    message_metadata: Optional[dict] = None
 ) -> ConversationMessage:
     """Add a message to a session and update last_message_at."""
     message = ConversationMessage(
         session_id=session_id,
         role=role,
         content=content,
-        metadata=metadata
+        message_metadata=message_metadata  # Use the correct column name
     )
     db.add(message)
     

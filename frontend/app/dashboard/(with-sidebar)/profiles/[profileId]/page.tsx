@@ -7,7 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 import type { ProfileResponse } from "@/lib/profile-api-types";
-import { profilesApi } from "@/lib/profile-api";
+import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -43,7 +43,7 @@ export default function ProfileDetailPage() {
         setError("Authentication required");
         return;
       }
-      const data = await profilesApi.get(token, profileId);
+      const data = await api.profiles.getById(token, profileId);
       setProfile(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load profile");
@@ -68,7 +68,7 @@ export default function ProfileDetailPage() {
     if (!token) return;
 
     try {
-      await profilesApi.delete(token, profile.id);
+      await api.profiles.deleteById(token, profile.id);
       toast.success("Profile deleted");
       router.push("/dashboard/profiles");
     } catch (err) {
@@ -85,7 +85,7 @@ export default function ProfileDetailPage() {
     setProfile({ ...profile, status });
 
     try {
-      const updated = await profilesApi.changeStatus(token, profile.id, { status });
+      const updated = await api.profiles.changeStatus(token, profile.id, { status });
       setProfile(updated);
       toast.success("Profile status updated");
     } catch (err) {

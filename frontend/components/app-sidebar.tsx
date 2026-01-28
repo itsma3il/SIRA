@@ -16,7 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { SettingsDialog } from "@/components/settings-dialog"
 
 const navMain = [
   {
@@ -93,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <p className="text-xs text-muted-foreground">Manage settings</p>
             </div>
           </div>
-          <ThemeToggle />
+          <SettingsDialog />
         </div>
       </SidebarFooter>
     </Sidebar>

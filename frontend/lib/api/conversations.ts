@@ -61,36 +61,56 @@ export async function listSessions(
 
   console.log("[API] Fetching sessions from:", url);
 
-  const response = await fetch(url, {
-    headers: {
-      "Authorization": `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+      // No timeout for this endpoint - may be called during long streaming operations
+    });
 
-  console.log("[API] Sessions response status:", response.status);
+    console.log("[API] Sessions response status:", response.status);
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("[API] Sessions error:", error);
-    
-    // Parse error for better messages
-    try {
-      const errorJson = JSON.parse(error);
-      if (errorJson.detail?.includes("expired")) {
-        throw new Error("Your session has expired. Please refresh the page.");
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("[API] Sessions error:", error);
+      
+      // Parse error for better messages
+      try {
+        const errorJson = JSON.parse(error);
+        if (response.status === 401 || errorJson.detail?.includes("expired")) {
+          throw new Error("Your session has expired. Please refresh the page.");
+        }
+        if (response.status === 429) {
+          throw new Error("Too many requests. Please wait a moment and try again.");
+        }
+        if (response.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        }
+        throw new Error(errorJson.detail || `Failed to list sessions: ${error}`);
+      } catch (e) {
+        if (e instanceof Error && (e.message.includes("expired") || e.message.includes("requests"))) {
+          throw e;
+        }
+        throw new Error(`Failed to list sessions: ${error}`);
       }
-      throw new Error(errorJson.detail || `Failed to list sessions: ${error}`);
-    } catch (e) {
-      if (e instanceof Error && e.message.includes("expired")) {
-        throw e;
-      }
-      throw new Error(`Failed to list sessions: ${error}`);
     }
-  }
 
-  const data = await response.json();
-  console.log("[API] Sessions data received:", data);
-  return data;
+    const data = await response.json();
+    console.log("[API] Sessions data received:", data);
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === "TimeoutError" || error.message.includes("timeout")) {
+        throw new Error("Request timed out. Please check your connection and try again.");
+      }
+      if (error.message.includes("fetch") || error.message.includes("network")) {
+        throw new Error("Network error. Please check your connection.");
+      }
+      throw error;
+    }
+    throw new Error("An unexpected error occurred while fetching sessions.");
+  }
 }
 
 /**

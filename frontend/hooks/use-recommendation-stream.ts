@@ -84,9 +84,9 @@ export function useRecommendationStream(): UseRecommendationStreamResult {
         },
         signal: ctrl.signal,
         
-        onopen(response) {
+        async onopen(response) {
           if (response.ok) {
-            return; // Connection successful
+            return Promise.resolve(); // Connection successful
           }
           
           // Handle HTTP errors

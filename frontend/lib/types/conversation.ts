@@ -45,8 +45,10 @@ export interface SessionListItem {
   profile_name?: string | null;
   title: string;
   last_message?: string | null;
-  last_message_at?: string;
+  last_message_at?: string | null;
   message_count: number;
+  status: string;
+  created_at: string;
 }
 
 export interface SessionPeriodGroup {

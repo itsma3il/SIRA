@@ -13,6 +13,7 @@ export interface RetrievedProgram {
 export interface Recommendation {
   id: string;
   profile_id: string;
+  session_id: string;
   query: string;
   retrieved_context: RetrievedProgram[] | null;
   ai_response: string;
@@ -29,6 +30,7 @@ export interface Recommendation {
 
 export interface RecommendationCreate {
   profile_id: string;
+  session_id: string;
 }
 
 export interface RecommendationFeedback {

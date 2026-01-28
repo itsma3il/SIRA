@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 import type { ProfileListResponse } from "@/lib/profile-api-types";
-import { profilesApi } from "@/lib/profile-api";
+import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,7 +51,7 @@ export default function ProfilesPage() {
         setError("Authentication required");
         return;
       }
-      const data = await profilesApi.list(token);
+      const data = await api.profiles.list(token);
       setProfiles(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load profiles");
@@ -78,7 +78,7 @@ export default function ProfilesPage() {
     setProfiles((current) => current.filter((item) => item.id !== profileId));
 
     try {
-      await profilesApi.delete(token, profileId);
+      await api.profiles.deleteById(token, profileId);
       toast.success("Profile deleted");
     } catch (err) {
       setProfiles(previous);

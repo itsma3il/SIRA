@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
-import { SessionSidebar } from "@/components/chat/session-sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Dialog,
   DialogContent,
@@ -20,43 +20,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useConversationChat } from "@/hooks/use-conversation-chat";
-import { profilesApi } from "@/lib/profile-api";
-import type { ProfileListResponse } from "@/lib/profile-api-types";
+import { useChatStore } from "@/stores/chat-store";
+import { useChatActions } from "@/hooks/use-chat-actions";
 
 export default function ChatPage() {
-  const { getToken, isLoaded } = useAuth();
+  const { isLoaded } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {
-    sessions,
-    sessionsLoading,
-    sessionsError,
-    loadSessions,
-    createNewSession,
-  } = useConversationChat();
+  
+  // Zustand store
+  const profiles = useChatStore((state) => state.profiles);
+  
+  // Actions
+  const { createSession } = useChatActions();
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [profiles, setProfiles] = useState<ProfileListResponse[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<string>("general");
   const [customTitle, setCustomTitle] = useState("");
-  const [profilesLoading, setProfilesLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const profilesLoadedRef = useRef(false);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    const load = async () => {
-      const token = await getToken();
-      if (!token) return;
-      await loadSessions(token);
-    };
-
-    void load();
-  }, [getToken, isLoaded, loadSessions]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -65,47 +47,11 @@ export default function ChatPage() {
     }
   }, [isLoaded, searchParams]);
 
-  useEffect(() => {
-    if (!dialogOpen) {
-      profilesLoadedRef.current = false;
-      return;
-    }
-
-    if (!isLoaded || profilesLoadedRef.current || profiles.length > 0) return;
-
-    const loadProfiles = async () => {
-      try {
-        setProfilesLoading(true);
-        setFormError(null);
-        const token = await getToken();
-        if (!token) {
-          setFormError("Authentication required");
-          return;
-        }
-        const data = await profilesApi.list(token);
-        setProfiles(data);
-        profilesLoadedRef.current = true;
-      } catch (err) {
-        setFormError(err instanceof Error ? err.message : "Unable to load profiles");
-      } finally {
-        setProfilesLoading(false);
-      }
-    };
-
-    void loadProfiles();
-  }, [dialogOpen, getToken, isLoaded, profiles.length]);
-
   const handleCreate = async () => {
-    const token = await getToken();
-    if (!token) {
-      setFormError("Authentication required");
-      return;
-    }
-
     setCreating(true);
     setFormError(null);
     try {
-      const session = await createNewSession(token, {
+      const session = await createSession({
         profile_id: selectedProfile === "general" ? null : selectedProfile,
         title: customTitle.trim() ? customTitle.trim() : undefined,
       });
@@ -116,60 +62,62 @@ export default function ChatPage() {
         setSelectedProfile("general");
         router.push(`/dashboard/chat/${session.id}`);
       }
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Failed to create conversation");
     } finally {
       setCreating(false);
     }
   };
 
   return (
-    <SidebarProvider defaultOpen>
-      <SessionSidebar
-        sessions={sessions}
-        isLoading={sessionsLoading}
-        error={sessionsError}
-        activeSessionId={null}
-      />
-      <SidebarInset className="flex min-h-[70vh] flex-col">
-        <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10 text-center">
-          <div className="space-y-2">
-            <div className="flex items-center justify-center gap-2">
-              <SidebarTrigger className="-ml-1" />
-              <h1 className="text-2xl font-semibold text-foreground">
-                Academic conversations
-              </h1>
+    <>
+      <div className="flex h-screen flex-col items-center justify-center p-6">
+        <Card className="w-full max-w-2xl p-8">
+          <div className="space-y-6">
+            <div className="space-y-2 text-center">
+              <h1 className="text-3xl font-bold">Academic Chat Assistant</h1>
+              <p className="text-muted-foreground">
+                Get personalized academic program recommendations and guidance
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Start a chat to explore programs, pathways, and next steps tailored to a student profile.
-            </p>
-          </div>
-          <Card className="max-w-xl space-y-3 p-6 text-left">
-            <p className="text-sm font-medium text-foreground">Get started</p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Choose a profile or start a general chat.</li>
-              <li>• Ask about programs, match scores, and requirements.</li>
-              <li>• Generate recommendations when you are ready.</li>
-            </ul>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="flex flex-col gap-3">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>New chat</Button>
+                  <Button size="lg" className="w-full">
+                    <svg
+                      className="mr-2 h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Start new conversation
+                  </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Start a new chat</DialogTitle>
+                    <DialogTitle>Start a new conversation</DialogTitle>
                     <DialogDescription>
-                      Choose a profile for context-aware recommendations or start a general chat.
+                      Configure your chat session. You can attach a profile for personalized
+                      recommendations or start a general chat.
                     </DialogDescription>
                   </DialogHeader>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="chat-title">Session title (optional)</Label>
+                      <Label htmlFor="title">Conversation title (optional)</Label>
                       <Input
-                        id="chat-title"
-                        placeholder="e.g. MBA options for 2026"
+                        id="title"
+                        placeholder="e.g., Master's programs in AI"
                         value={customTitle}
-                        onChange={(event) => setCustomTitle(event.target.value)}
+                        onChange={(e) => setCustomTitle(e.target.value)}
                       />
                     </div>
 
@@ -190,9 +138,6 @@ export default function ChatPage() {
                       </Select>
                     </div>
 
-                    {profilesLoading && (
-                      <p className="text-xs text-muted-foreground">Loading profiles...</p>
-                    )}
                     {formError && <p className="text-xs text-destructive">{formError}</p>}
                   </div>
 
@@ -210,9 +155,9 @@ export default function ChatPage() {
                 <Link href="/dashboard/profiles">Manage profiles</Link>
               </Button>
             </div>
-          </Card>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+          </div>
+        </Card>
+      </div>
+    </>
   );
 }

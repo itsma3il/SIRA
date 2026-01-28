@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, PlusIcon, Sparkles } from "lucide-react";
+import { Search, PlusIcon, Sparkles, MoreHorizontal, UserSquare2, Pencil, Archive, Trash } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 import type { SessionListResponse } from "@/lib/types/conversation";
@@ -16,11 +16,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuAction,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SettingsDialog } from "@/components/settings-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 interface SessionSidebarProps {
@@ -28,6 +36,11 @@ interface SessionSidebarProps {
   isLoading: boolean;
   error?: string | null;
   activeSessionId?: string | null;
+  onAttachProfile?: (sessionId: string) => void;
+  onRenameSession?: (sessionId: string) => void;
+  onArchiveSession?: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
+  onRestoreSession?: (sessionId: string) => void;
 }
 
 export function SessionSidebar({
@@ -35,26 +48,63 @@ export function SessionSidebar({
   isLoading,
   error,
   activeSessionId,
+  onAttachProfile,
+  onRenameSession,
+  onArchiveSession,
+  onDeleteSession,
+  onRestoreSession,
 }: SessionSidebarProps) {
   const [search, setSearch] = useState("");
+
+  // Extract archived sessions
+  const archivedSessions = useMemo(() => {
+    if (!sessions?.sessions?.length) return [];
+    const archived = sessions.sessions
+      .flatMap((group) => group.sessions)
+      .filter((session) => session.status === "archived");
+    
+    console.log('[SessionSidebar] All sessions:', sessions.sessions.flatMap(g => g.sessions).map(s => ({ id: s.id, title: s.title, status: s.status })));
+    console.log('[SessionSidebar] Archived sessions found:', archived.length);
+    
+    return archived.map((session) => ({
+      id: session.id,
+      title: session.title,
+      archivedAt: session.last_message_at 
+        ? new Date(session.last_message_at).toLocaleDateString()
+        : session.created_at 
+        ? new Date(session.created_at).toLocaleDateString()
+        : 'Unknown',
+      messageCount: session.message_count,
+    }));
+  }, [sessions]);
 
   const filteredSessions = useMemo(() => {
     if (!sessions?.sessions?.length) return [];
     const query = search.trim().toLowerCase();
-    if (!query) return sessions.sessions;
-
-    return sessions.sessions
+    
+    // Filter out archived sessions and apply search
+    const activeSessions = sessions.sessions
       .map((group) => {
-        const groupSessions = group.sessions.filter((session) =>
-          [session.title, session.profile_name, session.last_message]
+        const groupSessions = group.sessions.filter((session) => {
+          // Exclude archived sessions - check for explicit 'archived' status
+          if (session.status === "archived") {
+            return false;
+          }
+          
+          // Apply search filter if exists
+          if (!query) return true;
+          return [session.title, session.profile_name, session.last_message]
             .filter(Boolean)
             .join(" ")
             .toLowerCase()
-            .includes(query)
-        );
+            .includes(query);
+        });
         return { ...group, sessions: groupSessions };
       })
       .filter((group) => group.sessions.length > 0);
+    
+    console.log('[SessionSidebar] Active sessions after filter:', activeSessions.flatMap(g => g.sessions).length);
+    return activeSessions;
   }, [search, sessions]);
 
   return (
@@ -127,6 +177,43 @@ export function SessionSidebar({
                           </div>
                         </Link>
                       </SidebarMenuButton>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <SidebarMenuAction showOnHover>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </SidebarMenuAction>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start" className="w-44">
+                          {onAttachProfile && (
+                            <DropdownMenuItem onClick={() => onAttachProfile(session.id)}>
+                              <UserSquare2 className="mr-2 h-4 w-4" />
+                              Attach Profile
+                            </DropdownMenuItem>
+                          )}
+                          {onRenameSession && (
+                            <DropdownMenuItem onClick={() => onRenameSession(session.id)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Rename
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          {onArchiveSession && (
+                            <DropdownMenuItem onClick={() => onArchiveSession(session.id)}>
+                              <Archive className="mr-2 h-4 w-4" />
+                              Archive
+                            </DropdownMenuItem>
+                          )}
+                          {onDeleteSession && (
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => onDeleteSession(session.id)}
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </SidebarMenuItem>
                   );
                 })}
@@ -151,7 +238,11 @@ export function SessionSidebar({
               <p className="text-xs text-muted-foreground">Manage settings</p>
             </div>
           </div>
-          <ThemeToggle />
+          <SettingsDialog
+            archivedSessions={archivedSessions}
+            onRestoreSession={onRestoreSession}
+            onDeleteSession={onDeleteSession}
+          />
         </div>
       </SidebarFooter>
     </Sidebar>

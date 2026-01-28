@@ -34,6 +34,7 @@ interface ChatInputProps {
   recommendationDisabled?: boolean;
   disabled?: boolean;
   isStreaming?: boolean;
+  isStreamingRecommendation?: boolean;
 }
 
 export function ChatInput({
@@ -48,12 +49,13 @@ export function ChatInput({
   recommendationDisabled,
   disabled,
   isStreaming,
+  isStreamingRecommendation = false,
 }: ChatInputProps) {
   const canSend = value.trim().length > 0 && !disabled && !isStreaming;
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
 
-  const recommendationLocked = Boolean(recommendationDisabled || disabled || isStreaming);
+  const recommendationLocked = Boolean(recommendationDisabled || disabled || isStreaming || isStreamingRecommendation);
 
   const handleRecommendation = () => {
     if (recommendationLocked) return;
@@ -86,7 +88,7 @@ export function ChatInput({
             className="bg-background! rounded-3xl min-h-11 pt-3 pl-4 text-base leading-[1.3] sm:text-base md:text-base"
           />
           <PromptInputActions className="mt-5 flex w-full items-center justify-end gap-2 px-3 pb-3">
-            <PromptInputAction tooltip={recommendationDisabled ? "Recommendation already generated" : "Generate recommendation"}>
+            <PromptInputAction tooltip={isStreamingRecommendation ? "Generating recommendation..." : recommendationDisabled ? "Recommendation already generated" : "Generate recommendation"}>
               <Button
                 size="icon"
                 variant={recommendationLocked ? "outline" : "secondary"}
@@ -94,7 +96,14 @@ export function ChatInput({
                 className={cn("rounded-full", recommendationLocked && "opacity-60")}
                 onClick={handleRecommendation}
               >
-                <Sparkles className="h-4 w-4" />
+                {isStreamingRecommendation ? (
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
               </Button>
             </PromptInputAction>
             {isStreaming ? (

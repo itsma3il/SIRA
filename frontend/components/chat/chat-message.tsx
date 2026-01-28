@@ -28,6 +28,7 @@ export function ChatMessage({ message, recommendationSummary }: ChatMessageProps
 
   return (
     <Message
+      id={`message-${message.id}`}
       className={cn(
         "mx-auto flex w-full max-w-3xl flex-col gap-2 px-6",
         isAssistant ? "items-start" : "items-end"

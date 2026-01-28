@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 import type { ProfileFormData } from "@/lib/profile-form-types";
-import { profilesApi, uploadTranscript, deleteTranscript } from "@/lib/profile-api";
+import { api } from "@/lib/api";
 import { buildProfileCreatePayload } from "@/lib/profile-mappers";
 import { useProfileWizardStore } from "@/stores/profile-wizard-store";
 import { ProfileWizard } from "@/components/profile/profile-wizard";
@@ -41,7 +41,7 @@ export default function NewProfilePage() {
 
     try {
       const payload = buildProfileCreatePayload(data);
-      const profile = await profilesApi.create(token, payload);
+      const profile = await api.profiles.create(token, payload);
       toast.success("Profile created");
       router.push(`/dashboard/profiles/${profile.id}`);
     } catch (err) {
@@ -53,7 +53,7 @@ export default function NewProfilePage() {
   const handleUploadTranscript = async (file: File) => {
     const token = await getToken();
     if (!token) throw new Error("Authentication required");
-    return uploadTranscript(token, file);
+    return api.profiles.uploadTranscript(token, file);
   };
 
   const handleRemoveTranscript = async (value: { filename: string } | null) => {

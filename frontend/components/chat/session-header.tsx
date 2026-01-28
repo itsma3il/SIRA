@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Pencil, Trash, Archive, ArchiveRestore, MoreHorizontal } from "lucide-react";
+import { Check, Pencil, Trash, Archive, ArchiveRestore, MoreHorizontal, UserSquare2 } from "lucide-react";
 
 import type { SessionDetailResponse } from "@/lib/types/conversation";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -21,6 +22,7 @@ interface SessionHeaderProps {
   onRename: (title: string) => void;
   onDelete: () => void;
   onToggleArchive: () => void;
+  onAttachProfile?: () => void;
   isUpdating?: boolean;
 }
 
@@ -29,6 +31,7 @@ export function SessionHeader({
   onRename,
   onDelete,
   onToggleArchive,
+  onAttachProfile,
   isUpdating = false,
 }: SessionHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -98,10 +101,17 @@ export function SessionHeader({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
+          {onAttachProfile && (
+            <DropdownMenuItem onClick={onAttachProfile}>
+              <UserSquare2 className="mr-2 h-4 w-4" />
+              Attach Profile
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setIsEditing(true)}>
             <Pencil className="mr-2 h-4 w-4" />
             Rename
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onToggleArchive}>
             {session.status === "archived" ? (
               <ArchiveRestore className="mr-2 h-4 w-4" />
