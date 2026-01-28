@@ -57,6 +57,10 @@ export function useConversationChat(): UseConversationChatResult {
   // Zustand store actions for streaming state
   const { setIsStreaming, setIsStreamingRecommendation } = useChatStore();
 
+  // Get Zustand store actions for updating messages in real-time
+  const setMessagesInStore = useChatStore((state) => state.setMessages);
+  const messagesFromStore = useChatStore((state) => state.messages);
+
   const {
     isStreaming,
     streamMessage,
@@ -65,8 +69,10 @@ export function useConversationChat(): UseConversationChatResult {
   } = useConversationStream({
     onChunk: (chunk) => {
       if (!streamingAssistantId.current) return;
-      setMessages((prev) =>
-        prev.map((message) =>
+      
+      // Update local state and store separately to avoid setState-in-render
+      setMessages((prev) => {
+        const updated = prev.map((message) =>
           message.id === streamingAssistantId.current
             ? {
                 ...message,
@@ -74,18 +80,28 @@ export function useConversationChat(): UseConversationChatResult {
                 isStreaming: true,
               }
             : message
-        )
-      );
+        );
+        
+        // Sync to Zustand store after state update completes
+        setTimeout(() => setMessagesInStore(updated), 0);
+        
+        return updated;
+      });
     },
     onComplete: () => {
       if (streamingAssistantId.current) {
-        setMessages((prev) =>
-          prev.map((message) =>
+        setMessages((prev) => {
+          const updated = prev.map((message) =>
             message.id === streamingAssistantId.current
               ? { ...message, isStreaming: false }
               : message
-          )
-        );
+          );
+          
+          // Sync to Zustand store after state update completes
+          setTimeout(() => setMessagesInStore(updated), 0);
+          
+          return updated;
+        });
       }
 
       // Update Zustand store
@@ -152,7 +168,10 @@ export function useConversationChat(): UseConversationChatResult {
       setSessionError(null);
       const detail = await api.conversations.getSession(token, sessionId);
       setSessionDetail(detail);
+      
+      // Update both local state and Zustand store
       setMessages(detail.messages ?? []);
+      setMessagesInStore(detail.messages ?? []);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unable to load session";
       
@@ -176,7 +195,7 @@ export function useConversationChat(): UseConversationChatResult {
     } finally {
       setSessionLoading(false);
     }
-  }, []);
+  }, [setMessagesInStore]);
 
   const createNewSession = useCallback(
     async (token: string, payload: SessionCreate) => {
@@ -250,7 +269,11 @@ export function useConversationChat(): UseConversationChatResult {
         isStreaming: true,
       };
 
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      // Update local state and Zustand store separately
+      const updatedMessages = [...messages, userMessage, assistantMessage];
+      setMessages(updatedMessages);
+      setMessagesInStore(updatedMessages);
+      
       streamingAssistantId.current = assistantMessage.id;
       activeRequestRef.current = { token, sessionId };
       isRecommendationStream.current = false;
@@ -267,7 +290,7 @@ export function useConversationChat(): UseConversationChatResult {
         setIsStreaming(false);
       }
     },
-    [streamMessage, setIsStreaming]
+    [streamMessage, setIsStreaming, setMessagesInStore]
   );
 
   const streamRecommendationHandler = useCallback(
@@ -279,9 +302,16 @@ export function useConversationChat(): UseConversationChatResult {
         content: "",
         created_at: timestamp,
         isStreaming: true,
+        metadata: {
+          type: "recommendation_generated"
+        }
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Update local state and Zustand store separately
+      const updatedMessages = [...messages, assistantMessage];
+      setMessages(updatedMessages);
+      setMessagesInStore(updatedMessages);
+      
       streamingAssistantId.current = assistantMessage.id;
       activeRequestRef.current = { token, sessionId };
       isRecommendationStream.current = true;
@@ -303,7 +333,7 @@ export function useConversationChat(): UseConversationChatResult {
         isRecommendationStream.current = false;
       }
     },
-    [streamRecommendation, setIsStreaming, setIsStreamingRecommendation]
+    [streamRecommendation, setIsStreaming, setIsStreamingRecommendation, setMessagesInStore]
   );
 
   const resetSessionState = useCallback(() => {

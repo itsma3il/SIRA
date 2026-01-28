@@ -54,6 +54,11 @@ export function useConversationStream(options: UseConversationStreamOptions = {}
               return;
             }
 
+            // Handle empty chunks (connection confirmation) - just skip them
+            if (!event.data || event.data.trim() === "") {
+              return;
+            }
+
             setContent((prev) => {
               const updated = prev + event.data;
               options.onChunk?.(event.data);
@@ -110,6 +115,11 @@ export function useConversationStream(options: UseConversationStreamOptions = {}
               setError(error);
               setIsStreaming(false);
               options.onError?.(error);
+              return;
+            }
+
+            // Handle empty chunks (connection confirmation) - just skip them
+            if (!event.data || event.data.trim() === "") {
               return;
             }
 

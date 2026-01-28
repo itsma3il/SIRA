@@ -24,14 +24,14 @@ class ConversationalAIService:
     
     def build_system_prompt(
         self,
-        profile: Profile,
+        profile: Optional[Profile] = None,
         recommendation: Optional[Recommendation] = None
     ) -> str:
         """
         Build context-aware system prompt with profile and recommendation info.
         
         Args:
-            profile: Student profile with academic info
+            profile: Student profile with academic info (optional)
             recommendation: Previous recommendation if exists
         
         Returns:
@@ -53,32 +53,36 @@ Guidelines:
 - If asked about programs not in the recommendations, acknowledge this and focus on what you know
 """
         
-        # Add profile context
-        prompt += f"\n\n**Student Profile:**\n"
-        prompt += f"- Name: {profile.profile_name}\n"
+        # Add profile context if available
+        if profile:
+            prompt += f"\n\n**Student Profile:**\n"
+            prompt += f"- Name: {profile.profile_name}\n"
         
-        if hasattr(profile, 'academic_record') and profile.academic_record:
-            record = profile.academic_record
-            if record.current_status:
-                prompt += f"- Current Status: {record.current_status}\n"
-            if record.current_field:
-                prompt += f"- Field of Study: {record.current_field}\n"
-            if record.gpa:
-                prompt += f"- GPA: {record.gpa}/4.0\n"
-            if record.current_institution:
-                prompt += f"- Current Institution: {record.current_institution}\n"
+            if hasattr(profile, 'academic_record') and profile.academic_record:
+                record = profile.academic_record
+                if record.current_status:
+                    prompt += f"- Current Status: {record.current_status}\n"
+                if record.current_field:
+                    prompt += f"- Field of Study: {record.current_field}\n"
+                if record.gpa:
+                    prompt += f"- GPA: {record.gpa}/4.0\n"
+                if record.current_institution:
+                    prompt += f"- Current Institution: {record.current_institution}\n"
         
-        if hasattr(profile, 'student_preferences') and profile.student_preferences:
-            prefs = profile.student_preferences
-            if prefs.budget_range_max:
-                prompt += f"- Budget: Up to ${prefs.budget_range_max:,.0f}/year\n"
-            if prefs.geographic_preference:
-                prompt += f"- Preferred Location: {prefs.geographic_preference}\n"
-            if prefs.career_goals:
-                prompt += f"- Career Goals: {prefs.career_goals}\n"
-            if prefs.favorite_subjects:
-                subjects = prefs.favorite_subjects[:3]
-                prompt += f"- Favorite Subjects: {', '.join(subjects)}\n"
+            if hasattr(profile, 'student_preferences') and profile.student_preferences:
+                prefs = profile.student_preferences
+                if prefs.budget_range_max:
+                    prompt += f"- Budget: Up to ${prefs.budget_range_max:,.0f}/year\n"
+                if prefs.geographic_preference:
+                    prompt += f"- Preferred Location: {prefs.geographic_preference}\n"
+                if prefs.career_goals:
+                    prompt += f"- Career Goals: {prefs.career_goals}\n"
+                if prefs.favorite_subjects:
+                    subjects = prefs.favorite_subjects[:3]
+                    prompt += f"- Favorite Subjects: {', '.join(subjects)}\n"
+        else:
+            # No profile attached - provide general guidance
+            prompt += "\n\n**Note:** This conversation has no attached profile. Provide general academic guidance.\n"
         
         # Add recommendation context if exists
         if recommendation and recommendation.structured_data:
@@ -100,7 +104,7 @@ Guidelines:
     async def generate_response(
         self,
         user_message: str,
-        profile: Profile,
+        profile: Optional[Profile] = None,
         recommendation: Optional[Recommendation] = None,
         message_history: Optional[List[ConversationMessage]] = None
     ) -> str:
@@ -109,7 +113,7 @@ Guidelines:
         
         Args:
             user_message: Current user's message
-            profile: Student profile
+            profile: Student profile (optional)
             recommendation: Previous recommendation if exists
             message_history: Recent conversation history (last 10 messages)
         
@@ -152,7 +156,7 @@ Guidelines:
     async def stream_response(
         self,
         user_message: str,
-        profile: Profile,
+        profile: Optional[Profile] = None,
         recommendation: Optional[Recommendation] = None,
         message_history: Optional[List[ConversationMessage]] = None
     ) -> AsyncGenerator[str, None]:
@@ -161,7 +165,7 @@ Guidelines:
         
         Args:
             user_message: Current user's message
-            profile: Student profile
+            profile: Student profile (optional)
             recommendation: Previous recommendation if exists
             message_history: Recent conversation history
         
@@ -176,22 +180,31 @@ Guidelines:
             messages.append({"role": "system", "content": system_prompt})
             
             if message_history:
-                for msg in message_history[-10:]:
+                # Limit to last 6 messages for faster processing
+                for msg in message_history[-6:]:
                     messages.append({"role": msg.role, "content": msg.content})
             
             messages.append({"role": "user", "content": user_message})
+            
+            logger.info(f"Starting stream with {len(messages)} messages in context")
             
             # Stream from Mistral
             stream = self.client.chat.stream(
                 model=self.model,
                 messages=messages,
                 temperature=0.7,
-                max_tokens=2000
+                max_tokens=1500  # Reduced for faster responses
             )
             
+            chunk_count = 0
             for chunk in stream:
                 if chunk.data.choices and chunk.data.choices[0].delta.content:
+                    chunk_count += 1
+                    if chunk_count == 1:
+                        logger.info("First token received from Mistral")
                     yield chunk.data.choices[0].delta.content
+            
+            logger.info(f"Stream complete, {chunk_count} chunks generated")
         
         except Exception as e:
             logger.error(f"Error streaming AI response: {str(e)}")

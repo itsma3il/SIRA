@@ -206,7 +206,7 @@ async def stream_message(
         profile = session.profile
         # Get first recommendation if exists (relationships is plural)
         recommendation = session.recommendations[0] if session.recommendations else None
-        message_history = conversation_repository.get_recent_messages(db, session_id, limit=6)  # Reduced for speed
+        message_history = conversation_repository.get_recent_messages(db, session_id, limit=4)  # Reduced to 4 for faster response
         
         # Stream AI response
         ai_service = get_conversational_ai_service()
@@ -214,16 +214,23 @@ async def stream_message(
         async def event_generator():
             """Generate SSE events with improved error handling."""
             full_response = ""
+            chunk_count = 0
             
             try:
+                # Send immediate connection confirmation
+                yield f"data: \n\n"
+                
                 async for chunk in ai_service.stream_response(
                     user_message=message,
                     profile=profile,
                     recommendation=recommendation,
                     message_history=message_history
                 ):
+                    chunk_count += 1
                     full_response += chunk
                     yield f"data: {chunk}\n\n"
+                
+                logger.info(f"Streamed {chunk_count} chunks, total length: {len(full_response)}")
                 
                 # Save complete response
                 if full_response.strip():
@@ -245,7 +252,7 @@ async def stream_message(
                     error_msg = "Request timed out. Please try again."
                 yield f"data: [ERROR] {error_msg}\n\n"
         
-        return StreamingResponse(
+        return StreamingResponse(   
             event_generator(),
             media_type="text/event-stream",
             headers={
