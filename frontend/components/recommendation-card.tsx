@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { ChevronDown, ChevronUp, Copy, Check, MessageSquare, Star, GraduationCap, MapPin, DollarSign, Calendar, BarChart3 } from "lucide-react";
 import type { Recommendation, RecommendationFeedback } from "@/lib/types/recommendation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,17 +16,30 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { FeedbackModal } from "@/components/feedback-modal";
 import { Markdown } from "@/components/prompt-kit/markdown";
 import { RecommendationCharts } from "@/components/recommendation-charts";
+import { api } from "@/lib/api";
+import { logger } from "@/lib/utils/logger";
+import { toast } from "sonner";
 
 interface RecommendationCardProps {
   recommendation: Recommendation;
-  onFeedback?: (recommendationId: string, rating: number) => void;
+  onFeedbackSubmitted?: (recommendationId: string, feedback: RecommendationFeedback) => void;
 }
 
-export function RecommendationCard({ recommendation, onFeedback }: RecommendationCardProps) {
+export function RecommendationCard({ recommendation, onFeedbackSubmitted }: RecommendationCardProps) {
+  const { getToken } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [chartsExpanded, setChartsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [currentFeedback, setCurrentFeedback] = useState<RecommendationFeedback | null>(
+    recommendation.feedback_rating
+      ? {
+          feedback_rating: recommendation.feedback_rating,
+          feedback_comment: recommendation.feedback_comment ?? undefined,
+        }
+      : null
+  );
 
   // Get match score badge color
   const getMatchScoreColor = (score: number) => {
@@ -40,8 +54,47 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
       await navigator.clipboard.writeText(recommendation.ai_response);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      logger.logUserAction("copy_recommendation", {
+        recommendation_id: recommendation.id,
+      });
     } catch (err) {
       console.error("Failed to copy:", err);
+      logger.error("Failed to copy recommendation", err);
+    }
+  };
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (feedback: RecommendationFeedback) => {
+    try {
+      setSubmittingFeedback(true);
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated");
+
+      await api.recommendations.submitFeedback(
+        token,
+        recommendation.id,
+        feedback
+      );
+
+      setCurrentFeedback(feedback);
+      
+      logger.logFeedbackSubmission(
+        recommendation.id,
+        feedback.feedback_rating,
+        !!feedback.feedback_comment
+      );
+
+      toast.success("Feedback Submitted ! Thank you for your feedback!");
+
+      if (onFeedbackSubmitted) {
+        onFeedbackSubmitted(recommendation.id, feedback);
+      }
+    } catch (error) {
+      logger.error("Failed to submit feedback", error);
+      toast.error("Failed to submit feedback. Please try again.");
+      throw error;
+    } finally {
+      setSubmittingFeedback(false);
     }
   };
 
@@ -194,23 +247,21 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-2 border-t">
           <div className="flex gap-2">
-            {recommendation.feedback_rating ? (
+            {currentFeedback ? (
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                {recommendation.feedback_rating}/5
+                {currentFeedback.feedback_rating}/5
               </Badge>
             ) : (
-              onFeedback && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFeedbackModalOpen(true)}
-                  className="gap-2"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Rate
-                </Button>
-              )
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFeedbackModalOpen(true)}
+                className="gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Rate
+              </Button>
             )}
           </div>
           <Button variant="ghost" size="sm" onClick={copyToClipboard} className="gap-2">
@@ -229,16 +280,13 @@ export function RecommendationCard({ recommendation, onFeedback }: Recommendatio
         </div>
       </div>
 
-      {onFeedback && (
-        <FeedbackModal
-          open={feedbackModalOpen}
-          onOpenChange={setFeedbackModalOpen}
-          onSubmit={(rating) => {
-            onFeedback(recommendation.id, rating);
-            setFeedbackModalOpen(false);
-          }}
-        />
-      )}
+      <FeedbackModal
+        open={feedbackModalOpen}
+        onOpenChange={setFeedbackModalOpen}
+        onSubmit={handleFeedbackSubmit}
+        initialRating={currentFeedback?.feedback_rating}
+        initialComment={currentFeedback?.feedback_comment}
+      />
     </>
   );
 }

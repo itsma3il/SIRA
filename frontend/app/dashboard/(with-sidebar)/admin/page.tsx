@@ -20,10 +20,17 @@ import {
 } from "lucide-react";
 import { api, type DashboardMetrics, type ProgramCount } from "@/lib/api";
 import Link from "next/link";
+import { FeedbackTrendsCard } from "@/components/admin/feedback-trends-card";
+import { RatingDistributionChart } from "@/components/admin/rating-distribution-chart";
+import { ImprovementAreasCard } from "@/components/admin/improvement-areas-card";
+import { SystemHealthCard } from "@/components/admin/system-health-card";
+import { logger } from "@/lib/utils/logger";
 
 export default function AdminDashboardPage() {
     const { getToken, isLoaded } = useAuth();
     const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+    const [feedbackTrends, setFeedbackTrends] = useState<any>(null);
+    const [improvementAreas, setImprovementAreas] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [period, setPeriod] = useState(30);
@@ -37,10 +44,22 @@ export default function AdminDashboardPage() {
             const token = await getToken();
             if (!token) throw new Error("Not authenticated");
 
+            // Load dashboard metrics
             const data = await api.admin.getDashboardMetrics(token, period);
             setMetrics(data);
+
+            // Load feedback trends
+            const trends = await api.admin.getFeedbackTrends(token, period);
+            setFeedbackTrends(trends);
+
+            // Load improvement areas
+            const areas = await api.admin.getImprovementAreas(token);
+            setImprovementAreas(areas);
+
+            logger.logPageView("/dashboard/admin", "Admin Dashboard");
         } catch (err) {
             console.error("Failed to load metrics:", err);
+            logger.error("Failed to load admin metrics", err);
             setError(err instanceof Error ? err.message : "Failed to load metrics");
         } finally {
             setLoading(false);
@@ -264,6 +283,29 @@ export default function AdminDashboardPage() {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Analytics Section */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    {/* Feedback Trends */}
+                    {feedbackTrends && (
+                        <FeedbackTrendsCard data={feedbackTrends} />
+                    )}
+
+                    {/* Rating Distribution */}
+                    {feedbackTrends && (
+                        <RatingDistributionChart distribution={feedbackTrends.rating_distribution} />
+                    )}
+                </div>
+
+                {/* System Health */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    <SystemHealthCard refreshInterval={30000} />
+
+                    {/* Improvement Areas */}
+                    {improvementAreas && (
+                        <ImprovementAreasCard data={improvementAreas} />
+                    )}
+                </div>
             </div>
         </>
     );

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import health, users, profiles, upload, recommendations, conversations, admin
 from app.db import init_db
 from app.core.config import get_settings
+from app.middleware.logging_middleware import LoggingMiddleware, ErrorLoggingMiddleware
 
 def create_app() -> FastAPI:
     settings = get_settings()
@@ -14,6 +15,10 @@ def create_app() -> FastAPI:
     def on_startup() -> None:
         init_db()
 
+    # Add logging middleware
+    app.add_middleware(ErrorLoggingMiddleware)
+    app.add_middleware(LoggingMiddleware)
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

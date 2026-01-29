@@ -19,7 +19,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         {/* <SidebarProvider> */}
           {children}
         {/* </SidebarProvider> */}
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster position="top-right" closeButton theme="system" />
       </ThemeAwareClerkProvider>
     </ThemeProvider>
   );

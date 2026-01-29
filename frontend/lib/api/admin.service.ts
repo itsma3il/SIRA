@@ -152,4 +152,34 @@ export class AdminService extends BaseApiService {
   async getRecommendationAnalytics(token: string, recommendationId: string): Promise<RecommendationAnalytics> {
     return this.get<RecommendationAnalytics>(`/api/admin/recommendations/${recommendationId}/analytics`, token);
   }
+
+  /**
+   * Get feedback trends
+   */
+  async getFeedbackTrends(token: string, days: number = 30): Promise<any> {
+    return this.get<any>(`/api/admin/feedback/trends?days=${days}`, token);
+  }
+
+  /**
+   * Get low-rated recommendations
+   */
+  async getLowRatedRecommendations(
+    token: string,
+    options?: { threshold?: number; limit?: number }
+  ): Promise<any[]> {
+    const params = new URLSearchParams();
+    if (options?.threshold !== undefined) params.append("threshold", options.threshold.toString());
+    if (options?.limit !== undefined) params.append("limit", options.limit.toString());
+
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return this.get<any[]>(`/api/admin/feedback/low-rated${query}`, token);
+  }
+
+  /**
+   * Get improvement areas based on feedback analysis
+   */
+  async getImprovementAreas(token: string): Promise<any> {
+    return this.get<any>(`/api/admin/feedback/improvement-areas`, token);
+  }
 }
+

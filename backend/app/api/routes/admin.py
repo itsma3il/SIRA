@@ -21,6 +21,7 @@ from app.schemas.admin import (
     RecommendationListItem,
     RecommendationAnalytics
 )
+from app.services.feedback_service import get_feedback_analytics
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 logger = logging.getLogger(__name__)
@@ -303,3 +304,64 @@ async def get_recommendation_analytics(
     except Exception as e:
         logger.error(f"Error getting recommendation analytics: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to get recommendation analytics")
+
+
+@router.get("/feedback/trends")
+async def get_feedback_trends(
+    days: int = Query(30, ge=1, le=365),
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db_session)
+):
+    """Get feedback trends and statistics."""
+    try:
+        analytics = get_feedback_analytics(db)
+        trends = analytics.get_feedback_trends(days=days)
+        return trends
+    except Exception as e:
+        logger.error(f"Error getting feedback trends: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to get feedback trends")
+
+
+@router.get("/feedback/low-rated")
+async def get_low_rated_recommendations(
+    threshold: int = Query(2, ge=1, le=5),
+    limit: int = Query(50, ge=1, le=100),
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db_session)
+):
+    """Get recommendations with low ratings for quality review."""
+    try:
+        analytics = get_feedback_analytics(db)
+        low_rated = analytics.get_low_rated_recommendations(threshold=threshold, limit=limit)
+        
+        return [
+            {
+                "id": str(rec.id),
+                "profile_id": str(rec.profile_id),
+                "session_id": str(rec.session_id) if rec.session_id else None,
+                "created_at": rec.created_at.isoformat() if rec.created_at else None,
+                "feedback_rating": rec.feedback_rating,
+                "feedback_comment": rec.feedback_comment,
+                "profile_name": rec.profile.profile_name if rec.profile else None,
+                "user_email": rec.profile.user.email if rec.profile and rec.profile.user else None
+            }
+            for rec in low_rated
+        ]
+    except Exception as e:
+        logger.error(f"Error getting low-rated recommendations: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to get low-rated recommendations")
+
+
+@router.get("/feedback/improvement-areas")
+async def get_improvement_areas(
+    admin: User = Depends(get_admin_user),
+    db: Session = Depends(get_db_session)
+):
+    """Identify areas for improvement based on feedback analysis."""
+    try:
+        analytics = get_feedback_analytics(db)
+        areas = analytics.identify_improvement_areas()
+        return areas
+    except Exception as e:
+        logger.error(f"Error analyzing improvement areas: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to analyze improvement areas")
