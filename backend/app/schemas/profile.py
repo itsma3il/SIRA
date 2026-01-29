@@ -3,7 +3,15 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from app.utils.validation import (
+    sanitize_string,
+    sanitize_html,
+    validate_url,
+    validate_gpa,
+    validate_grade,
+)
 
 
 # ============================================================================
@@ -15,6 +23,29 @@ class SubjectGradeCreate(BaseModel):
     subject_name: str = Field(..., max_length=255, description="Subject/course name")
     grade: float = Field(..., ge=0.0, le=100.0, description="Numeric grade (0-100 scale)")
     weight: Optional[float] = Field(None, ge=0.0, description="Subject weight/credit hours")
+
+    @field_validator("subject_name")
+    @classmethod
+    def sanitize_subject_name(cls, v: str) -> str:
+        """Sanitize subject name."""
+        sanitized = sanitize_string(v, max_length=255)
+        if not sanitized:
+            raise ValueError("Subject name cannot be empty")
+        return sanitized
+
+    @field_validator("grade")
+    @classmethod
+    def validate_grade_value(cls, v: float) -> float:
+        """Validate grade is in acceptable range."""
+        return validate_grade(v, min_value=0.0, max_value=100.0) or 0.0
+
+    @field_validator("weight")
+    @classmethod
+    def validate_weight_value(cls, v: Optional[float]) -> Optional[float]:
+        """Validate weight is non-negative."""
+        if v is not None and v < 0:
+            raise ValueError("Weight cannot be negative")
+        return v
 
 
 class SubjectGradeUpdate(BaseModel):
@@ -48,6 +79,29 @@ class AcademicRecordCreate(BaseModel):
     transcript_url: Optional[str] = Field(None, max_length=500, description="Transcript URL")
     language_preference: Optional[str] = Field(None, max_length=50, description="Language preference")
     subject_grades: Optional[list[SubjectGradeCreate]] = Field(default_factory=list)
+
+    @field_validator("current_status", "current_institution", "current_field", "language_preference")
+    @classmethod
+    def sanitize_text_fields(cls, v: Optional[str]) -> Optional[str]:
+        """Sanitize text fields."""
+        return sanitize_string(v, max_length=255)
+
+    @field_validator("gpa")
+    @classmethod
+    def validate_gpa_value(cls, v: Optional[float]) -> Optional[float]:
+        """Validate GPA is in acceptable range."""
+        return validate_gpa(v, min_value=0.0, max_value=20.0)
+
+    @field_validator("transcript_url")
+    @classmethod
+    def validate_transcript_url(cls, v: Optional[str]) -> Optional[str]:
+        """Validate transcript URL format."""
+        if v is None:
+            return None
+        try:
+            return validate_url(v)
+        except ValueError as e:
+            raise ValueError(f"Invalid transcript URL: {str(e)}")
 
 
 class AcademicRecordUpdate(BaseModel):
@@ -91,6 +145,46 @@ class StudentPreferencesCreate(BaseModel):
     budget_range_max: Optional[int] = Field(None, ge=0, description="Maximum annual budget")
     career_goals: Optional[str] = None
 
+    @field_validator("favorite_subjects", "disliked_subjects", "soft_skills", "hobbies")
+    @classmethod
+    def sanitize_list_fields(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+        """Sanitize list of strings, remove empty and duplicate values."""
+        if v is None:
+            return None
+        # Sanitize each string and filter out empty values
+        sanitized = [sanitize_string(item, max_length=100) for item in v if item]
+        # Remove None values and duplicates while preserving order
+        seen = set()
+        result = []
+        for item in sanitized:
+            if item and item not in seen:
+                seen.add(item)
+                result.append(item)
+        return result if result else None
+
+    @field_validator("geographic_preference")
+    @classmethod
+    def sanitize_geographic_preference(cls, v: Optional[str]) -> Optional[str]:
+        """Sanitize geographic preference."""
+        return sanitize_string(v, max_length=100)
+
+    @field_validator("career_goals")
+    @classmethod
+    def sanitize_career_goals(cls, v: Optional[str]) -> Optional[str]:
+        """Sanitize career goals text."""
+        return sanitize_html(v)
+
+    @model_validator(mode="after")
+    def validate_budget_range(self) -> "StudentPreferencesCreate":
+        """Validate budget range min is less than max."""
+        if (
+            self.budget_range_min is not None
+            and self.budget_range_max is not None
+            and self.budget_range_min > self.budget_range_max
+        ):
+            raise ValueError("budget_range_min must be less than or equal to budget_range_max")
+        return self
+
 
 class StudentPreferencesUpdate(BaseModel):
     """Schema for updating student preferences."""
@@ -131,6 +225,24 @@ class ProfileCreate(BaseModel):
     draft_payload: Optional[dict[str, Any]] = Field(None, description="Draft data storage")
     academic_record: Optional[AcademicRecordCreate] = None
     preferences: Optional[StudentPreferencesCreate] = None
+
+    @field_validator("profile_name")
+    @classmethod
+    def sanitize_profile_name(cls, v: str) -> str:
+        """Sanitize profile name."""
+        sanitized = sanitize_string(v, max_length=255)
+        if not sanitized:
+            raise ValueError("Profile name cannot be empty")
+        return sanitized
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        """Validate status is one of allowed values."""
+        allowed_statuses = ["draft", "active", "archived"]
+        if v not in allowed_statuses:
+            raise ValueError(f"Status must be one of: {', '.join(allowed_statuses)}")
+        return v
 
 
 class ProfileUpdate(BaseModel):

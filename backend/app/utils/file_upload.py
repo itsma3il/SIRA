@@ -1,5 +1,6 @@
 """File upload utilities for handling transcript and document uploads."""
 import os
+import re
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -20,8 +21,39 @@ ALLOWED_MIME_TYPES = {
 
 
 def ensure_upload_dir() -> None:
-    """Ensure the upload directory exists."""
+    """Ensure the upload directory exists with secure permissions."""
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    # Set directory permissions (owner read/write/execute only)
+    os.chmod(UPLOAD_DIR, 0o700)
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Sanitize filename to prevent path traversal and other attacks.
+    
+    Args:
+        filename: Original filename
+        
+    Returns:
+        Sanitized filename
+    """
+    # Remove any directory components
+    filename = os.path.basename(filename)
+    
+    # Remove dangerous characters
+    # Keep only alphanumeric, dots, hyphens, underscores
+    filename = re.sub(r'[^a-zA-Z0-9._-]', '_', filename)
+    
+    # Prevent hidden files
+    if filename.startswith('.'):
+        filename = '_' + filename
+    
+    # Limit length
+    if len(filename) > 255:
+        ext = Path(filename).suffix
+        filename = filename[:255-len(ext)] + ext
+    
+    return filename
 
 
 def validate_file_type(filename: str, content_type: str) -> None:
@@ -84,10 +116,15 @@ def generate_unique_filename(original_filename: str) -> str:
         original_filename: Original filename from upload
         
     Returns:
-        Unique filename with UUID prefix
+        Unique filename with UUID prefix (sanitized)
     """
-    file_ext = Path(original_filename).suffix.lower()
+    # Sanitize the original filename first
+    sanitized = sanitize_filename(original_filename)
+    
+    file_ext = Path(sanitized).suffix.lower()
     unique_id = uuid.uuid4().hex[:16]
+    
+    # Use only UUID and extension to prevent any path traversal
     return f"{unique_id}{file_ext}"
 
 
