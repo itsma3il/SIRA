@@ -35,8 +35,85 @@ def create_app() -> FastAPI:
     
     app = FastAPI(
         title=settings.app_name,
-        description="SIRA - Student Intelligent Recommendation Advisor",
+        description="""
+# SIRA - Student Intelligent Recommendation Advisor
+
+**AI-powered academic guidance system using RAG (Retrieval-Augmented Generation)**
+
+## Features
+
+- 🎓 **Personalized Recommendations**: AI-driven university and program suggestions
+- 📊 **Profile Management**: Comprehensive academic profiles with transcript analysis
+- 💬 **Conversational AI**: Interactive chat interface for academic guidance
+- 🔒 **Secure Authentication**: Clerk-based JWT authentication
+- 📈 **Admin Dashboard**: System monitoring and analytics
+
+## Technology Stack
+
+- **Backend**: FastAPI + Python 3.11+
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Vector Database**: Pinecone for semantic search
+- **AI/LLM**: Mistral AI via LlamaIndex
+- **Authentication**: Clerk JWT tokens
+
+## Rate Limiting
+
+- **120 requests/minute** per IP address
+- **2000 requests/hour** per IP address
+- Rate limit headers included in responses
+
+## Security
+
+- HTTPS required in production (HSTS)
+- Content Security Policy (CSP) enabled
+- XSS and SQL injection protection
+- Input validation and sanitization
+- File upload restrictions (5MB max, PDF/JPG/PNG only)
+
+## Support
+
+For API issues, contact: support@sira-academic.com
+        """,
         version="1.0.0",
+        contact={
+            "name": "SIRA Development Team",
+            "email": "dev@sira-academic.com",
+        },
+        license_info={
+            "name": "MIT",
+        },
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_tags=[
+            {
+                "name": "health",
+                "description": "Health check and system status endpoints"
+            },
+            {
+                "name": "users",
+                "description": "User management and synchronization with Clerk"
+            },
+            {
+                "name": "profiles",
+                "description": "Academic profile CRUD operations"
+            },
+            {
+                "name": "upload",
+                "description": "File upload endpoints for transcripts and documents"
+            },
+            {
+                "name": "recommendations",
+                "description": "AI-powered recommendation generation and retrieval"
+            },
+            {
+                "name": "conversations",
+                "description": "Conversational AI chat endpoints with streaming support"
+            },
+            {
+                "name": "admin",
+                "description": "Administrative endpoints for monitoring and analytics"
+            },
+        ],
     )
 
     @app.on_event("startup")
