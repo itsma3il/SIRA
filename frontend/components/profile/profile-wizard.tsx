@@ -243,12 +243,23 @@ export function ProfileWizard({
 
                     <Progress value={progressValue} />
 
-                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" role="tablist" aria-label="Profile wizard steps">
                         {steps.map((step, index) => (
                             <button
                                 key={step.id}
                                 type="button"
+                                role="tab"
+                                aria-selected={index === currentStep}
+                                aria-controls={`step-${step.id}-panel`}
                                 onClick={() => setCurrentStep(index)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'ArrowRight' && index < steps.length - 1) {
+                                        setCurrentStep(index + 1);
+                                    } else if (e.key === 'ArrowLeft' && index > 0) {
+                                        setCurrentStep(index - 1);
+                                    }
+                                }}
+                                tabIndex={index === currentStep ? 0 : -1}
                                 className={`rounded-md border px-3 py-2 text-left text-xs transition-colors ${index === currentStep
                                     ? "border-primary bg-primary/10 text-primary"
                                     : "border-border text-muted-foreground hover:bg-muted"

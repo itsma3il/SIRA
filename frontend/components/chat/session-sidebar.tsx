@@ -65,8 +65,8 @@ export function SessionSidebar({
       .flatMap((group) => group.sessions)
       .filter((session) => session.status === "archived");
 
-    console.log('[SessionSidebar] All sessions:', sessions.sessions.flatMap(g => g.sessions).map(s => ({ id: s.id, title: s.title, status: s.status })));
-    console.log('[SessionSidebar] Archived sessions found:', archived.length);
+    // console.log('[SessionSidebar] All sessions:', sessions.sessions.flatMap(g => g.sessions).map(s => ({ id: s.id, title: s.title, status: s.status })));
+    // console.log('[SessionSidebar] Archived sessions found:', archived.length);
 
     return archived.map((session) => ({
       id: session.id,
@@ -105,7 +105,7 @@ export function SessionSidebar({
       })
       .filter((group) => group.sessions.length > 0);
 
-    console.log('[SessionSidebar] Active sessions after filter:', activeSessions.flatMap(g => g.sessions).length);
+    // console.log('[SessionSidebar] Active sessions after filter:', activeSessions.flatMap(g => g.sessions).length);
     return activeSessions;
   }, [search, sessions]);
 

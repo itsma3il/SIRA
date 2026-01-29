@@ -96,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         };
       });
       
-      console.log('Nav items active state:', result.map(i => ({ title: i.title, isActive: i.isActive, pathname })));
+      // console.log('Nav items active state:', result.map(i => ({ title: i.title, isActive: i.isActive, pathname })));
       return result;
     },
     [pathname]

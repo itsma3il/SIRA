@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/hooks/use-conversation-chat";
 import type { RecommendationSummary } from "@/lib/types/conversation";
-import type { Recommendation } from "@/lib/types/recommendation";
+import type { Recommendation, RecommendationFeedback } from "@/lib/types/recommendation";
 
 interface ChatMessageProps {
   message: ChatMessage;
   recommendationSummary?: RecommendationSummary | null;
   sessionId?: string;
-  onFeedback?: (recommendationId: string, rating: number) => void;
+  onFeedback?: (recommendationId: string, feedback: RecommendationFeedback) => void;
 }
 
 export function ChatMessage({ message, recommendationSummary, sessionId, onFeedback }: ChatMessageProps) {
@@ -82,7 +82,7 @@ export function ChatMessage({ message, recommendationSummary, sessionId, onFeedb
                           feedback_comment: null,
                         }
                   }
-                  onFeedback={onFeedback}
+                  onFeedbackSubmitted={onFeedback}
                 />
               </div>
             )

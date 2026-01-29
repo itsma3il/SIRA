@@ -98,12 +98,12 @@ export default function ChatSessionPage() {
     }
   };
 
-  const handleFeedback = async (recommendationId: string, rating: number) => {
+  const handleFeedback = async (recommendationId: string, feedback: import("@/lib/types/recommendation").RecommendationFeedback) => {
     try {
       const token = await getToken();
       if (!token) return;
       
-      await api.recommendations.submitFeedback(token, recommendationId, { feedback_rating: rating });
+      await api.recommendations.submitFeedback(token, recommendationId, feedback);
       toast.success("Thank you for your feedback!");
       
       // Reload session to update recommendation feedback

@@ -59,7 +59,7 @@ export async function listSessions(
     queryParams.toString() ? `?${queryParams}` : ""
   }`;
 
-  console.log("[API] Fetching sessions from:", url);
+  // console.log("[API] Fetching sessions from:", url);
 
   try {
     const response = await fetch(url, {
@@ -69,7 +69,7 @@ export async function listSessions(
       // No timeout for this endpoint - may be called during long streaming operations
     });
 
-    console.log("[API] Sessions response status:", response.status);
+    // console.log("[API] Sessions response status:", response.status);
 
     if (!response.ok) {
       const error = await response.text();
@@ -97,7 +97,7 @@ export async function listSessions(
     }
 
     const data = await response.json();
-    console.log("[API] Sessions data received:", data);
+    // console.log("[API] Sessions data received:", data);
     return data;
   } catch (error) {
     if (error instanceof Error) {

@@ -158,6 +158,12 @@
     margin-bottom: 1rem;
   }
 
+  @media (max-width: 640px) {
+    .prose h1 {
+      font-size: 1.5rem;
+    }
+  }
+
   .prose h2 {
     font-size: 1.5rem;
     font-weight: 600;
@@ -166,12 +172,24 @@
     margin-bottom: 0.875rem;
   }
 
+  @media (max-width: 640px) {
+    .prose h2 {
+      font-size: 1.25rem;
+    }
+  }
+
   .prose h3 {
     font-size: 1.25rem;
     font-weight: 600;
     line-height: 1.4;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .prose h3 {
+      font-size: 1.125rem;
+    }
   }
 
   .prose h4 {
@@ -486,5 +504,89 @@
 
   100% {
     opacity: 1;
+  }
+}
+
+/* Mobile Touch Improvements */
+@media (max-width: 768px) {
+  /* Ensure minimum touch target size (44x44px) */
+  button, 
+  a, 
+  input[type="checkbox"], 
+  input[type="radio"],
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improve tap highlighting */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better spacing on mobile */
+  .prose p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+}
+
+/* Accessibility Utilities */
+/* Skip to main content link */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+  text-decoration: none;
+  border: 2px solid var(--primary);
+  border-radius: 0.5rem;
+}
+
+.skip-to-main:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  * {
+    border-width: 2px;
+  }
+  
+  button, 
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
   }
 }

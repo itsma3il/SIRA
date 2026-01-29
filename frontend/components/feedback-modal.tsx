@@ -71,13 +71,13 @@ export function FeedbackModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-131.25">
+      <DialogContent className="sm:max-w-131.25" aria-describedby="feedback-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5" aria-hidden="true" />
             Rate This Recommendation
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="feedback-description">
             Your feedback helps us improve future recommendations
           </DialogDescription>
         </DialogHeader>
@@ -85,45 +85,72 @@ export function FeedbackModal({
         <div className="space-y-6 py-4">
           {/* Star Rating */}
           <div className="space-y-3">
-            <Label>Overall Rating *</Label>
-            <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Overall Rating *</Label>
+            <div 
+              className="flex items-center justify-center gap-2 sm:gap-3" 
+              role="radiogroup" 
+              aria-label="Rate from 1 to 5 stars"
+              aria-required="true"
+            >
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
+                  role="radio"
+                  aria-checked={rating === star}
+                  aria-label={`${star} star${star > 1 ? 's' : ''}: ${getRatingLabel(star)}`}
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary rounded"
+                  onKeyDown={(e) => {
+                    if (e.key === 'ArrowRight' && star < 5) {
+                      e.preventDefault();
+                      const nextButton = e.currentTarget.nextElementSibling as HTMLButtonElement;
+                      nextButton?.click();
+                      nextButton?.focus();
+                    } else if (e.key === 'ArrowLeft' && star > 1) {
+                      e.preventDefault();
+                      const prevButton = e.currentTarget.previousElementSibling as HTMLButtonElement;
+                      prevButton?.click();
+                      prevButton?.focus();
+                    } else if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setRating(star);
+                    }
+                  }}
+                  className="transition-transform hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm p-1 sm:p-2 touch-manipulation"
                 >
                   <Star
-                    className={`h-8 w-8 ${
+                    className={`h-8 w-8 sm:h-10 sm:w-10 transition-colors ${
                       star <= (hoveredRating || rating)
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-muted-foreground"
                     }`}
+                    aria-hidden="true"
                   />
                 </button>
               ))}
             </div>
             {rating > 0 && (
-              <Badge variant="secondary" className="text-sm">
-                {getRatingLabel(rating)}
-              </Badge>
+              <div className="text-center">
+                <Badge variant="secondary" className="text-sm">
+                  {getRatingLabel(rating)}
+                </Badge>
+              </div>
             )}
           </div>
 
           {/* Comment Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="comment">Additional Comments (Optional)</Label>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <Label htmlFor="comment" className="text-sm font-medium">Additional Comments (Optional)</Label>
               <span className="text-xs text-muted-foreground">
                 {comment.length}/1000
               </span>
             </div>
             
             {/* Prompt Questions */}
-            <div className="text-sm text-muted-foreground space-y-1 pl-4 border-l-2 border-muted">
+            <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pl-3 sm:pl-4 border-l-2 border-muted">
               <p className="font-medium">Consider:</p>
               {promptQuestions.map((question, idx) => (
                 <p key={idx}>• {question}</p>
@@ -136,12 +163,13 @@ export function FeedbackModal({
               value={comment}
               onChange={(e) => setComment(e.target.value.slice(0, 1000))}
               rows={6}
-              className="resize-none"
+              className="resize-none text-sm"
+              aria-describedby="comment-helper"
             />
           </div>
 
           {/* Helper Text */}
-          <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
+          <div id="comment-helper" className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
             <strong>Your feedback matters!</strong> We use it to:
             <ul className="mt-1 ml-4 space-y-0.5">
               <li>• Improve our recommendation algorithm</li>
@@ -151,17 +179,22 @@ export function FeedbackModal({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={submitting}
+            className="w-full sm:w-auto"
+            type="button"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={rating === 0 || submitting}
+            className="w-full sm:w-auto"
+            type="submit"
+            aria-label={rating === 0 ? "Please select a rating first" : "Submit feedback"}
           >
             {submitting ? "Submitting..." : "Submit Feedback"}
           </Button>

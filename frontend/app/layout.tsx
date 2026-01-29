@@ -3,6 +3,7 @@ import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { Providers } from "./providers";
+import { SkipToMain } from "@/components/skip-to-main";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,10 +30,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans bg-background text-foreground antialiased`}
       >
+        <SkipToMain />
         <Providers>
           <div className="flex max-h-svh w-full flex-col">
             {/* <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-8"> */}
-              <main>{children}</main>
+              <main id="main-content" tabIndex={-1}>{children}</main>
             {/* </div> */}
           </div>
         </Providers>

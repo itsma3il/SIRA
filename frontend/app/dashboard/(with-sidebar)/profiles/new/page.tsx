@@ -59,7 +59,7 @@ export default function NewProfilePage() {
   const handleRemoveTranscript = async (value: { filename: string } | null) => {
     const token = await getToken();
     if (!token || !value) return;
-    await deleteTranscript(token, value.filename);
+    await api.profiles.deleteTranscript(token, value.filename);
     toast.success("Transcript removed");
   };
 

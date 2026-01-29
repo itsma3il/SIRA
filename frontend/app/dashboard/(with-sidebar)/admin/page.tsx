@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
     Users,
@@ -72,8 +73,27 @@ export default function AdminDashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="grid gap-4 p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                    <SidebarTrigger className="-ml-1" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-8 w-48" />
+                        <Skeleton className="h-4 w-96" />
+                    </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <Card key={i}>
+                            <CardHeader className="pb-2">
+                                <Skeleton className="h-4 w-24" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-10 w-20 mb-2" />
+                                <Skeleton className="h-3 w-32" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
         );
     }
@@ -83,9 +103,17 @@ export default function AdminDashboardPage() {
             <div className="p-6">
                 <Card className="border-destructive">
                     <CardHeader>
-                        <CardTitle className="text-destructive">Error</CardTitle>
+                        <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-destructive" />
+                            <CardTitle className="text-destructive">Unable to Load Dashboard</CardTitle>
+                        </div>
                         <CardDescription>{error}</CardDescription>
                     </CardHeader>
+                    <CardContent>
+                        <Button onClick={() => void loadMetrics()} variant="outline" size="sm">
+                            Try Again
+                        </Button>
+                    </CardContent>
                 </Card>
             </div>
         );

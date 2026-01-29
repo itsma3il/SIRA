@@ -48,17 +48,26 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
     return "bg-red-500";
   };
 
+  // Get match score label for accessibility
+  const getMatchScoreLabel = (score: number) => {
+    if (score >= 80) return "Excellent match";
+    if (score >= 60) return "Good match";
+    return "Moderate match";
+  };
+
   // Copy recommendation text to clipboard
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(recommendation.ai_response);
       setCopied(true);
+      toast.success("Recommendation copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
       logger.logUserAction("copy_recommendation", {
         recommendation_id: recommendation.id,
       });
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error("Failed to copy. Please try again.");
       logger.error("Failed to copy recommendation", err);
     }
   };
@@ -134,7 +143,10 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
         {/* Match Score and Date */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">{formatDate(recommendation.created_at)}</span>
-          <Badge className={`${getMatchScoreColor(avgMatchScore)} text-white font-semibold`}>
+          <Badge 
+            className={`${getMatchScoreColor(avgMatchScore)} text-white font-semibold`}
+            aria-label={`Match score: ${Math.round(avgMatchScore)}% - ${getMatchScoreLabel(avgMatchScore)}`}
+          >
             {Math.round(avgMatchScore)}% Match
           </Badge>
         </div>
@@ -198,7 +210,13 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
         {structuredData && Object.keys(structuredData).length > 0 && (
           <Collapsible open={chartsExpanded} onOpenChange={setChartsExpanded}>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" size="sm" className="w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                aria-label={chartsExpanded ? "Hide visual data and charts" : "Show visual data and charts"}
+                aria-expanded={chartsExpanded}
+              >
                 {chartsExpanded ? (
                   <>
                     <ChevronUp className="mr-2 h-4 w-4" />
@@ -221,7 +239,13 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
         {/* Expandable Full AI Analysis */}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              aria-label={isExpanded ? "Hide full AI analysis" : "View full AI analysis"}
+              aria-expanded={isExpanded}
+            >
               {isExpanded ? (
                 <>
                   <ChevronUp className="mr-2 h-4 w-4" />
@@ -258,13 +282,20 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
                 size="sm"
                 onClick={() => setFeedbackModalOpen(true)}
                 className="gap-2"
+                aria-label="Rate this recommendation"
               >
                 <MessageSquare className="h-4 w-4" />
                 Rate
               </Button>
             )}
           </div>
-          <Button variant="ghost" size="sm" onClick={copyToClipboard} className="gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={copyToClipboard} 
+            className="gap-2"
+            aria-label={copied ? "Recommendation copied" : "Copy recommendation to clipboard"}
+          >
             {copied ? (
               <>
                 <Check className="h-4 w-4" />

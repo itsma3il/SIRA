@@ -139,19 +139,17 @@ export function useConversationChat(): UseConversationChatResult {
         limit?: number;
       }
     ) => {
-      console.log("[useConversationChat] Loading sessions with params:", params);
       try {
         setSessionsLoading(true);
         setSessionsError(null);
         const data = await api.conversations.listSessions(token, params);
-        console.log("[useConversationChat] Sessions loaded:", {
-          total: data.total,
-          groupsCount: data.sessions.length,
-          data
-        });
+        // console.log("[useConversationChat] Sessions loaded:", {
+        //   total: data.total,
+        //   groupsCount: data.sessions.length,
+        //   data
+        // });
         setSessions(data);
       } catch (error) {
-        console.error("[useConversationChat] Error loading sessions:", error);
         setSessionsError(
           error instanceof Error ? error.message : "Unable to load sessions"
         );
@@ -177,13 +175,13 @@ export function useConversationChat(): UseConversationChatResult {
       
       // If token expired and we haven't retried yet, try to get a fresh token
       if (errorMessage.includes("expired") && retryCount === 0) {
-        console.log("[useConversationChat] Token expired, attempting refresh...");
+        // console.log("[useConversationChat] Token expired, attempting refresh...");
         try {
           // Wait a moment and retry - Clerk should auto-refresh
           await new Promise(resolve => setTimeout(resolve, 500));
           const newToken = await (window as any).Clerk?.session?.getToken();
           if (newToken && newToken !== token) {
-            console.log("[useConversationChat] Token refreshed, retrying...");
+            // console.log("[useConversationChat] Token refreshed, retrying...");
             return loadSession(newToken, sessionId, retryCount + 1);
           }
         } catch (refreshError) {

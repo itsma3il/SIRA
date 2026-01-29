@@ -71,8 +71,8 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col mx-auto items-between">
       {/* Header */}
-      <header className="sticky top-4 z-50 px-4 mx-auto rounded-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container flex h-16 gap-8 items-center justify-between text-sm">
+      <header className="sticky top-4 z-50 px-4 mx-auto rounded-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60" role="banner">
+        <nav className="container flex h-16 gap-8 items-center justify-between text-sm" aria-label="Main navigation">
           <div className="flex items-center gap-2">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-lg blur-sm" />
@@ -80,18 +80,18 @@ export default function Home() {
                 <GraduationCap className="size-6 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="font-bold text-lg">SIRA</h1>
+            <span className="font-bold text-lg" aria-label="SIRA - Système Intelligent de Recommandation Académique">SIRA</span>
           </div>
-          <a href="#features">Features</a>
-          <a href="#docs">Docs</a>
-          <a href="#how-it-works">How It Works</a>
-          <a href="#pricing">Pricing</a>
+          <a href="#features" className="hover:text-primary transition-colors">Features</a>
+          <a href="#docs" className="hover:text-primary transition-colors">Docs</a>
+          <a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
+          <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
           <UserNav />
-        </div>
+        </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto flex flex-col items-center justify-center gap-6 py-16 md:py-24 lg:py-32">
+      <section className="container mx-auto flex flex-col items-center justify-center gap-6 py-16 md:py-24 lg:py-32" aria-label="Hero">
         <Badge variant="secondary" className="gap-2">
           <Sparkles className="h-3 w-3" />
           AI-Powered Academic Guidance
@@ -122,10 +122,10 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto py-16 md:py-24">
+      <section id="features" className="container mx-auto py-16 md:py-24" aria-labelledby="features-heading">
         <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
-          <Badge variant="outline">Features</Badge>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <Badge variant="outline" aria-hidden="true">Features</Badge>
+          <h2 id="features-heading" className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Why Choose SIRA?
           </h2>
           <p className="max-w-175 text-muted-foreground">
@@ -155,10 +155,10 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="container mx-auto py-16 md:py-24">
+      <section id="how-it-works" className="container mx-auto py-16 md:py-24" aria-labelledby="how-it-works-heading">
         <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
-          <Badge variant="outline">Process</Badge>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <Badge variant="outline" aria-hidden="true">Process</Badge>
+          <h2 id="how-it-works-heading" className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             How It Works
           </h2>
           <p className="max-w-175 text-muted-foreground">
@@ -215,22 +215,22 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-2 mx-auto">
+      <footer className="py-2 mx-auto" role="contentinfo">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-sm text-muted-foreground">
             © 2026 SIRA - Système Intelligent de Recommandation Académique
           </p>
-          <div className="flex gap-4">
-            <Link href="/dashboard" className="text-sm text-muted-foreground hover:underline">
+          <nav className="flex gap-4" aria-label="Footer navigation">
+            <Link href="/dashboard" className="text-sm text-muted-foreground hover:underline hover:text-foreground transition-colors">
               Dashboard
             </Link>
-            <Link href="/dashboard/profiles" className="text-sm text-muted-foreground hover:underline">
+            <Link href="/dashboard/profiles" className="text-sm text-muted-foreground hover:underline hover:text-foreground transition-colors">
               Profiles
             </Link>
-            <Link href="/dashboard/chat" className="text-sm text-muted-foreground hover:underline">
+            <Link href="/dashboard/chat" className="text-sm text-muted-foreground hover:underline hover:text-foreground transition-colors">
               Chat
             </Link>
-          </div>
+          </nav>
         </div>
       </footer>
     </div>

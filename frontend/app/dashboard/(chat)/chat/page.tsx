@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useChatStore } from "@/stores/chat-store";
 import { useChatActions } from "@/hooks/use-chat-actions";
 
-export default function ChatPage() {
+function ChatPageContent() {
   const { isLoaded } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -157,5 +157,17 @@ export default function ChatPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6">
+        <Card className="p-4 text-sm text-muted-foreground">Loading...</Card>
+      </div>
+    }>
+      <ChatPageContent />
+    </Suspense>
   );
 }

@@ -10,7 +10,7 @@ export default function DashboardPage() {
   return (
     <div className="grid gap-4 p-4 sm:p-6">
       <header className="flex items-center gap-3">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ml-1" aria-label="Toggle sidebar" />
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
@@ -19,8 +19,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex-col overflow-y-auto space-y-6">
-        <div className="grid gap-4 md:grid-cols-3">
+      <main className="flex-1 flex-col overflow-y-auto space-y-6">
+        <div className="grid gap-4 md:grid-cols-3" role="region" aria-label="Quick actions">
           <Card className="p-5">
             <p className="text-xs text-muted-foreground">Profiles</p>
             <p className="text-2xl font-semibold text-foreground">Create & manage</p>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </Card>
-      </div>
+      </main>
     </div>
   );
 }
