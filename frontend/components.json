@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "radix-mira",
   "rsc": true,
   "tsx": true,
   "tailwind": {
@@ -11,6 +11,8 @@
     "prefix": ""
   },
   "iconLibrary": "lucide",
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -19,6 +21,6 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@diceui": "https://diceui.com/r/{name}.json"
+    "@abui": "https://abui.io/r/{name}.json"
   }
 }

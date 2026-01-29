@@ -168,7 +168,7 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
           onRestoreSession={handleRestoreSession}
         />
         
-        <SidebarInset className="flex h-screen flex-col overflow-hidden bg-background">
+        <SidebarInset className="h-svh min-[calc(100vh-4rem)] md:h-[calc(100vh-1rem)] overflow-hidden bg-background">
           {children}
         </SidebarInset>
 

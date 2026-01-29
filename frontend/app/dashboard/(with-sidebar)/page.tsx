@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 p-4 sm:p-6">
       <header className="flex items-center gap-3">
         <SidebarTrigger className="-ml-1" />
         <div>

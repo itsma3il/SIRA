@@ -134,7 +134,11 @@ export function ChatInput({
         </div>
       </PromptInput>
       <p className="text-xs text-muted-foreground">Press Enter to send · Shift + Enter for a new line</p>
-
+      {disabled && (
+          <p className="text-xs text-muted-foreground">
+            This conversation is archived. Restore it to continue chatting.
+          </p>
+        )}
       <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>

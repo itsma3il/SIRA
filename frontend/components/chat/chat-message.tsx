@@ -43,7 +43,7 @@ export function ChatMessage({ message, recommendationSummary }: ChatMessageProps
             message.isStreaming ? (
               <RecommendationSkeleton />
             ) : (
-              <div className="relative w-full rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-primary/5 p-6 shadow-lg">
+              <div className="relative w-full rounded-xl border-2 border-primary/20 bg-linear-to-br from-primary/5 via-background to-primary/5 p-6 shadow-lg">
                 <div className="absolute -top-3 left-4 bg-background px-3 py-1 rounded-full border-2 border-primary/30">
                   <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

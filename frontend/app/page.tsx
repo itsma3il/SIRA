@@ -71,12 +71,12 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-lg blur-sm" />
-              <div className="relative bg-gradient-to-br from-primary to-primary/70 size-10 rounded-lg flex items-center justify-center">
+              <div className="relative bg-linear-to-br from-primary to-primary/70 size-10 rounded-lg flex items-center justify-center">
                 <GraduationCap className="size-6 text-primary-foreground" />
               </div>
             </div>
@@ -95,14 +95,14 @@ export default function Home() {
           <Sparkles className="h-3 w-3" />
           AI-Powered Academic Guidance
         </Badge>
-        <div className="flex max-w-[980px] flex-col items-center gap-4 text-center">
+        <div className="flex max-w-245 flex-col items-center gap-4 text-center">
           <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             Find Your Perfect
-            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               {" "}Academic Path
             </span>
           </h1>
-          <p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
+          <p className="max-w-175 text-lg text-muted-foreground sm:text-xl">
             SIRA uses advanced AI to match you with graduate programs that align with your goals, 
             grades, and preferences. Get personalized recommendations in minutes.
           </p>
@@ -122,12 +122,12 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="container py-16 md:py-24">
-        <div className="mx-auto flex max-w-[980px] flex-col items-center gap-4 text-center mb-12">
+        <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
           <Badge variant="outline">Features</Badge>
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Why Choose SIRA?
           </h2>
-          <p className="max-w-[700px] text-muted-foreground">
+          <p className="max-w-175 text-muted-foreground">
             Powered by cutting-edge AI technology to deliver accurate, personalized academic recommendations.
           </p>
         </div>
@@ -155,12 +155,12 @@ export default function Home() {
 
       {/* How It Works Section */}
       <section className="container py-16 md:py-24 bg-muted/40">
-        <div className="mx-auto flex max-w-[980px] flex-col items-center gap-4 text-center mb-12">
+        <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
           <Badge variant="outline">Process</Badge>
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             How It Works
           </h2>
-          <p className="max-w-[700px] text-muted-foreground">
+          <p className="max-w-175 text-muted-foreground">
             From profile creation to final decision, SIRA guides you through every step of your academic journey.
           </p>
         </div>
@@ -172,7 +172,7 @@ export default function Home() {
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-md" />
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70">
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/70">
                       <Icon className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-background border-2 border-primary font-bold text-primary text-sm">
@@ -193,9 +193,9 @@ export default function Home() {
       {/* CTA Section */}
       <section className="container py-16 md:py-24">
         <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-background" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-background" />
           <CardContent className="relative flex flex-col items-center gap-6 p-12 text-center">
-            <div className="flex max-w-[600px] flex-col gap-4">
+            <div className="flex max-w-150 flex-col gap-4">
               <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
                 Ready to Discover Your Future?
               </h2>

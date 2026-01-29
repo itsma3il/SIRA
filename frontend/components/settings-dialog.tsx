@@ -33,6 +33,8 @@ interface SettingsDialogProps {
   onRestoreSession?: (sessionId: string) => void;
   onDeleteSession?: (sessionId: string) => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function SettingsDialog({
@@ -40,9 +42,15 @@ export function SettingsDialog({
   onRestoreSession,
   onDeleteSession,
   trigger,
+  open: controlledOpen,
+  onOpenChange,
 }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use controlled open if provided, otherwise use internal state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
 
   const handleRestore = (sessionId: string) => {
     onRestoreSession?.(sessionId);
@@ -133,7 +141,7 @@ export function SettingsDialog({
           </TabsContent>
 
           <TabsContent value="archived" className="py-4">
-            <ScrollArea className="h-[400px] pr-4">
+            <ScrollArea className="h-100 pr-4">
               {archivedSessions.length === 0 ? (
                 <Card className="p-8 text-center">
                   <Archive className="mx-auto h-12 w-12 text-muted-foreground mb-4" />

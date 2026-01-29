@@ -50,9 +50,9 @@ export function ChatMinimap({ messages, onNavigate }: ChatMinimapProps) {
             className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1.5 p-3 opacity-35 hover:opacity-80 bg-background/80 backdrop-blur-sm border border-border rounded-lg shadow-lg"
         >
             {/* Gradient overlay - top */}
-            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-background/80 to-transparent pointer-events-none rounded-t-lg" />
+            <div className="absolute top-0 left-0 right-0 h-8 bg-linear-to-b from-background/80 to-transparent pointer-events-none rounded-t-lg" />
             {/* Gradient overlay - bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background/80 to-transparent pointer-events-none rounded-b-lg" />
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-background/80 to-transparent pointer-events-none rounded-b-lg" />
             
             <div className="flex flex-col gap-1.5 relative z-10">
                 {allItems.map((item) => {

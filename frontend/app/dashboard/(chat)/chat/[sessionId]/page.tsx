@@ -214,15 +214,10 @@ export default function ChatSessionPage() {
               profiles={profiles}
               hasProfile={hasProfile}
               recommendationDisabled={!canGenerateRecommendation}
-              disabled={sessionDetail.status === "archived"}
+              disabled={sessionDetail.status !== "active"}
               isStreaming={isStreaming}
               isStreamingRecommendation={isStreamingRecommendation}
             />
-            {sessionDetail.status === "archived" && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                This conversation is archived. Restore it to continue chatting.
-              </p>
-            )}
           </div>
         </>
       )}

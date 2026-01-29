@@ -192,7 +192,7 @@ export function RecommendationCharts({ structuredData }: RecommendationChartsPro
               <CardTitle className="text-base">Program Match Scores</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
+              <div className="h-75">
                 <Bar data={matchScoresData} options={chartOptions} />
               </div>
             </CardContent>
@@ -205,7 +205,7 @@ export function RecommendationCharts({ structuredData }: RecommendationChartsPro
               <CardTitle className="text-base">Annual Tuition Fees</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
+              <div className="h-75">
                 <Bar data={tuitionData} options={chartOptions} />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
@@ -228,7 +228,7 @@ export function RecommendationCharts({ structuredData }: RecommendationChartsPro
               <CardTitle className="text-base">Programs Comparison</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[350px]">
+              <div className="h-87.5">
                 <Radar data={radarData} options={radarOptions} />
               </div>
               <div className="mt-4 space-y-2 text-xs text-muted-foreground">

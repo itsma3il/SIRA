@@ -9,8 +9,8 @@ export default function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <SidebarInset className="flex min-h-[calc(100vh-4rem)] flex-col">
-        <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6">{children}</div>
+      <SidebarInset className="h-svh min-[calc(100vh-4rem)] md:h-[calc(100vh-1rem)] overflow-hidden">
+        <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

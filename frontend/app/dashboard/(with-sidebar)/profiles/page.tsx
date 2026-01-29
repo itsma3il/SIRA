@@ -114,7 +114,7 @@ export default function ProfilesPage() {
   }, [profiles, search, sortBy]);
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 p-4 sm:p-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />

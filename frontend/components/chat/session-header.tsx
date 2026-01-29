@@ -94,6 +94,7 @@ export function SessionHeader({
           </div>
         )}
       </div>
+        
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
