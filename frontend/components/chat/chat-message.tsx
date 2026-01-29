@@ -14,9 +14,11 @@ import type { Recommendation } from "@/lib/types/recommendation";
 interface ChatMessageProps {
   message: ChatMessage;
   recommendationSummary?: RecommendationSummary | null;
+  sessionId?: string;
+  onFeedback?: (recommendationId: string, rating: number) => void;
 }
 
-export function ChatMessage({ message, recommendationSummary }: ChatMessageProps) {
+export function ChatMessage({ message, recommendationSummary, sessionId, onFeedback }: ChatMessageProps) {
   const isAssistant = message.role !== "user";
   const isRecommendation = message.metadata?.type === "recommendation_generated";
 
@@ -58,6 +60,7 @@ export function ChatMessage({ message, recommendationSummary }: ChatMessageProps
                       ? {
                           id: recommendationSummary.id,
                           profile_id: "",
+                          session_id: sessionId || "",
                           query: recommendationSummary.query,
                           retrieved_context: recommendationSummary.retrieved_context ?? null,
                           ai_response: recommendationSummary.ai_response,
@@ -69,6 +72,7 @@ export function ChatMessage({ message, recommendationSummary }: ChatMessageProps
                       : {
                           id: message.id,
                           profile_id: "",
+                          session_id: sessionId || "",
                           query: "",
                           retrieved_context: null,
                           ai_response: message.content || "",
@@ -78,6 +82,7 @@ export function ChatMessage({ message, recommendationSummary }: ChatMessageProps
                           feedback_comment: null,
                         }
                   }
+                  onFeedback={onFeedback}
                 />
               </div>
             )

@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { 
-  ArrowRight, 
-  Brain, 
-  GraduationCap, 
-  Lightbulb, 
-  MessageSquare, 
-  Search, 
-  Sparkles, 
+import {
+  ArrowRight,
+  Brain,
+  GraduationCap,
+  Lightbulb,
+  MessageSquare,
+  Search,
+  Sparkles,
   Target,
   TrendingUp,
   Users
@@ -69,10 +69,10 @@ const howItWorks = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col mx-auto items-between">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+      <header className="sticky top-4 z-50 px-4 mx-auto rounded-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="container flex h-16 gap-8 items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-lg blur-sm" />
@@ -80,17 +80,18 @@ export default function Home() {
                 <GraduationCap className="size-6 text-primary-foreground" />
               </div>
             </div>
-            <div>
-              <h1 className="font-bold text-lg">SIRA</h1>
-              <p className="text-[10px] text-muted-foreground">Smart Academic Advisor</p>
-            </div>
+            <h1 className="font-bold text-lg">SIRA</h1>
           </div>
+          <a href="#features">Features</a>
+          <a href="#docs">Docs</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#pricing">Pricing</a>
           <UserNav />
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="container flex flex-col items-center justify-center gap-6 py-16 md:py-24 lg:py-32">
+      <section className="container mx-auto flex flex-col items-center justify-center gap-6 py-16 md:py-24 lg:py-32">
         <Badge variant="secondary" className="gap-2">
           <Sparkles className="h-3 w-3" />
           AI-Powered Academic Guidance
@@ -103,7 +104,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="max-w-175 text-lg text-muted-foreground sm:text-xl">
-            SIRA uses advanced AI to match you with graduate programs that align with your goals, 
+            SIRA uses advanced AI to match you with graduate programs that align with your goals,
             grades, and preferences. Get personalized recommendations in minutes.
           </p>
         </div>
@@ -121,7 +122,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="container py-16 md:py-24">
+      <section className="container mx-auto py-16 md:py-24">
         <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
           <Badge variant="outline">Features</Badge>
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
@@ -154,7 +155,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="container py-16 md:py-24 bg-muted/40">
+      <section className="container mx-auto py-16 md:py-24">
         <div className="mx-auto flex max-w-245 flex-col items-center gap-4 text-center mb-12">
           <Badge variant="outline">Process</Badge>
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
@@ -191,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-16 md:py-24">
+      <section className="container mx-auto py-16 md:py-24">
         <Card className="relative overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-background" />
           <CardContent className="relative flex flex-col items-center gap-6 p-12 text-center">
@@ -214,7 +215,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8">
+      <footer className="py-2 mx-auto">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-sm text-muted-foreground">
             © 2026 SIRA - Système Intelligent de Recommandation Académique

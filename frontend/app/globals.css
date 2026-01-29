@@ -47,7 +47,7 @@
 }
 
 :root {
-  --radius: 0.65rem;
+  --radius: 0.5rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -109,11 +109,12 @@
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.768 0.233 130.85);
   --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
-  --sidebar-accent: oklch(0.21 0.006 285.885);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.405 0.101 131.063);
 }
+
 
 @layer base {
   * {
@@ -122,6 +123,11 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  .cl-internal-1erfakr {
+    flex-direction: row-reverse !important;
+    scale: 1.1;
   }
 
   /* Markdown/Prose Styling */
@@ -302,6 +308,9 @@
   scrollbar-color: var(--accent) var(--card);
   scroll-behavior: smooth;
   scroll-snap-type: mandatory;
+  /* Better cross-browser support */
+  -ms-overflow-style: auto; /* IE and Edge (legacy) */
+  scrollbar-gutter: stable both-edges; /* Reserve space for scrollbars */
 }
 
 /* For Chrome, Edge, Safari, and Opera */
@@ -321,6 +330,15 @@
   /* color of the draggable handle */
   border-radius: var(--radius);
   /* rounded corners for the thumb */
+  border: 3px solid var(--card); /* provide padding-like space inside thumb */
+}
+
+/* Additional webkit pieces for broader support */
+.container::-webkit-scrollbar-corner {
+  background: var(--card);
+}
+.container::-webkit-scrollbar-track-piece {
+  background: var(--card);
 }
 
 @keyframes typing {

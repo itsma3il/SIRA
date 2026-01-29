@@ -1,13 +1,13 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, MessagesSquare, UserSquare2, Sparkles, Shield, Users, FileText, MessageCircle } from "lucide-react"
-import { useUser } from "@clerk/nextjs"
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, MessagesSquare, UserSquare2, Sparkles, Shield, Users, FileText, MessageCircle } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const navMain = [
   {
@@ -77,13 +77,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [user])
 
   const items = React.useMemo(
-    () =>
-      navMain.map((item) => ({
-        ...item,
-        isActive:
-          pathname === item.url ||
-          (pathname.startsWith(item.url + "/") && item.url !== "/dashboard"),
-      })),
+    () => {
+      const result = navMain.map((item) => {
+        let isActive = false;
+        
+        if (item.items && item.items.length > 0) {
+          // For parent items with children, check if any child matches
+          isActive = item.items.some(subItem => pathname === subItem.url || pathname.startsWith(subItem.url + "/"));
+        } else {
+          // For regular items, check exact match or starts with (but not for dashboard root)
+          isActive = pathname === item.url || 
+                    (item.url !== "/dashboard" && pathname.startsWith(item.url + "/"));
+        }
+        
+        return {
+          ...item,
+          isActive,
+        };
+      });
+      
+      console.log('Nav items active state:', result.map(i => ({ title: i.title, isActive: i.isActive, pathname })));
+      return result;
+    },
     [pathname]
   )
 

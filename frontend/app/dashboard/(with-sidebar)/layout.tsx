@@ -7,10 +7,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="h-svh min-[calc(100vh-4rem)] md:h-[calc(100vh-1rem)] overflow-hidden">
-        <div className="flex flex-1 flex-col">{children}</div>
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );

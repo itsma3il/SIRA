@@ -97,7 +97,7 @@ export default function AdminRecommendationsPage() {
           return <span className="text-xs text-muted-foreground">—</span>;
         }
         return (
-          <span className="text-xs text-muted-foreground truncate max-w-[200px] block">
+          <span className="text-xs text-muted-foreground truncate max-w-50 block">
             {comment}
           </span>
         );
@@ -183,7 +183,7 @@ export default function AdminRecommendationsPage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col overflow-y-auto">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -206,7 +206,7 @@ export default function AdminRecommendationsPage() {
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Rating:</label>
               <Select value={ratingFilter} onValueChange={setRatingFilter}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-37.5">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -219,7 +219,7 @@ export default function AdminRecommendationsPage() {
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Feedback:</label>
               <Select value={feedbackFilter} onValueChange={setFeedbackFilter}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-37.5">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,6 +233,6 @@ export default function AdminRecommendationsPage() {
         }
       />
       </div>
-    </>
+    </div>
   );
 }

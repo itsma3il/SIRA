@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <h1 className="text-xl font-semibold">Admin Dashboard</h1>
             </header>
-            <div className="flex-1 p-6 space-y-6">
+            <div className="flex-1 flex-col overflow-y-auto p-6 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>

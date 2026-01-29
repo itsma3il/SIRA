@@ -162,52 +162,48 @@ export function SessionSidebar({
                     <SidebarMenuItem key={session.id}>
                       <SidebarMenuButton asChild isActive={isActive}>
                         <Link href={`/dashboard/chat/${session.id}`}>
-                          <div className="flex w-full flex-col">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className={cn("truncate", isActive && "font-medium")}>
-                                {session.title}
-                              </span>
-                            </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <SidebarMenuAction showOnHover>
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </SidebarMenuAction>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent side="right" align="start" className="w-44">
-                                {onAttachProfile && (
-                                  <DropdownMenuItem onClick={() => onAttachProfile(session.id)}>
-                                    <UserSquare2 className="mr-2 h-4 w-4" />
-                                    Attach Profile
-                                  </DropdownMenuItem>
-                                )}
-                                {onRenameSession && (
-                                  <DropdownMenuItem onClick={() => onRenameSession(session.id)}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Rename
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                {onArchiveSession && (
-                                  <DropdownMenuItem onClick={() => onArchiveSession(session.id)}>
-                                    <Archive className="mr-2 h-4 w-4" />
-                                    Archive
-                                  </DropdownMenuItem>
-                                )}
-                                {onDeleteSession && (
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => onDeleteSession(session.id)}
-                                  >
-                                    <Trash className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <span className={cn("truncate", isActive && "font-medium")}>
+                            {session.title}
+                          </span>
                         </Link>
                       </SidebarMenuButton>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <SidebarMenuAction showOnHover>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </SidebarMenuAction>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start" className="w-44">
+                          {onAttachProfile && (
+                            <DropdownMenuItem onClick={() => onAttachProfile(session.id)}>
+                              <UserSquare2 className="mr-2 h-4 w-4" />
+                              Attach Profile
+                            </DropdownMenuItem>
+                          )}
+                          {onRenameSession && (
+                            <DropdownMenuItem onClick={() => onRenameSession(session.id)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Rename
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          {onArchiveSession && (
+                            <DropdownMenuItem onClick={() => onArchiveSession(session.id)}>
+                              <Archive className="mr-2 h-4 w-4" />
+                              Archive
+                            </DropdownMenuItem>
+                          )}
+                          {onDeleteSession && (
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => onDeleteSession(session.id)}
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </SidebarMenuItem>
                   );
                 })}

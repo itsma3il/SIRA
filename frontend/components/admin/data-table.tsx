@@ -115,7 +115,7 @@ export function DataTable<TData, TValue>({
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuContent align="end" className="w-50">
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -193,7 +193,7 @@ export function DataTable<TData, TValue>({
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-17.5">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
