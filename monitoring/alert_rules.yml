@@ -1,0 +1,132 @@
+groups:
+  - name: sira_api_alerts
+    interval: 30s
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response time"
+          description: "P95 latency is {{ $value }}s (threshold: 2s)"
+
+      # API down
+      - alert: APIDown
+        expr: up{job="sira-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SIRA API is down"
+          description: "The backend API has been unreachable for 1 minute"
+
+  - name: sira_database_alerts
+    interval: 30s
+    rules:
+      # Database down
+      - alert: DatabaseDown
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Database has been unreachable for 1 minute"
+
+      # Too many database connections
+      - alert: TooManyDatabaseConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection usage"
+          description: "{{ $value | humanizePercentage }} of max connections in use"
+
+      # Slow queries
+      - alert: SlowDatabaseQueries
+        expr: rate(pg_stat_database_blks_hit[5m]) / (rate(pg_stat_database_blks_read[5m]) + rate(pg_stat_database_blks_hit[5m])) < 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low database cache hit ratio"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+  - name: sira_system_alerts
+    interval: 30s
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value }}% disk space remaining on {{ $labels.instance }}"
+
+  - name: sira_business_alerts
+    interval: 60s
+    rules:
+      # Recommendation generation failures
+      - alert: RecommendationGenerationFailures
+        expr: rate(sira_recommendations_failed_total[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High recommendation generation failure rate"
+          description: "{{ $value }} recommendation failures per second"
+
+      # Slow recommendation generation
+      - alert: SlowRecommendationGeneration
+        expr: histogram_quantile(0.95, rate(sira_recommendation_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow recommendation generation"
+          description: "P95 recommendation time is {{ $value }}s (threshold: 5s)"
+
+      # No recommendations generated
+      - alert: NoRecommendationsGenerated
+        expr: rate(sira_recommendations_generated_total[30m]) == 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No recommendations being generated"
+          description: "No recommendations have been generated in the last 30 minutes"

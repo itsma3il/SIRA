@@ -1,0 +1,100 @@
+route:
+  # Default receiver for all alerts
+  receiver: 'email-notifications'
+  
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+  
+  # Wait time before sending first notification
+  group_wait: 30s
+  
+  # Wait time before sending notification about new alerts
+  group_interval: 5m
+  
+  # Wait time before sending notification about resolved alerts
+  repeat_interval: 3h
+  
+  # Child routes
+  routes:
+    # Critical alerts go to pager
+    - match:
+        severity: critical
+      receiver: 'pagerduty'
+      continue: true  # Also send to email
+    
+    # Database alerts go to database team
+    - match_re:
+        alertname: Database.*
+      receiver: 'database-team'
+    
+    # API alerts go to backend team  
+    - match_re:
+        alertname: API.*|HighErrorRate|HighResponseTime
+      receiver: 'backend-team'
+
+# Notification receivers
+receivers:
+  # Email notifications (default)
+  - name: 'email-notifications'
+    email_configs:
+      - to: 'alerts@yourdomain.com'
+        from: 'sira-alerts@yourdomain.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'sira-alerts@yourdomain.com'
+        auth_password: 'YOUR_SMTP_PASSWORD'
+        headers:
+          Subject: '[SIRA Alert] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>{{ .GroupLabels.alertname }}</h2>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><strong>Time:</strong> {{ .CommonLabels.timestamp }}</p>
+
+  # PagerDuty (critical alerts)
+  - name: 'pagerduty'
+    pagerduty_configs:
+      - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+        description: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+
+  # Slack (optional)
+  - name: 'slack-alerts'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#sira-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ .CommonAnnotations.description }}'
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+
+  # Database team
+  - name: 'database-team'
+    email_configs:
+      - to: 'database-team@yourdomain.com'
+        from: 'sira-alerts@yourdomain.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'sira-alerts@yourdomain.com'
+        auth_password: 'YOUR_SMTP_PASSWORD'
+
+  # Backend team
+  - name: 'backend-team'
+    email_configs:
+      - to: 'backend-team@yourdomain.com'
+        from: 'sira-alerts@yourdomain.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'sira-alerts@yourdomain.com'
+        auth_password: 'YOUR_SMTP_PASSWORD'
+
+# Inhibition rules (suppress alerts when others are firing)
+inhibit_rules:
+  # If API is down, don't alert on high error rate
+  - source_match:
+      alertname: 'APIDown'
+    target_match:
+      alertname: 'HighErrorRate'
+    equal: ['instance']
+  
+  # If database is down, don't alert on slow queries
+  - source_match:
+      alertname: 'DatabaseDown'
+    target_match_re:
+      alertname: 'SlowDatabaseQueries|TooManyDatabaseConnections'
+    equal: ['instance']
