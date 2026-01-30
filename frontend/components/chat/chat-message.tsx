@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/hooks/use-conversation-chat";
 import type { RecommendationSummary } from "@/lib/types/conversation";
-import type { Recommendation, RecommendationFeedback } from "@/lib/types/recommendation";
+import type { RecommendationFeedback } from "@/lib/types/recommendation";
 
 interface ChatMessageProps {
   message: ChatMessage;

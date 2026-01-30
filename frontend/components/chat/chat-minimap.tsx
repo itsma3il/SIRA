@@ -11,22 +11,11 @@ interface ChatMinimapProps {
 
 export function ChatMinimap({ messages, onNavigate }: ChatMinimapProps) {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-    const [isVisible, setIsVisible] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Show minimap only when there are multiple messages
-    useEffect(() => {
-        setIsVisible(messages.length > 3);
-    }, [messages.length]);
+    const isVisible = messages.length > 3;
 
     if (!isVisible) return null;
-
-    const recommendations = messages.filter(
-        (msg) => msg.role === "assistant" && msg.metadata?.type === "recommendation_generated"
-    );
-    const regularMessages = messages.filter(
-        (msg) => !(msg.role === "assistant" && msg.metadata?.type === "recommendation_generated")
-    );
 
     const allItems = messages.map((msg, idx) => ({
         id: msg.id,

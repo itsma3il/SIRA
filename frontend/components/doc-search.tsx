@@ -2,134 +2,29 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, FileText, Book, Code, Shield, Settings, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, X, FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-interface DocResult {
-  title: string;
-  path: string;
-  category: 'User' | 'Developer' | 'Operations' | 'Management';
-  description: string;
-  icon: React.ReactNode;
-}
-
-const DOCUMENTATION: DocResult[] = [
-  // User Documentation
-  {
-    title: 'User Guide',
-    path: '/docs/USER_GUIDE.md',
-    category: 'User',
-    description: 'Complete user manual with tutorials and how-to guides',
-    icon: <Book className="h-4 w-4" />,
-  },
-
-  // Developer Documentation
-  {
-    title: 'Developer Guide',
-    path: '/docs/DEVELOPER_GUIDE.md',
-    category: 'Developer',
-    description: 'Setup, coding standards, and development workflow',
-    icon: <Code className="h-4 w-4" />,
-  },
-  {
-    title: 'Architecture',
-    path: '/docs/ARCHITECTURE.md',
-    category: 'Developer',
-    description: 'System architecture and component interactions',
-    icon: <Code className="h-4 w-4" />,
-  },
-  {
-    title: 'API Reference',
-    path: '/docs/API_REFERENCE.md',
-    category: 'Developer',
-    description: 'Complete REST API documentation',
-    icon: <Code className="h-4 w-4" />,
-  },
-  {
-    title: 'Database Schema',
-    path: '/docs/DATABASE.md',
-    category: 'Developer',
-    description: 'Database structure and relationships',
-    icon: <Code className="h-4 w-4" />,
-  },
-  {
-    title: 'Tech Stack',
-    path: '/docs/TECH_STACK.md',
-    category: 'Developer',
-    description: 'Technologies used and integration details',
-    icon: <Code className="h-4 w-4" />,
-  },
-  {
-    title: 'Testing Guide',
-    path: '/docs/TESTING.md',
-    category: 'Developer',
-    description: 'Test strategy, infrastructure, and best practices',
-    icon: <Code className="h-4 w-4" />,
-  },
-
-  // Operations Documentation
-  {
-    title: 'Deployment Guide',
-    path: '/docs/DEPLOYMENT.md',
-    category: 'Operations',
-    description: 'Production deployment procedures',
-    icon: <Settings className="h-4 w-4" />,
-  },
-  {
-    title: 'Operations Manual',
-    path: '/docs/OPERATIONS.md',
-    category: 'Operations',
-    description: 'Day-to-day operations and maintenance',
-    icon: <Settings className="h-4 w-4" />,
-  },
-  {
-    title: 'Security Guide',
-    path: '/docs/SECURITY.md',
-    category: 'Operations',
-    description: 'Comprehensive security documentation',
-    icon: <Shield className="h-4 w-4" />,
-  },
-  {
-    title: 'Incident Runbooks',
-    path: '/docs/INCIDENT_RUNBOOKS.md',
-    category: 'Operations',
-    description: 'Emergency response procedures',
-    icon: <Shield className="h-4 w-4" />,
-  },
-
-  // Management Documentation
-  {
-    title: 'Project Status',
-    path: '/docs/PROJECT_STATUS.md',
-    category: 'Management',
-    description: 'Executive summary, metrics, and roadmap',
-    icon: <FileText className="h-4 w-4" />,
-  },
-  {
-    title: 'Documentation Index',
-    path: '/docs/INDEX.md',
-    category: 'Management',
-    description: 'Complete documentation navigation',
-    icon: <FileText className="h-4 w-4" />,
-  },
-];
+import { DOCS_REGISTRY, type DocMetadata } from '@/lib/docs-config';
 
 export function DocSearch() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   // Filter docs based on search query
   const filteredDocs = useMemo(() => {
-    if (!query.trim()) return DOCUMENTATION;
+    if (!query.trim()) return DOCS_REGISTRY;
 
     const lowerQuery = query.toLowerCase();
-    return DOCUMENTATION.filter(
+    return DOCS_REGISTRY.filter(
       (doc) =>
         doc.title.toLowerCase().includes(lowerQuery) ||
         doc.description.toLowerCase().includes(lowerQuery) ||
+        doc.keywords.some(keyword => keyword.toLowerCase().includes(lowerQuery)) ||
         doc.category.toLowerCase().includes(lowerQuery)
     );
   }, [query]);
@@ -146,6 +41,13 @@ export function DocSearch() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+    const handleSelectDoc = useCallback((doc: DocMetadata) => {
+    // Navigate to internal Next.js route
+    router.push(doc.path);
+    setIsOpen(false);
+    setQuery('');
+  }, [router]);
 
   // Handle arrow navigation
   useEffect(() => {
@@ -166,22 +68,17 @@ export function DocSearch() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredDocs, selectedIndex]);
+  }, [isOpen, filteredDocs, selectedIndex, handleSelectDoc]);
 
   // Reset selection when query changes
   useEffect(() => {
-    setSelectedIndex(0);
+    if (query !== '') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedIndex(0);
+    }
   }, [query]);
 
-  const handleSelectDoc = useCallback((doc: DocResult) => {
-    // Open doc in new tab or navigate to it
-    const fullPath = `https://github.com/your-org/sira/blob/main${doc.path}`;
-    window.open(fullPath, '_blank');
-    setIsOpen(false);
-    setQuery('');
-  }, []);
-
-  const getCategoryColor = (category: DocResult['category']) => {
+  const getCategoryColor = (category: DocMetadata['category']) => {
     switch (category) {
       case 'User':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
@@ -238,7 +135,7 @@ export function DocSearch() {
           </div>
 
           {/* Results */}
-          <ScrollArea className="max-h-[400px]">
+          <ScrollArea className="max-h-100">
             {filteredDocs.length === 0 ? (
               <div className="px-4 py-8 text-center text-muted-foreground">
                 <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -258,7 +155,9 @@ export function DocSearch() {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5">{doc.icon}</div>
+                      <div className="mt-0.5">
+                        <doc.icon className="h-4 w-4" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{doc.title}</span>

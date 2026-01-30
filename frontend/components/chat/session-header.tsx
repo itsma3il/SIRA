@@ -37,10 +37,13 @@ export function SessionHeader({
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(session.title);
 
+  // Sync draft title when session title changes externally (not while editing)
   useEffect(() => {
-    setDraftTitle(session.title);
-    setIsEditing(false);
-  }, [session.title]);
+    if (!isEditing && draftTitle !== session.title) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDraftTitle(session.title);
+    }    
+  }, [isEditing, session.title, draftTitle]);
 
   const handleSave = () => {
     const trimmed = draftTitle.trim();

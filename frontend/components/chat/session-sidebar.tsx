@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, PlusIcon, Sparkles, MoreHorizontal, UserSquare2, Pencil, Archive, Trash } from "lucide-react";
+import { PlusIcon, Sparkles, MoreHorizontal, UserSquare2, Pencil, Archive, Trash } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { NavUser } from "@/components/nav-user";
 
@@ -21,8 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { SettingsDialog } from "@/components/settings-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,28 +56,6 @@ export function SessionSidebar({
   const { user } = useUser();
   const [search, setSearch] = useState("");
 
-  // Extract archived sessions
-  const archivedSessions = useMemo(() => {
-    if (!sessions?.sessions?.length) return [];
-    const archived = sessions.sessions
-      .flatMap((group) => group.sessions)
-      .filter((session) => session.status === "archived");
-
-    // console.log('[SessionSidebar] All sessions:', sessions.sessions.flatMap(g => g.sessions).map(s => ({ id: s.id, title: s.title, status: s.status })));
-    // console.log('[SessionSidebar] Archived sessions found:', archived.length);
-
-    return archived.map((session) => ({
-      id: session.id,
-      title: session.title,
-      archivedAt: session.last_message_at
-        ? new Date(session.last_message_at).toLocaleDateString()
-        : session.created_at
-          ? new Date(session.created_at).toLocaleDateString()
-          : 'Unknown',
-      messageCount: session.message_count,
-    }));
-  }, [sessions]);
-
   const filteredSessions = useMemo(() => {
     if (!sessions?.sessions?.length) return [];
     const query = search.trim().toLowerCase();
@@ -105,7 +81,6 @@ export function SessionSidebar({
       })
       .filter((group) => group.sessions.length > 0);
 
-    // console.log('[SessionSidebar] Active sessions after filter:', activeSessions.flatMap(g => g.sessions).length);
     return activeSessions;
   }, [search, sessions]);
 
@@ -157,7 +132,6 @@ export function SessionSidebar({
               <SidebarMenu className="gap-2">
                 {group.sessions.map((session) => {
                   const isActive = session.id === activeSessionId;
-                  const preview = session.last_message || "No messages yet";
                   return (
                     <SidebarMenuItem key={session.id}>
                       <SidebarMenuButton asChild isActive={isActive}>

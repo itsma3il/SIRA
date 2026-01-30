@@ -96,9 +96,10 @@ Components
 └── common/ (Shared components)
 
 Hooks
-├── use-conversation-stream (SSE)
-├── use-recommendation-stream (SSE)
+├── use-conversation-stream (SSE with integrated recommendations)
 └── use-mobile
+
+Note: use-recommendation-stream deprecated - recommendations now generated via chat
 
 Stores (Zustand)
 ├── profile-wizard-store (Form state)
@@ -185,42 +186,62 @@ Response (Profile ID + Status)
 UI Update (React State)
 ```
 
-### Recommendation Generation Flow
+### Recommendation Generation Flow (Chat-Integrated)
 
 ```
-User Requests Recommendation
+User in Chat Session (with Profile Attached)
     ↓
-GET /api/recommendations/generate (StreamingResponse)
+User Clicks "Generate Recommendations" Button
+    ↓
+POST /api/chat/{session_id}/generate-recommendations
+    ↓
+ConversationService
+    ├─ Load Profile from Session
+    ├─ Load Chat History for Context
+    └─ Extract Conversation Insights
     ↓
 RecommendationService
-    ├─ Load Profile from DB
     ├─ Extract Keywords (Field, GPA, Interests, Budget)
-    └─ Generate Query String
+    ├─ Analyze Chat History for User Preferences
+    └─ Generate Context-Aware Query String
     ↓
 RAG Service
     ├─ Generate Query Embedding (Mistral)
     ├─ Semantic Search (Pinecone)
-    └─ Metadata Filtering (GPA, Budget)
+    └─ Metadata Filtering (GPA, Budget, Preferences)
     ↓
 LLM Service (Mistral AI)
-    ├─ System Prompt (Academic Advisor)
-    ├─ User Prompt (Profile + Retrieved Programs)
+    ├─ System Prompt (Academic Advisor with Chat Context)
+    ├─ User Prompt (Profile + Chat History + Retrieved Programs)
     └─ Stream Response
     ↓
-Response Streaming (SSE)
+Response Streaming (SSE to Chat Interface)
     ├─ Chunk 1: Analysis
     ├─ Chunk 2: Recommendations
     └─ Chunk n: Conclusion
     ↓
-Frontend Hook (use-recommendation-stream)
+Frontend Chat Hook (use-conversation-stream)
     ├─ Parse SSE
-    ├─ Update UI Progressively
-    └─ Display Formatted Output
+    ├─ Update Chat UI Progressively
+    └─ Display Formatted Output in Chat
     ↓
-Save Recommendation (After Generation)
+Save Recommendation & Link to Session
     ├─ PostgreSQL Storage
+    ├─ Link to Conversation Session
     └─ Feedback Ready
+    ↓
+User Can Continue Discussion
+    ├─ Ask Follow-up Questions
+    ├─ Compare Programs
+    └─ Request Clarifications
 ```
+
+**Key Benefits of Chat Integration:**
+- Profile automatically attached to session
+- Chat history provides additional context
+- Seamless discussion of recommendations
+- No page switching required
+- Better user engagement and satisfaction
 
 ### Admin Dashboard Analytics Flow
 

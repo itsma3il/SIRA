@@ -88,7 +88,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           blockquote: ({ node, ...props }) => (
             <blockquote className="mt-6 border-l-2 border-muted-foreground pl-6 italic text-muted-foreground" {...props} />
           ),
-          code: ({ node, inline, className, children, ...props }: any) => {
+          code: ({ node, inline, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const codeString = String(children).replace(/\n$/, "");
             
@@ -123,10 +123,10 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             <thead className="bg-muted" {...props} />
           ),
           th: ({ node, ...props }) => (
-            <th className="border border-border px-4 py-2 text-left font-semibold [&[align=center]]:text-center [&[align=right]]:text-right" {...props} />
+            <th className="border border-border px-4 py-2 text-left font-semibold [[align=center]]:text-center [[align=right]]:text-right" {...props} />
           ),
           td: ({ node, ...props }) => (
-            <td className="border border-border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right" {...props} />
+            <td className="border border-border px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right" {...props} />
           ),
           hr: ({ node, ...props }) => (
             <hr className="my-8 border-border" {...props} />

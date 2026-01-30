@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { ChevronDown, ChevronUp, Copy, Check, MessageSquare, Star, GraduationCap, MapPin, DollarSign, Calendar, BarChart3 } from "lucide-react";
 import type { Recommendation, RecommendationFeedback } from "@/lib/types/recommendation";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";

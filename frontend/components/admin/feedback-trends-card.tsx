@@ -95,7 +95,7 @@ export function FeedbackTrendsCard({ data }: FeedbackTrendsProps) {
               {data.positive_feedback_rate}%
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.positive_feedback_count} ratings (4-5 ⭐)
+              {data.positive_feedback_count} ratings (4-5 <Star className="size-4" />)
             </p>
           </div>
 
@@ -108,7 +108,7 @@ export function FeedbackTrendsCard({ data }: FeedbackTrendsProps) {
               {data.negative_feedback_rate}%
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.negative_feedback_count} ratings (1-2 ⭐)
+              {data.negative_feedback_count} ratings (1-2 <Star className="size-4" />)
             </p>
           </div>
         </div>

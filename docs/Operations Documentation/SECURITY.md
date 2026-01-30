@@ -370,17 +370,17 @@ def validate_file(file: UploadFile):
 
 **Using SQLAlchemy ORM:**
 ```python
-# ✅ SAFE: Parameterized queries
+#  SAFE: Parameterized queries
 from sqlalchemy import select
 
 stmt = select(Profile).where(Profile.user_id == user_id)
 profiles = await session.execute(stmt)
 
-# ✅ SAFE: ORM operations
+#  SAFE: ORM operations
 profile = Profile(user_id=user_id, name=name, gpa=gpa)
 session.add(profile)
 
-# ❌ UNSAFE: Raw SQL with string formatting (NEVER DO THIS)
+#  UNSAFE: Raw SQL with string formatting (NEVER DO THIS)
 query = f"SELECT * FROM profiles WHERE user_id = '{user_id}'"  # VULNERABLE!
 ```
 
@@ -417,8 +417,8 @@ def sanitize_html(text: str) -> str:
 from fastapi.middleware.cors import CORSMiddleware
 
 ALLOWED_ORIGINS = [
-    "https://sira.yourdomain.com",      # Production
-    "https://staging.sira.yourdomain.com",  # Staging
+    "https://sira.itsma3il.com",      # Production
+    "https://staging.sira.itsma3il.com",  # Staging
     "http://localhost:3000",            # Development
 ]
 
@@ -592,12 +592,12 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; prelo
 **Test SSL Configuration:**
 ```bash
 # Test with SSL Labs
-# Visit: https://www.ssllabs.com/ssltest/analyze.html?d=sira.yourdomain.com
+# Visit: https://www.ssllabs.com/ssltest/analyze.html?d=sira.itsma3il.com
 
 # Target: A+ rating
 
 # Test with testssl.sh
-testssl.sh https://sira.yourdomain.com
+testssl.sh https://sira.itsma3il.com
 ```
 
 ---
@@ -623,7 +623,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 # Only allow specific hosts
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["sira.yourdomain.com", "*.sira.yourdomain.com"]
+    allowed_hosts=["sira.itsma3il.com", "*.sira.itsma3il.com"]
 )
 
 # Compress responses
@@ -705,7 +705,7 @@ const securityHeaders = [
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://api.sira.yourdomain.com https://clerk.com;
+      connect-src 'self' https://api.sira.itsma3il.com https://clerk.com;
       frame-src 'self' https://clerk.com;
     `.replace(/\s{2,}/g, ' ').trim()
   },

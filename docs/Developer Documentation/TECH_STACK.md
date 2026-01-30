@@ -163,14 +163,15 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 
 **Server-Sent Events (SSE)**
 - **Type:** Real-time communication protocol
-- **Purpose:** Streaming recommendations and chat
+- **Purpose:** Streaming chat responses and recommendations
 - **Hooks:**
-  - `use-recommendation-stream.ts` - Handles recommendation streams
-  - `use-conversation-stream.ts` - Handles chat streams
+  - `use-conversation-stream.ts` - Handles chat streams with integrated recommendations
+  - Note: Recommendations are now generated within chat sessions
 - **Advantages:**
   - One-way communication (backend → frontend)
   - Automatic reconnection
   - HTTP-based (no WebSocket setup)
+  - Supports recommendation streaming in chat context
 
 ### Authentication
 

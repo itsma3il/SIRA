@@ -186,6 +186,7 @@ export function ProfileWizard({
             form.setFieldValue("academic_record.transcript_url", localResult.url)
         } catch (error) {
             setUploadError("Unable to upload transcript. Please try again.")
+            console.error(error)
         } finally {
             setUploading(false)
         }

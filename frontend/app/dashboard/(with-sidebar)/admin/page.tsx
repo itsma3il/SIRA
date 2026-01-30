@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,7 +17,6 @@ import {
     TrendingUp,
     AlertCircle,
     BarChart3,
-    Loader2
 } from "lucide-react";
 import { api, type DashboardMetrics, type ProgramCount } from "@/lib/api";
 import Link from "next/link";
@@ -36,7 +35,7 @@ export default function AdminDashboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [period, setPeriod] = useState(30);
 
-    const loadMetrics = async () => {
+    const loadMetrics = useCallback(async () => {
         if (!isLoaded) return;
 
         try {
@@ -65,11 +64,11 @@ export default function AdminDashboardPage() {
         } finally {
             setLoading(false);
         }
-    };
+    },[getToken, isLoaded, period]);
 
     useEffect(() => {
         loadMetrics();
-    }, [isLoaded, period]);
+    }, [loadMetrics]);
 
     if (loading) {
         return (

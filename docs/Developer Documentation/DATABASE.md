@@ -297,8 +297,8 @@ CREATE INDEX idx_recommendations_structured_data ON recommendations USING gin(st
 **Columns:**
 - `id` - UUID primary key
 - `profile_id` - Foreign key to profiles
-- `session_id` - Optional reference to conversation session
-- `query` - The search query used for RAG
+- `session_id` - **Required** reference to conversation session (recommendations chat-integrated)
+- `query` - The search query used for RAG (may include chat context)
 - `retrieved_context` - JSONB with retrieved documents
 - `ai_response` - Full LLM response text
 - `structured_data` - JSONB with parsed structured response
@@ -313,10 +313,18 @@ CREATE INDEX idx_recommendations_structured_data ON recommendations USING gin(st
         "match_score": 0.95,
         "reasoning": "..."
       }
-    ]
+    ],
+    "chat_context_used": true,
+    "conversation_insights": ["user prefers urban campuses", "budget conscious"]
   }
   ```
 - `created_at`, `updated_at` - Timestamps
+
+**Important Note:** All new recommendations are generated within chat sessions and MUST have a `session_id`. This enables:
+- Context-aware recommendations based on conversation history
+- Seamless discussion of results
+- Better tracking and analytics
+- Improved user experience
 
 **Constraints:**
 - Foreign key to profiles with cascade delete

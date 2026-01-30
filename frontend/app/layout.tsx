@@ -28,15 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} font-sans bg-background text-foreground antialiased`}
+        className={`${inter.variable} ${geistMono.variable} font-sans bg-background text-foreground antialiased`}
       >
         <SkipToMain />
         <Providers>
-          <div className="flex max-h-svh w-full flex-col">
-            {/* <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-8"> */}
-              <main id="main-content" tabIndex={-1}>{children}</main>
-            {/* </div> */}
-          </div>
+          <main id="main-content" tabIndex={-1}>{children}</main>
         </Providers>
       </body>
     </html>

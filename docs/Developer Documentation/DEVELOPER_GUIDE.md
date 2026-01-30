@@ -187,7 +187,7 @@ backend/
 
 **React Component Rules:**
 ```typescript
-// ✅ Good
+// Good
 interface UserCardProps {
   userId: string;
   onSelect: (id: string) => void;
@@ -202,7 +202,7 @@ export function UserCard({ userId, onSelect, className }: UserCardProps) {
   );
 }
 
-// ❌ Bad
+// Bad
 export function UserCard(props: any) {
   return <button onClick={() => props.onSelect(props.id)}>{props.id}</button>;
 }
@@ -290,7 +290,7 @@ class Profile(SQLModel, table=True):
 
 **Error Handling:**
 ```python
-# ✅ Good
+# Good
 try:
     result = await database_operation()
 except ValueError as e:
@@ -300,7 +300,7 @@ except Exception as e:
     logger.error(f"Unexpected error: {str(e)}", exc_info=True)
     raise HTTPException(status_code=500, detail="Internal server error")
 
-# ❌ Bad
+#  Bad
 try:
     result = await database_operation()
 except:
@@ -624,12 +624,12 @@ const UserCard = memo(function UserCard({ user }: { user: User }) {
 
 **Database Query Optimization:**
 ```python
-# ❌ Slow - N+1 query problem
+#  Slow - N+1 query problem
 users = await db.query(User)
 for user in users:
     profiles = await db.query(Profile).filter(Profile.user_id == user.id)
 
-# ✅ Fast - Eager loading
+#  Fast - Eager loading
 users = await db.query(User).options(joinedload(User.profiles))
 ```
 
@@ -645,14 +645,14 @@ def expensive_computation(value: str) -> str:
 
 **Async Operations:**
 ```python
-# ✅ Good - Concurrent requests
+#  Good - Concurrent requests
 results = await asyncio.gather(
     api_call_1(),
     api_call_2(),
     api_call_3()
 )
 
-# ❌ Bad - Sequential (slow)
+#  Bad - Sequential (slow)
 result1 = await api_call_1()
 result2 = await api_call_2()
 result3 = await api_call_3()
@@ -666,20 +666,20 @@ result3 = await api_call_3()
 
 **Protecting Sensitive Data:**
 ```typescript
-// ✅ Good - Don't log sensitive data
-console.log("User created"); // ✓
+//  Good - Don't log sensitive data
+console.log("User created"); // 
 
-// ❌ Bad - Never log sensitive data
-console.log(jwt_token); // ✗
-console.log(user_password); // ✗
+//  Bad - Never log sensitive data
+console.log(jwt_token); // 
+console.log(user_password); // 
 ```
 
 **XSS Prevention:**
 ```typescript
-// ✅ Good - React auto-escapes by default
+//  Good - React auto-escapes by default
 <div>{user_input}</div>
 
-// ❌ Bad - Never use dangerouslySetInnerHTML
+//  Bad - Never use dangerouslySetInnerHTML
 <div dangerouslySetInnerHTML={{ __html: user_input }} />
 ```
 
@@ -701,21 +701,21 @@ const cspHeader = `
 
 **Input Validation:**
 ```python
-# ✅ Use Pydantic for validation
+#  Use Pydantic for validation
 class UserCreate(BaseModel):
     email: EmailStr  # Automatically validates email format
     password: str = Field(min_length=8)
 
-# ❌ Never trust user input
+#  Never trust user input
 user_email = request.email  # Could be invalid
 ```
 
 **SQL Injection Prevention:**
 ```python
-# ✅ Good - SQLAlchemy prevents SQL injection
+#  Good - SQLAlchemy prevents SQL injection
 users = await db.query(User).filter(User.email == email)
 
-# ❌ Bad - Never use string formatting for queries
+#  Bad - Never use string formatting for queries
 query = f"SELECT * FROM users WHERE email = '{email}'"  # Vulnerable!
 ```
 
@@ -752,10 +752,10 @@ async def login(credentials: LoginRequest):
 
 **Environment Secrets:**
 ```bash
-# ✅ Good - Use environment variables
+#  Good - Use environment variables
 API_KEY=os.getenv("API_KEY")
 
-# ❌ Bad - Hardcoded secrets
+#  Bad - Hardcoded secrets
 API_KEY = "sk-1234567890"  # Never!
 ```
 

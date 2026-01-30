@@ -255,11 +255,7 @@ function FileUpload(props: FileUploadProps) {
   });
 
   const store = React.useMemo<Store>(() => {
-    let state: StoreState = {
-      files,
-      dragOver: false,
-      invalid: invalid,
-    };
+    const stateRef = { current: { files, dragOver: false, invalid } as StoreState };
 
     function reducer(state: StoreState, action: StoreAction): StoreState {
       switch (action.type) {
@@ -273,10 +269,7 @@ function FileUpload(props: FileUploadProps) {
           }
 
           if (propsRef.current.onValueChange) {
-            const fileList = Array.from(files.values()).map(
-              (fileState) => fileState.file,
-            );
-            propsRef.current.onValueChange(fileList);
+            propsRef.current.onValueChange(Array.from(files.values()).map(s => s.file));
           }
           return { ...state, files };
         }
@@ -348,10 +341,7 @@ function FileUpload(props: FileUploadProps) {
           files.delete(action.file);
 
           if (propsRef.current.onValueChange) {
-            const fileList = Array.from(files.values()).map(
-              (fileState) => fileState.file,
-            );
-            propsRef.current.onValueChange(fileList);
+            propsRef.current.onValueChange(Array.from(files.values()).map(s => s.file));
           }
           return { ...state, files };
         }
@@ -386,12 +376,12 @@ function FileUpload(props: FileUploadProps) {
     }
 
     return {
-      getState: () => state,
+      getState: () => stateRef.current,
       dispatch: (action) => {
-        state = reducer(state, action);
-        for (const listener of listeners) {
-          listener();
-        }
+        // compute next state without reassigning a render variable
+        const next = reducer(stateRef.current, action);
+        stateRef.current = next;
+        for (const listener of listeners) listener();
       },
       subscribe: (listener) => {
         listeners.add(listener);
@@ -772,31 +762,33 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
   const onDrop = React.useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
       propsRef.current.onDrop?.(event);
-
       if (event.defaultPrevented) return;
 
       event.preventDefault();
       store.dispatch({ type: "SET_DRAG_OVER", dragOver: false });
 
       const files = Array.from(event.dataTransfer.files);
-      const inputElement = context.inputRef.current;
-      if (!inputElement) return;
+      const el = context.inputRef?.current;
+      if (!(el instanceof HTMLInputElement)) return;
 
-      const dataTransfer = new DataTransfer();
-      for (const file of files) {
-        dataTransfer.items.add(file);
+      if (typeof DataTransfer === "undefined") {
+        // fallback: directly call file handler or upload
+        return;
       }
 
-      inputElement.files = dataTransfer.files;
-      inputElement.dispatchEvent(new Event("change", { bubbles: true }));
+      const dt = new DataTransfer();
+      for (const file of files) dt.items.add(file);
+
+      el.files = dt.files;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
     },
-    [store, context.inputRef, propsRef],
+    [store, propsRef, context], // ensure `context` is stable; avoid using context.inputRef in deps
   );
+
 
   const onPaste = React.useCallback(
     (event: React.ClipboardEvent<HTMLDivElement>) => {
       propsRef.current.onPaste?.(event);
-
       if (event.defaultPrevented) return;
 
       event.preventDefault();
@@ -810,27 +802,24 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
         const item = items[i];
         if (item?.kind === "file") {
           const file = item.getAsFile();
-          if (file) {
-            files.push(file);
-          }
+          if (file) files.push(file);
         }
       }
-
       if (files.length === 0) return;
 
-      const inputElement = context.inputRef.current;
-      if (!inputElement) return;
+      const el = context.inputRef?.current;
+      if (!(el instanceof HTMLInputElement)) return;
+      if (typeof DataTransfer === "undefined") return;
 
-      const dataTransfer = new DataTransfer();
-      for (const file of files) {
-        dataTransfer.items.add(file);
-      }
+      const dt = new DataTransfer();
+      for (const file of files) dt.items.add(file);
 
-      inputElement.files = dataTransfer.files;
-      inputElement.dispatchEvent(new Event("change", { bubbles: true }));
+      el.files = dt.files;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
     },
-    [store, context.inputRef, propsRef],
+    [store, propsRef, context], // ensure `context` is a stable object (avoid context.inputRef)
   );
+
 
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -1032,9 +1021,8 @@ function FileUploadItem(props: FileUploadItemProps) {
         id={id}
         aria-setsize={fileCount}
         aria-posinset={fileIndex}
-        aria-describedby={`${nameId} ${sizeId} ${statusId} ${
-          fileState.error ? messageId : ""
-        }`}
+        aria-describedby={`${nameId} ${sizeId} ${statusId} ${fileState.error ? messageId : ""
+          }`}
         aria-labelledby={nameId}
         data-slot="file-upload-item"
         dir={context.dir}

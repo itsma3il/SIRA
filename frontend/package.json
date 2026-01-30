@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
     "lint": "eslint"
   },
   "dependencies": {
@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "gray-matter": "^4.0.3",
     "lucide-react": "^0.562.0",
     "marked": "^17.0.1",
     "next": "16.1.3",

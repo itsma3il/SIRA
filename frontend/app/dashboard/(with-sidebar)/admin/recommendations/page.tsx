@@ -122,6 +122,7 @@ export default function AdminRecommendationsPage() {
 
   useEffect(() => {
     loadRecommendations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ratingFilter, feedbackFilter]);
 
   async function loadRecommendations() {

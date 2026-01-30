@@ -6,91 +6,27 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-
-interface NavItem {
-  title: string;
-  href?: string;
-  items?: NavItem[];
-}
-
-const docsConfig: NavItem[] = [
-  {
-    title: "Getting Started",
-    items: [
-      {
-        title: "Introduction",
-        href: "/docs",
-      },
-    ],
-  },
-  {
-    title: "Guides",
-    items: [
-      {
-        title: "User Guide",
-        href: "/docs/guides/user-guide",
-      },
-      {
-        title: "API Reference",
-        href: "/docs/guides/api-reference",
-      },
-      {
-        title: "Deployment Guide",
-        href: "/docs/guides/deployment",
-      },
-    ],
-  },
-  {
-    title: "Technical",
-    items: [
-      {
-        title: "Security Hardening",
-        href: "/docs/technical/security",
-      },
-      {
-        title: "Testing",
-        href: "/docs/technical/testing",
-      },
-      {
-        title: "Conversation System",
-        href: "/docs/technical/conversation-system",
-      },
-    ],
-  },
-  {
-    title: "Implementation",
-    items: [
-      {
-        title: "Phase 3: RAG Infrastructure",
-        href: "/docs/implementation/phase3",
-      },
-      {
-        title: "Phase 7: Feedback System",
-        href: "/docs/implementation/phase7",
-      },
-    ],
-  },
-];
+import { SIDEBAR_SECTIONS } from "@/lib/docs-config";
 
 function SidebarContent() {
   const pathname = usePathname();
 
   return (
     <nav className="space-y-6">
-      {docsConfig.map((section, index) => (
+      {SIDEBAR_SECTIONS.map((section, index) => (
         <div key={index} className="space-y-2">
           <h4 className="font-semibold text-sm">{section.title}</h4>
-          {section.items && (
+          {section.items && section.items.length > 0 && (
             <div className="space-y-1">
-              {section.items.map((item, itemIndex) => (
+              {section.items.map((item) => (
                 <Link
-                  key={itemIndex}
-                  href={item.href || "#"}
+                  key={item.path}
+                  href={item.path}
                   className={cn(
                     "block rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
-                    pathname === item.href
+                    pathname === item.path
                       ? "bg-muted font-medium text-foreground"
                       : "text-muted-foreground"
                   )}

@@ -59,7 +59,7 @@ export function useConversationChat(): UseConversationChatResult {
 
   // Get Zustand store actions for updating messages in real-time
   const setMessagesInStore = useChatStore((state) => state.setMessages);
-  const messagesFromStore = useChatStore((state) => state.messages);
+  // const messagesFromStore = useChatStore((state) => state.messages);
 
   const {
     isStreaming,
@@ -288,7 +288,7 @@ export function useConversationChat(): UseConversationChatResult {
         setIsStreaming(false);
       }
     },
-    [streamMessage, setIsStreaming, setMessagesInStore]
+    [streamMessage, setIsStreaming, setMessagesInStore, messages]
   );
 
   const streamRecommendationHandler = useCallback(
@@ -331,7 +331,7 @@ export function useConversationChat(): UseConversationChatResult {
         isRecommendationStream.current = false;
       }
     },
-    [streamRecommendation, setIsStreaming, setIsStreamingRecommendation, setMessagesInStore]
+    [streamRecommendation, setIsStreaming, setIsStreamingRecommendation, setMessagesInStore, messages]
   );
 
   const resetSessionState = useCallback(() => {

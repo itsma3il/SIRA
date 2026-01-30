@@ -56,12 +56,12 @@ This document covers all aspects of testing for the SIRA platform, including uni
 **Coverage by Component:**
 | Component | Coverage | Target | Status |
 |-----------|----------|--------|--------|
-| Profile Service | 75% | 80% | 🟡 Near target |
-| Recommendation Engine | 45% | 80% | 🔴 Needs work |
-| Conversation System | 60% | 70% | 🟡 Acceptable |
-| Auth & Security | 85% | 90% | 🟢 Good |
-| Database Models | 90% | 90% | 🟢 Excellent |
-| API Endpoints | 55% | 75% | 🟡 Improving |
+| Profile Service | 75% | 80% | Near target |
+| Recommendation Engine | 45% | 80% | Needs work |
+| Conversation System | 60% | 70% | Acceptable |
+| Auth & Security | 85% | 90% | Good |
+| Database Models | 90% | 90% | Excellent |
+| API Endpoints | 55% | 75% | Improving |
 
 ---
 
@@ -443,7 +443,7 @@ async def test_signup_and_create_profile(page):
     """Test complete signup and profile creation flow"""
     
     # 1. Navigate to homepage
-    await page.goto("https://sira.yourdomain.com")
+    await page.goto("https://sira.itsma3il.com")
     
     # 2. Click sign up
     await page.click("text=Sign Up")
@@ -467,29 +467,40 @@ async def test_signup_and_create_profile(page):
     await expect(page.locator(".profile-card")).to_contain_text("Engineering Track")
 ```
 
-**2. Generate Recommendations:**
+**2. Generate Recommendations in Chat:**
 ```python
 @pytest.mark.e2e
-async def test_generate_recommendations(page, authenticated_user):
-    """Test recommendation generation flow"""
+async def test_generate_recommendations_in_chat(page, authenticated_user):
+    """Test chat-integrated recommendation generation flow"""
     
-    # 1. Navigate to profile
-    await page.goto("https://sira.yourdomain.com/dashboard/profiles/123")
+    # 1. Navigate to chat
+    await page.goto("https://sira.itsma3il.com/dashboard/chat")
     
-    # 2. Click generate recommendations
+    # 2. Verify profile is attached to session
+    await expect(page.locator(".profile-indicator")).to_be_visible()
+    
+    # 3. Click generate recommendations button in chat
     await page.click("button:has-text('Generate Recommendations')")
     
-    # 3. Wait for streaming to complete
-    await page.wait_for_selector(".recommendation-card", timeout=30000)
+    # 4. Wait for streaming to complete in chat interface
+    await page.wait_for_selector(".chat-message.recommendation", timeout=30000)
     
-    # 4. Verify recommendations displayed
-    recommendations = await page.query_selector_all(".recommendation-card")
-    assert len(recommendations) >= 3
+    # 5. Verify recommendations displayed in chat
+    recommendation_message = await page.query_selector(".chat-message.recommendation")
+    assert recommendation_message is not None
     
-    # 5. Verify match scores
-    first_score = await recommendations[0].query_selector(".match-score")
-    score_text = await first_score.inner_text()
-    assert int(score_text.replace("%", "")) >= 70
+    # 6. Verify match scores in chat response
+    await expect(recommendation_message).to_contain_text("Match:")
+    await expect(recommendation_message).to_contain_text("%")
+    
+    # 7. Test follow-up discussion
+    await page.fill('textarea[placeholder="Ask a question..."]', "Tell me more about the first program")
+    await page.click("button[type='submit']")
+    
+    # 8. Verify AI responds with context
+    await page.wait_for_selector(".chat-message:last-child")
+    last_message = await page.query_selector(".chat-message:last-child")
+    await expect(last_message).to_be_visible()
 ```
 
 ---
@@ -677,13 +688,13 @@ async def test_generate_recommendations_with_mock_pinecone():
 ### Async Test Best Practices
 
 ```python
-# ✅ Good: Use async fixtures and await
+#  Good: Use async fixtures and await
 @pytest.mark.asyncio
 async def test_async_function(test_db):
     result = await some_async_function()
     assert result is not None
 
-# ❌ Bad: Forget async/await
+#  Bad: Forget async/await
 def test_async_function(test_db):  # Missing @pytest.mark.asyncio
     result = some_async_function()  # Missing await
     assert result is not None

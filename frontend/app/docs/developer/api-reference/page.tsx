@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ApiReferencePage() {
-  const docsPath = path.join(process.cwd(), "../docs/guides/API_REFERENCE.md");
+  const docsPath = path.join(process.cwd(), "../docs/Developer Documentation/API_REFERENCE.md");
   const content = fs.readFileSync(docsPath, "utf-8");
 
   return (

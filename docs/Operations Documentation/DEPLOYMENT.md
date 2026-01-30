@@ -90,7 +90,7 @@ This guide covers deploying SIRA from development through production, including 
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-org/sira.git
+git clone https://github.com/itsma3il/sira.git
 cd sira
 ```
 
@@ -280,7 +280,7 @@ docker-compose logs --tail=100 backend
 # Stop all services
 docker-compose down
 
-# Stop and remove volumes (⚠️ deletes database data)
+# Stop and remove volumes (deletes database data)
 docker-compose down -v
 
 # Stop specific service
@@ -566,11 +566,11 @@ brew install certbot
 docker-compose stop nginx
 
 # Generate certificate
-sudo certbot certonly --standalone -d sira.yourdomain.com
+sudo certbot certonly --standalone -d sira.itsma3il.com
 
 # Certificates saved to:
-# /etc/letsencrypt/live/sira.yourdomain.com/fullchain.pem
-# /etc/letsencrypt/live/sira.yourdomain.com/privkey.pem
+# /etc/letsencrypt/live/sira.itsma3il.com/fullchain.pem
+# /etc/letsencrypt/live/sira.itsma3il.com/privkey.pem
 ```
 
 #### 3. Configure Nginx
@@ -599,14 +599,14 @@ http {
     # Redirect HTTP to HTTPS
     server {
         listen 80;
-        server_name sira.yourdomain.com;
+        server_name sira.itsma3il.com;
         return 301 https://$server_name$request_uri;
     }
 
     # HTTPS Server
     server {
         listen 443 ssl http2;
-        server_name sira.yourdomain.com;
+        server_name sira.itsma3il.com;
 
         # SSL Configuration
         ssl_certificate /etc/nginx/ssl/fullchain.pem;
@@ -696,7 +696,7 @@ Update `docker-compose.prod.yml`:
 nginx:
   volumes:
     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - /etc/letsencrypt/live/sira.yourdomain.com:/etc/nginx/ssl:ro
+    - /etc/letsencrypt/live/sira.itsma3il.com:/etc/nginx/ssl:ro
     - ./nginx/logs:/var/log/nginx
 ```
 
@@ -1020,7 +1020,7 @@ docker-compose exec postgres psql -U sira_user -d sira_db -c "SELECT 1"
 **Solutions:**
 ```bash
 # Verify certificate
-openssl s_client -connect sira.yourdomain.com:443 -servername sira.yourdomain.com
+openssl s_client -connect sira.itsma3il.com:443 -servername sira.itsma3il.com
 
 # Check certificate expiry
 sudo certbot certificates

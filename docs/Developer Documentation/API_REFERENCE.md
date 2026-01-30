@@ -306,11 +306,18 @@ Content-Type: application/json
 
 ## Recommendation Endpoints
 
-### Generate Recommendation (Streaming)
+**Note:** Recommendations are now generated within chat sessions for better context and user experience. The standalone recommendation endpoint is deprecated in favor of the chat-integrated approach.
 
-**Endpoint:** `GET /recommendations/generate?profile_id={profile_id}`
+### Generate Recommendation in Chat Session (Streaming)
 
-**Description:** Generates a streaming recommendation using RAG. Returns Server-Sent Events (SSE) stream.
+**Endpoint:** `POST /api/chat/{session_id}/generate-recommendations`
+
+**Description:** Generates AI-powered academic program recommendations within an active chat session. Analyzes the user's profile AND chat history for context-aware suggestions.
+
+**Authentication:** Required (Clerk JWT)
+
+**Parameters:**
+- `session_id` (UUID, path parameter): The chat session ID
 
 **Response Headers:**
 ```
@@ -321,23 +328,30 @@ Connection: keep-alive
 
 **Response Stream (Server-Sent Events):**
 ```
-data: {"type": "started", "profile_id": "660e8400-e29b-41d4-a716-446655440001"}
+data: {"type": "started", "session_id": "660e8400-e29b-41d4-a716-446655440001", "profile_id": "770e8400-e29b-41d4-a716-446655440002"}
 
-data: {"type": "analyzing", "message": "Analyzing your academic profile..."}
+data: {"type": "analyzing", "message": "Analyzing your academic profile and chat history..."}
 
-data: {"type": "searching", "message": "Searching relevant programs..."}
+data: {"type": "searching", "message": "Searching relevant programs based on your conversation..."}
 
 data: {"type": "generating", "message": "Generating personalized recommendations..."}
 
-data: {"type": "content", "content": "Based on your profile, here are the best matches:"}
+data: {"type": "content", "content": "Based on your profile and our discussion, here are the best matches:"}
 
 data: {"type": "recommendation", "data": {"university": "UM6P", "program": "Computer Science", "match_score": 0.92}}
 
-data: {"type": "completed", "recommendation_id": "880e8400-e29b-41d4-a716-446655440003"}
+data: {"type": "completed", "recommendation_id": "880e8400-e29b-41d4-a716-446655440003", "session_id": "660e8400-e29b-41d4-a716-446655440001"}
 ```
 
-**Query Parameters:**
-- `profile_id` (UUID, required): The profile to generate recommendation for
+**Business Logic:**
+1. Validates session belongs to authenticated user
+2. Retrieves profile attached to session
+3. Loads chat history for context
+4. Extracts user preferences from conversation
+5. Queries RAG system with semantic search
+6. Generates personalized recommendations
+7. Streams response chunks to chat interface
+8. Saves recommendation linked to session
 
 **Error Responses:**
 - `400 Bad Request` - Missing profile_id

@@ -139,7 +139,7 @@ export function useRecommendationStream(): UseRecommendationStreamResult {
         setIsLoading(false);
       }
     }
-  }, [reset, cleanup]);
+  }, [reset]);
 
   // Cleanup on unmount
   useEffect(() => {

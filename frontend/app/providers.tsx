@@ -5,7 +5,6 @@ import { shadcn } from "@clerk/themes";
 import { ThemeProvider } from "next-themes";
 import { useTheme } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,9 +15,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <ThemeAwareClerkProvider>
-        {/* <SidebarProvider> */}
           {children}
-        {/* </SidebarProvider> */}
         <Toaster position="top-right" closeButton theme="system" />
       </ThemeAwareClerkProvider>
     </ThemeProvider>

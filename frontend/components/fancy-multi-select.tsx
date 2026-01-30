@@ -168,7 +168,7 @@ export function FancyMultiSelect({
                       }}
                       className="cursor-pointer"
                     >
-                      Add "{normalizedInput}"
+                      Add &quot;{normalizedInput}&quot;
                     </CommandItem>
                   ) : null}
                 </CommandGroup>

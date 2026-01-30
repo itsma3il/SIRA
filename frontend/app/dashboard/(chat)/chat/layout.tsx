@@ -41,7 +41,6 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
   // Actions hook
   const {
     loadSessions,
-    loadSessionDetail,
     updateSessionData,
     deleteSession,
     archiveSession,

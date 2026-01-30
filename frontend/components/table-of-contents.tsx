@@ -14,41 +14,41 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ className }: TableOfContentsProps) {
-  const [toc, setToc] = useState<TOCItem[]>([]);
   const [activeId, setActiveId] = useState<string>("");
+  const [toc, setToc] = useState<TOCItem[]>([]);
 
   useEffect(() => {
-    const headings = Array.from(
-      document.querySelectorAll("h2, h3")
-    );
-
-    const items: TOCItem[] = headings.map((heading) => ({
+    // Extract headings on client side only
+    const headings = Array.from(document.querySelectorAll("h2, h3, h4"));
+    const tocItems: TOCItem[] = headings.map((heading) => ({
       id: heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, "-") || "",
       text: heading.textContent || "",
       level: parseInt(heading.tagName.charAt(1)),
     }));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setToc(tocItems);
+  }, []);
 
-    setToc(items);
-
+  useEffect(() => {
+    if (toc.length === 0) return;
+    
+    const headingElements = toc.map(item => document.getElementById(item.id)).filter(Boolean) as HTMLElement[];
+    if (headingElements.length === 0) return;
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveId(entry.target.id);
         });
       },
       { rootMargin: "-80px 0px -80% 0px" }
     );
-
-    headings.forEach((heading) => observer.observe(heading));
-
+    
+    headingElements.forEach((h) => observer.observe(h));
     return () => observer.disconnect();
-  }, []);
+  }, [toc]);
 
-  if (toc.length === 0) {
-    return null;
-  }
+  if (toc.length === 0) return null;
 
   return (
     <div className={cn("space-y-2", className)}>

@@ -55,18 +55,18 @@ SIRA (Système Intelligent de Recommandation Académique) is an AI-powered platf
 
 After logging in, you'll see three main sections:
 
-**📊 Profiles**
+**Profiles**
 - Create and manage academic profiles
 - Each profile represents a different academic path
 - Example: "Computer Science Track", "Business Studies", "Medicine Path"
 
-**🎯 Recommendations**
+**Recommendations**
 - View AI-generated program suggestions
 - See match scores and reasoning
 - Compare programs side-by-side
 - Access recommendation history
 
-**💬 Chat**
+**Chat**
 - Ask questions to the AI advisor
 - Get instant guidance
 - Clarify recommendations
@@ -82,8 +82,8 @@ Your profile is the foundation for personalized recommendations. The more detail
 
 1. Click **"Create New Profile"** from your dashboard
 2. Give your profile a meaningful name
-   - ✅ Good: "Engineering Track 2026"
-   - ❌ Avoid: "Profile 1"
+   - Good: "Engineering Track 2026"
+   - Avoid: "Profile 1"
 
 3. Select profile status:
    - **Draft**: Still working on it
@@ -145,16 +145,16 @@ Help the AI understand what motivates you:
 #### Favorite Subjects
 List subjects you genuinely enjoy:
 ```
-✅ Mathematics, Computer Science, Physics
-✅ Economics, Business, Marketing
-✅ Biology, Chemistry, Medicine
+Mathematics, Computer Science, Physics
+Economics, Business, Marketing
+Biology, Chemistry, Medicine
 ```
 
 #### Subjects to Avoid
 Be honest about what you don't enjoy:
 ```
-❌ History, Literature
-❌ Art, Music Theory
+History, Literature
+Art, Music Theory
 ```
 
 This helps filter out programs you won't like!
@@ -211,10 +211,10 @@ engineering teams."
 ```
 
 **Be Specific:**
-- ✅ "Data scientist in healthcare"
-- ✅ "Investment banker in renewable energy"
-- ❌ "Something with computers"
-- ❌ "I don't know"
+- "Data scientist in healthcare"
+- "Investment banker in renewable energy"
+- "Something with computers"
+- "I don't know"
 
 ### Step 5: Review & Save
 
@@ -237,32 +237,41 @@ engineering teams."
 
 ### Generating Your First Recommendation
 
-1. **Navigate to Recommendations**
-   - From dashboard, click "Recommendations"
-   - Select a profile
+Recommendations are now fully integrated into the chat interface for a more interactive and personalized experience.
 
-2. **Click "Generate Recommendation"**
-   - AI analyzes your profile
-   - Searches program database
+1. **Start a Chat Session**
+   - From dashboard, click "Chat"
+   - A profile is automatically attached to your session
+
+2. **Click "Generate Recommendations" Button**
+   - Look for the "Generate Recommendations" button in the chat interface
+   - AI analyzes your profile and chat history
+   - Searches program database with context from your conversation
    - Generates personalized suggestions
 
 3. **Watch the Magic Happen**
-   - Real-time streaming response
+   - Real-time streaming response directly in chat
    - See the AI's thinking process
    - Takes 10-30 seconds
+
+4. **Discuss Your Recommendations**
+   - Ask follow-up questions about specific programs
+   - Compare options in the conversation
+   - Get clarification on requirements
+   - AI remembers context from the entire session
 
 ### What You'll Receive
 
 **Recommendation Structure:**
 
 ```
-🎯 Top Matches (3-5 programs)
+Top Matches (3-5 programs)
 
 1. Computer Science - UM6P (Match: 95%)
-   ✓ Excellent fit for your profile
-   ✓ Strong AI/ML focus
-   ✓ Within budget: 120,000 MAD/year
-   ✓ Location: Benguerir, Morocco
+   Excellent fit for your profile
+   Strong AI/ML focus
+   Within budget: 120,000 MAD/year
+   Location: Benguerir, Morocco
    
    Why This Match:
    - Your math and CS grades (18+/20) exceed requirements
@@ -285,22 +294,22 @@ engineering teams."
 
 **Match Score Breakdown:**
 
-- **90-100%** - Excellent Match 🟢
+- **90-100%** - Excellent Match
   - You exceed all requirements
   - Perfect alignment with goals
   - High acceptance probability
 
-- **75-89%** - Good Match 🟡
+- **75-89%** - Good Match
   - Meet most requirements
   - Good fit with minor gaps
   - Strong candidate
 
-- **60-74%** - Moderate Match 🟠
+- **60-74%** - Moderate Match
   - Meet minimum requirements
   - Some misalignment
   - Consider as backup
 
-- **Below 60%** - Stretch Goal 🔴
+- **Below 60%** - Stretch Goal
   - Below requirements
   - Significant effort needed
   - Apply with caution
@@ -312,12 +321,30 @@ engineering teams."
 ### Starting a Conversation
 
 1. **Click "Chat" Tab**
-2. **Type Your Question**
-3. **Get Instant AI Response**
+2. **Profile Automatically Attached**
+   - Your profile is linked to the chat session
+   - AI has full context of your academic background
+   - Recommendations are optimized based on chat history
+3. **Type Your Question or Generate Recommendations**
+4. **Get Instant AI Response**
+
+### Generating Recommendations in Chat
+
+The chat interface now includes a **"Generate Recommendations" button** that:
+- Analyzes your profile AND your conversation history
+- Provides context-aware program suggestions
+- Allows immediate discussion of results
+- Enables refinement through follow-up questions
+
+**Why Chat-Based Recommendations Are Better:**
+- AI understands your preferences from the conversation
+- You can immediately ask questions about recommended programs
+- Recommendations improve as you provide more context
+- Seamless experience without switching pages
 
 ### Effective Questions
 
-**✅ Good Questions:**
+**Good Questions:**
 
 ```
 "What's the difference between Computer Science and 
@@ -334,7 +361,7 @@ students?"
 "Is my GPA of 14/20 competitive for ENSIAS?"
 ```
 
-**❌ Less Effective:**
+**Less Effective:**
 
 ```
 "What should I study?" (too vague)
@@ -349,7 +376,7 @@ students?"
 - **Follow-ups**: Ask clarifying questions
 - **Save Conversations**: Return to past chats anytime
 
-### Sample Conversation
+### Sample Conversation with Recommendations
 
 ```
 You: "I'm interested in UM6P's Computer Science program. 
@@ -360,8 +387,8 @@ Computer Science:
 
 Academic Requirements:
 - Minimum GPA: 16/20 (Your GPA: 15.5/20 - slightly below)
-- Strong Math & Science grades (✓ You have 18+/20)
-- Baccalaureate with Science track (✓ Confirmed)
+- Strong Math & Science grades (You have 18+/20)
+- Baccalaureate with Science track (Confirmed)
 
 Additional Requirements:
 - Entrance exam (Math, Physics, Logic)
@@ -376,10 +403,23 @@ Your GPA is 0.5 points below the minimum. I recommend:
 3. Build impressive project portfolio
 4. Consider applying to programs with 15/20 minimum as backup"
 
-You: "What are good backup programs similar to UM6P CS?"
+You: "Can you generate personalized recommendations for me?"
+[User clicks "Generate Recommendations" button]
 
-AI: "Here are 3 excellent alternatives with lower GPA 
-requirements but similar quality..."
+AI: [Streams full recommendation analysis]
+"Based on our conversation and your profile, here are your 
+top 5 matches...
+
+1. Software Engineering - Al Akhawayn (Match: 92%)
+   Given your interest in UM6P CS and your GPA of 15.5/20,
+   this program is an excellent fit..."
+
+You: "Tell me more about the Al Akhawayn program costs"
+
+AI: "Al Akhawayn University Software Engineering costs:
+- Tuition: 85,000 MAD/year
+- This is within your budget of 100,000 MAD/year
+- Scholarships available: Merit-based (up to 50%)..."
 ```
 
 ---
@@ -390,37 +430,37 @@ requirements but similar quality..."
 
 Each recommended program includes:
 
-**📊 Match Score**
+**Match Score**
 - Visual gauge (0-100%)
 - Color-coded for quick assessment
 - Breakdown of matching factors
 
-**🏫 Program Information**
+**Program Information**
 - University name and location
 - Program title and degree type
 - Duration (3-5 years)
 - Language of instruction
 
-**💰 Cost Analysis**
+**Cost Analysis**
 - Annual tuition
 - Total program cost
 - Additional fees
 - Living cost estimates
 
-**📋 Requirements**
+**Requirements**
 - Minimum GPA
 - Required subjects
 - Entrance exams
 - Language proficiency
 - Deadlines
 
-**🎯 Career Outcomes**
+**Career Outcomes**
 - Graduate employment rate
 - Average starting salary
 - Top employers
 - Career paths
 
-**🗺️ Academic Timeline**
+**Academic Timeline**
 - Year-by-year curriculum
 - Internship opportunities
 - Study abroad options
@@ -438,7 +478,7 @@ Duration:       4 years        4 years           3 years
 Location:       Benguerir      Ifrane            Rabat
 Language:       English        English           French
 Min GPA:        16/20          15/20             14/20
-AI Focus:       ✓✓✓            ✓✓                ✓✓✓
+AI Focus:       High           Medium            High
 Job Rate:       95%            92%               88%
 ```
 
@@ -512,7 +552,7 @@ Job Rate:       95%            92%               88%
 
 **Delete Profile**
 - Permanently remove
-- ⚠️ Also deletes all recommendations
+- Also deletes all recommendations
 - Cannot be undone
 
 ---
@@ -734,17 +774,17 @@ A: That's okay! The AI provides suggestions based on data patterns. You know you
 
 ### Getting Help
 
-**🔍 Self-Service Resources**
+**Self-Service Resources**
 1. Check this User Guide
 2. Review FAQ section
 3. Search documentation
 
-**💬 Live Support**
+**Live Support**
 - **In-App Chat**: Click support icon (bottom right)
 - **Email**: support@sira.platform
 - **Hours**: Monday-Friday, 9AM-6PM GMT
 
-**📧 Contact for:**
+**Contact for:**
 - Technical issues
 - Account problems
 - Feature requests
@@ -780,15 +820,15 @@ A: That's okay! The AI provides suggestions based on data patterns. You know you
 ### Community
 
 **Join Our Community:**
-- 📱 Discord: [Link]
-- 🐦 Twitter: @SIRAPlatform
-- 📘 Facebook: SIRA Platform
-- 📸 Instagram: @sira_platform
+- Discord: [Link]
+- Twitter: @SIRAPlatform
+- Facebook: SIRA Platform
+- Instagram: @sira_platform
 
 **Stay Updated:**
-- 📰 Blog: blog.sira.platform
-- 📧 Newsletter: Sign up in settings
-- 🔔 Notifications: Enable in-app alerts
+- Blog: blog.sira.platform
+- Newsletter: Sign up in settings
+- Notifications: Enable in-app alerts
 
 ---
 

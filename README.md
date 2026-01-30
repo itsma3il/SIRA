@@ -1,266 +1,296 @@
-# SIRA (Système Intelligent de Recommandation Académique)
+# SIRA - Système Intelligent de Recommandation Académique
 
-**AI-Powered Academic Advisor | RAG-Based University Recommendations**
+**AI-Powered Academic Recommendation Platform for Students**
 
-**Production Ready** - Fully deployed with monitoring, security hardening, and automated operations!
-
-SIRA is a Retrieval-Augmented Generation (RAG) academic advisor that delivers personalized university and career path recommendations. Built with the 2026 "Modern Stack": Next.js 16, FastAPI, LlamaIndex + Mistral AI, and Pinecone.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.128.0-009688)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
+[![Production Ready](https://img.shields.io/badge/status-production%20ready-success)](docs/PROJECT_STATUS.md)
+[![Tests Passing](https://img.shields.io/badge/tests-100%2F110%20passing-success)](docs/Developer%20Documentation/TESTING.md)
+[![Documentation](https://img.shields.io/badge/docs-comprehensive-blue)](docs/README.md)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
 
-## Development Status
+## 🎯 What is SIRA?
 
-**Current Phase**: Phase 8 - Final Polish & Deployment Prep   
-**Completion**: 95%
+**SIRA** is a next-generation academic advisory platform that uses **RAG (Retrieval-Augmented Generation)** technology to help students discover personalized university programs and career paths.
 
-### Completed Phases
-
-- **Phase 0**: Project Setup & Environment Configuration
-- **Phase 1**: Authentication & User Management (Clerk)
-- **Phase 2**: Profile Management System (Multi-step wizard)
-- **Phase 3**: Knowledge Base & Data Ingestion (RAG infrastructure)
-- **Phase 4**: AI Recommendation Engine (LlamaIndex + Mistral)
-- **Phase 5**: Conversational AI Interface (Streaming SSE chat)
-- **Phase 6**: Admin Dashboard & Analytics
-- **Phase 7**: Recommendation Feedback System
-- **Phase 8**: Security Hardening, Testing, Documentation
-
-### Current Sprint
-
--  Task 8.1: Frontend Polish (Accessibility, Mobile, Performance)
--  Task 8.2: Backend Hardening (Security, Validation, Error Handling)
--  Task 8.3: Testing (76 unit/integration tests)
--  Task 8.4: Documentation (API, Deployment, User Guides)
--  Task 8.5: Deployment Preparation
--  Task 8.6: Production Deployment
+### Key Features
+- 🤖 **AI-Powered Recommendations** - Personalized program suggestions based on your profile
+- 💬 **Real-time Chat Advisor** - Interactive AI assistant for instant academic guidance
+- 📊 **Visual Insights** - Match scores, timelines, and comparison charts
+- 🎓 **Multi-Profile Support** - Manage multiple academic profiles
+- 🌍 **Comprehensive Database** - Programs from Morocco and international institutions
+- 📱 **Mobile-Responsive** - Access from any device
 
 ---
 
-## Features
-
-### For Students
-- **Personalized Recommendations**: AI-driven university program suggestions based on academic profile
-- **Profile Management**: Comprehensive multi-step wizard for academic records
-- **AI Chat Advisor**: Real-time conversational interface with streaming responses
-- **Match Scoring**: Detailed compatibility analysis with explanations
-- **Transcript Upload**: PDF/image upload with automatic parsing (planned)
-- **Feedback System**: Rate and comment on recommendations
-
-### For Administrators
-- **Analytics Dashboard**: User metrics, recommendation stats, system health
-- **User Management**: View and manage student profiles
-- **Feedback Analysis**: Track recommendation quality and user satisfaction
-- **Search Monitoring**: Query patterns and performance metrics
-
-### Technical Features
-- **Secure by Design**: JWT authentication, rate limiting, input validation
-- **High Performance**: Lazy loading, code splitting, optimized queries
-- **Accessible**: WCAG 2.1 AA compliant, keyboard navigation, screen reader support
-- **Mobile-First**: Responsive design, touch-optimized, PWA-ready
-- **Well-Tested**: 76+ unit/integration tests, >80% coverage
-- **Documented**: Comprehensive API, deployment, and user guides
-
----
-
-## Architecture
-
-### Tech Stack
-
-**Frontend (Next.js 16)**
-- **Framework**: Next.js 16 with App Router and React 19
-- **Styling**: Tailwind CSS 4 with custom design system
-- **UI Components**: Radix UI primitives + Shadcn/UI
-- **State Management**: Zustand for global state
-- **Forms**: TanStack Form with Zod validation
-- **Auth**: Clerk for authentication
-- **Charts**: Chart.js for data visualization
-
-**Backend (FastAPI)**
-- **Framework**: FastAPI with Python 3.11+
-- **Database**: PostgreSQL 17 with SQLAlchemy ORM
-- **Migrations**: Alembic for schema management
-- **Vector DB**: Pinecone for semantic search
-- **AI/LLM**: LlamaIndex + Mistral AI
-- **Auth**: Clerk JWT validation
-
-**Infrastructure**
-- **Containerization**: Docker + Docker Compose
-- **Reverse Proxy**: Nginx (production)
-- **Monitoring**: Application logging + health checks
-
-### Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Frontend                             │
-│  Next.js 16 (App Router) + React 19 + Tailwind CSS         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                  │
-│  │  Profile  │  │   Chat   │  │  Admin   │                  │
-│  │  Wizard   │  │ Interface│  │Dashboard │                  │
-│  └──────────┘  └──────────┘  └──────────┘                  │
-└────────────────────┬────────────────────────────────────────┘
-                     │ REST API + SSE
-┌────────────────────┴────────────────────────────────────────┐
-│                         Backend                              │
-│  FastAPI + Python 3.11                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  API Routes  │  │   Services   │  │ Repositories │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└────────┬─────────────────────┬──────────────────┬──────────┘
-         │                     │                  │
-    ┌────┴────┐          ┌────┴─────┐      ┌────┴─────┐
-    │PostgreSQL│          │ Pinecone │      │ Mistral  │
-    │  (Data)  │          │ (Vectors)│      │   (AI)   │
-    └──────────┘          └──────────┘      └──────────┘
-```
-
----
-
-## Repository Structure
-
-```
-SIRA/
-├── frontend/              # Next.js 16 application
-│   ├── app/              # App Router pages
-│   │   ├── (auth)/      # Authentication pages
-│   │   ├── dashboard/   # Main application
-│   │   └── layout.tsx   # Root layout
-│   ├── components/       # React components
-│   │   ├── ui/          # Shadcn/UI components
-│   │   ├── profile/     # Profile wizard
-│   │   └── chat/        # Chat interface
-│   ├── lib/             # Utilities and types
-│   ├── hooks/           # Custom React hooks
-│   └── stores/          # Zustand stores
-├── backend/              # FastAPI application
-│   ├── alembic/         # Database migrations
-│   ├── app/
-│   │   ├── api/         # API routes
-│   │   │   └── routes/  # Endpoint modules
-│   │   ├── core/        # Core configuration
-│   │   │   ├── config.py
-│   │   │   ├── security.py
-│   │   │   └── vector_db.py
-│   │   ├── models/      # SQLAlchemy models
-│   │   ├── schemas/     # Pydantic schemas
-│   │   ├── services/    # Business logic
-│   │   ├── repositories/# Data access layer
-│   │   ├── middleware/  # Custom middleware
-│   │   └── utils/       # Utility functions
-│   └── tests/           # Test suite (76 tests)
-├── docs/                 # Documentation
-│   ├── API_REFERENCE.md
-│   ├── DEPLOYMENT_GUIDE.md
-│   ├── USER_GUIDE.md
-│   ├── backend-security-hardening.md
-│   └── testing-implementation.md
-├── data/                 # Sample data for ingestion
-├── scripts/              # Utility scripts
-├── docker-compose.yml    # Development environment
-└── README.md            # This file
-```
-
----
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
+- **Docker** & **Docker Compose** (recommended)
+- **Python 3.12+** & **Node.js 18+** (for local development)
+- **PostgreSQL 17**, **Pinecone**, **Mistral AI** (API keys required)
 
-- **Docker** 24.0+ and **Docker Compose** 2.0+
-- **Node.js** 20+ (for local frontend development)
-- **Python** 3.11+ (for local backend development)
-- **Git**
+### One-Command Startup (Docker)
 
-### Required API Keys
-
-1. **Clerk** (Authentication): https://clerk.dev
-2. **Mistral AI** (LLM): https://mistral.ai
-3. **Pinecone** (Vector DB): https://pinecone.io
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/SIRA.git
-   cd SIRA
-   ```
-
-2. **Configure environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your API keys
-   ```
-
-   Required variables:
-   ```env
-   # Database
-   DATABASE_URL=postgresql://sira:sira@localhost:5432/sira_db
-
-   # Authentication (Clerk)
-   CLERK_SECRET_KEY=your_clerk_secret_key
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-
-   # AI Services
-   MISTRAL_API_KEY=your_mistral_api_key
-   PINECONE_API_KEY=your_pinecone_api_key
-   PINECONE_ENVIRONMENT=your_pinecone_environment
-   PINECONE_INDEX_NAME=sira-programs
-   ```
-
-3. **Start with Docker Compose** (Recommended):
-   ```bash
-   docker-compose up -d
-   ```
-
-   This starts:
-   - PostgreSQL database (port 5432)
-   - Backend API (port 8000)
-   - Frontend app (port 3000)
-
-4. **Run database migrations**:
-   ```bash
-   docker-compose exec backend alembic upgrade head
-   ```
-
-5. **Ingest sample data** (optional):
-   ```bash
-   docker-compose exec backend python /app/app/ingest_sample.py
-   ```
-
-6. **Access the application**:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-   - Redoc: http://localhost:8000/redoc
-
-### Local Development (Without Docker)
-
-**Prerequisites**:
-- PostgreSQL 15+ running locally
-- Node.js 20+ and bun installed
-- Python 3.11+ and uv installed
-
-**Frontend**:
 ```bash
+# Clone the repository
+git clone https://github.com/yourorg/sira.git
+cd sira
+
+# Start all services
+docker-compose up -d
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000/docs
+```
+
+### Local Development
+
+```bash
+# Backend
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+# Frontend
 cd frontend
 bun install
 bun dev
 ```
 
-**Backend**:
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-uv pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+---
+
+## 📚 Documentation
+
+**Full documentation available in the [`docs/`](docs/) folder:**
+
+### Quick Links
+- 📖 [**Documentation Overview**](docs/README.md) - Start here
+- 🔍 [**Documentation Index**](docs/INDEX.md) - Complete navigation
+- 📊 [**Project Status**](docs/PROJECT_STATUS.md) - Current development status
+
+### By Role
+| Role | Start Here |
+|------|------------|
+| **Students** | [User Guide](docs/User%20Documentation/USER_GUIDE.md) |
+| **Developers** | [Developer Guide](docs/Developer%20Documentation/DEVELOPER_GUIDE.md) |
+| **DevOps** | [Deployment Guide](docs/Operations%20Documentation/DEPLOYMENT.md) |
+| **Project Managers** | [Project Status](docs/PROJECT_STATUS.md) |
+
+### Key Documents
+- [Architecture Overview](docs/Developer%20Documentation/ARCHITECTURE.md) - System design
+- [API Reference](docs/Developer%20Documentation/API_REFERENCE.md) - REST API documentation
+- [Security Guide](docs/Operations%20Documentation/SECURITY.md) - Security implementation
+- [Testing Strategy](docs/Developer%20Documentation/TESTING.md) - QA approach
+
+**💡 Tip**: Press `Ctrl+K` (or `⌘K` on Mac) in the frontend to search all documentation!
+
+---
+
+## 🏗️ Architecture
+
 ```
+┌─────────────────────────────────────────────────────┐
+│              Next.js 16 Frontend                     │
+│  React 19 • TypeScript • Tailwind CSS • Clerk Auth │
+└────────────────────┬────────────────────────────────┘
+                     │ HTTPS/JWT
+┌────────────────────▼────────────────────────────────┐
+│              FastAPI Backend                         │
+│  Python 3.12 • PostgreSQL • LlamaIndex • Mistral AI│
+└────────┬──────────┬──────────┬──────────────────────┘
+         │          │          │
+    ┌────▼───┐  ┌──▼─────┐  ┌─▼──────┐
+    │PostgreSQL│ │Pinecone│ │Mistral │
+    │Database  │ │Vector  │ │AI LLM  │
+    └──────────┘ └────────┘ └────────┘
+```
+
+**Tech Stack**:
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Zustand
+- **Backend**: FastAPI, Python 3.12, SQLModel, PostgreSQL 17
+- **AI/RAG**: LlamaIndex, Mistral AI, Pinecone Vector Database
+- **Auth**: Clerk (JWT-based authentication)
+- **Deployment**: Docker, Docker Compose, Nginx
+
+**See [Architecture Documentation](docs/Developer%20Documentation/ARCHITECTURE.md) for details.**
+
+---
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+sira/
+├── frontend/              # Next.js 16 application
+│   ├── app/              # App Router pages
+│   ├── components/       # React components
+│   ├── lib/              # API clients & utilities
+│   └── hooks/            # Custom React hooks
+│
+├── backend/              # FastAPI application
+│   ├── app/
+│   │   ├── api/         # REST API endpoints
+│   │   ├── core/        # Configuration
+│   │   ├── models/      # Database models
+│   │   ├── services/    # Business logic
+│   │   └── utils/       # Helper functions
+│   ├── alembic/         # Database migrations
+│   └── tests/           # Backend tests
+│
+├── docs/                # Comprehensive documentation
+│   ├── Developer Documentation/
+│   ├── Operations Documentation/
+│   ├── User Documentation/
+│   └── Planning/
+│
+├── docker-compose.yml   # Multi-service orchestration
+└── README.md           # This file
+```
+
+### Common Commands
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Run backend tests
+cd backend && pytest
+
+# Run frontend in dev mode
+cd frontend && bun dev
+
+# Check backend logs
+docker-compose logs -f backend
+
+# Restart services
+docker-compose restart
+```
+
+---
+
+## 🧪 Testing
+
+- **Backend**: 100/110 tests passing (91% pass rate)
+- **Coverage**: 52% → Target: 80%
+- **E2E**: Playwright tests for critical user flows
+- **CI/CD**: GitHub Actions for automated testing
+
+**See [Testing Documentation](docs/Developer%20Documentation/TESTING.md) for details.**
+
+---
+
+## 📊 Project Status
+
+**Current Version**: 1.0.0  
+**Status**: ✅ Production Ready  
+**Release Date**: January 30, 2026
+
+### Completed Phases (8/8)
+- ✅ Phase 1: Project Setup & Infrastructure
+- ✅ Phase 2: User Profile System
+- ✅ Phase 3: Knowledge Base & RAG Pipeline
+- ✅ Phase 4: Recommendation Engine
+- ✅ Phase 5: Conversational AI Interface
+- ✅ Phase 6: Frontend Integration
+- ✅ Phase 7: Feedback & Analytics
+- ✅ Phase 8: Testing & Deployment Preparation
+
+### Metrics
+- **Tests**: 100/110 passing (91%)
+- **Code Coverage**: 52%
+- **Security Audit**: ✅ Passed
+- **Documentation**: ✅ Complete (27,000+ lines)
+- **Performance**: ✅ Optimized
+
+**See [Project Status](docs/PROJECT_STATUS.md) for detailed roadmap.**
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Read the docs**: [Developer Guide](docs/Developer%20Documentation/DEVELOPER_GUIDE.md)
+2. **Fork the repository**
+3. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+4. **Follow coding standards**: Run linters before committing
+5. **Write tests**: Add tests for new features
+6. **Submit a Pull Request**
+
+### Development Guidelines
+- Follow the [Architecture](docs/Developer%20Documentation/ARCHITECTURE.md) patterns
+- Write TypeScript with strict types
+- Use Python type hints
+- Add JSDoc/Docstring comments
+- Test your changes thoroughly
+
+---
+
+## 🔒 Security
+
+**Security is a top priority.** SIRA implements:
+- ✅ JWT-based authentication (Clerk)
+- ✅ SSL/TLS encryption
+- ✅ Rate limiting & DDoS protection
+- ✅ Input validation & sanitization
+- ✅ SQL injection prevention
+- ✅ CORS configuration
+- ✅ Security headers (CSP, HSTS, etc.)
+
+**Found a vulnerability?**
+- **DO NOT** open a public issue
+- Email: security@sira.platform
+- See [Security Policy](docs/Operations%20Documentation/SECURITY.md)
+
+---
+
+## 📞 Support
+
+### For Users
+- 📧 Email: support@sira.platform
+- 💬 Live Chat: Available in-app
+- 📖 [User Guide](docs/User%20Documentation/USER_GUIDE.md)
+
+### For Developers
+- 🐛 [GitHub Issues](https://github.com/yourorg/sira/issues)
+- 💡 [GitHub Discussions](https://github.com/yourorg/sira/discussions)
+- 📚 [Documentation](docs/README.md)
+
+---
+
+## 📄 License
+
+[MIT License](LICENSE) - See LICENSE file for details
+
+---
+
+## 🙏 Acknowledgments
+
+**Built with**:
+- [Next.js](https://nextjs.org/) - React Framework
+- [FastAPI](https://fastapi.tiangolo.com/) - Python Web Framework
+- [LlamaIndex](https://www.llamaindex.ai/) - RAG Framework
+- [Mistral AI](https://mistral.ai/) - Language Models
+- [Pinecone](https://www.pinecone.io/) - Vector Database
+- [Clerk](https://clerk.com/) - Authentication
+
+**Special thanks** to all contributors and the open-source community.
+
+---
+
+<div align="center">
+
+**Made with ❤️ by the SIRA Team**
+
+[Documentation](docs/README.md) • [API Reference](docs/Developer%20Documentation/API_REFERENCE.md) • [Report Bug](https://github.com/yourorg/sira/issues)
+
+</div>
 
 ---
 

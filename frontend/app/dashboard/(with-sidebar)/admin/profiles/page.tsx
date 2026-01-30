@@ -128,6 +128,7 @@ export default function AdminProfilesPage() {
 
   useEffect(() => {
     loadProfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   async function loadProfiles() {

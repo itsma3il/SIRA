@@ -33,7 +33,7 @@ docker-compose ps
 # frontend, backend, postgres, nginx (all healthy)
 
 # 2. Verify application health
-curl https://sira.yourdomain.com/health
+curl https://sira.itsma3il.com/health
 # Expected: {"status": "healthy", "database": "connected", "timestamp": "..."}
 
 # 3. Check error rates (last 24 hours)
@@ -112,7 +112,7 @@ ls -lh /backups/sira_db_$(date +%Y%m%d)*.sql.gz
 # Expected: File exists, size > 1MB
 
 # 4. Check certificate expiry
-echo | openssl s_client -servername sira.yourdomain.com -connect sira.yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates
+echo | openssl s_client -servername sira.itsma3il.com -connect sira.itsma3il.com:443 2>/dev/null | openssl x509 -noout -dates
 # Expected: notAfter > 30 days from now
 ```
 
@@ -492,7 +492,7 @@ tar -czf uploads_backup_$(date +%Y%m%d).tar.gz backend/uploads/
 
 ### Restore Operations
 
-**⚠️ CAUTION: Restoration will overwrite current data!**
+** CAUTION: Restoration will overwrite current data!**
 
 ```bash
 # 1. Create safety backup FIRST
@@ -512,7 +512,7 @@ docker-compose exec postgres psql -U sira_user -d sira_db -c "SELECT COUNT(*) FR
 docker-compose start backend frontend
 
 # 6. Test functionality
-curl https://sira.yourdomain.com/health
+curl https://sira.itsma3il.com/health
 ```
 
 ---
@@ -606,7 +606,7 @@ docker-compose down
 # Stop specific service
 docker-compose stop backend
 
-# Stop and remove volumes (⚠️ deletes database data!)
+# Stop and remove volumes ( deletes database data!)
 docker-compose down -v
 
 # Emergency stop (immediate, may cause data loss)
@@ -646,7 +646,7 @@ docker-compose up -d --no-deps --build frontend
 docker-compose exec backend alembic upgrade head
 
 # 5. Verify health
-curl https://sira.yourdomain.com/health
+curl https://sira.itsma3il.com/health
 ```
 
 ---
@@ -756,7 +756,7 @@ docker-compose restart backend
 docker-compose up -d --force-recreate --build backend
 
 # 5. Verify health
-curl https://sira.yourdomain.com/health
+curl https://sira.itsma3il.com/health
 
 # 6. If still failing, rollback
 git checkout HEAD~1

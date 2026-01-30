@@ -4,12 +4,12 @@ import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Phase 3: RAG Infrastructure • SIRA Documentation",
-  description: "RAG infrastructure implementation details and documentation.",
+  title: "Testing Guide • SIRA Documentation",
+  description: "Test suite documentation and coverage reports.",
 };
 
-export default async function Phase3Page() {
-  const docsPath = path.join(process.cwd(), "../docs/implementation/PHASE3_SUMMARY.md");
+export default async function TestingPage() {
+  const docsPath = path.join(process.cwd(), "../docs/Developer Documentation/TESTING.md");
   const content = fs.readFileSync(docsPath, "utf-8");
 
   return (

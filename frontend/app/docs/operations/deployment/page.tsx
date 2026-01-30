@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DeploymentPage() {
-  const docsPath = path.join(process.cwd(), "../docs/guides/DEPLOYMENT_GUIDE.md");
+  const docsPath = path.join(process.cwd(), "../docs/Operations Documentation/DEPLOYMENT.md");
   const content = fs.readFileSync(docsPath, "utf-8");
 
   return (

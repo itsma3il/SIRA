@@ -1,12 +1,9 @@
 "use client"
 
-import { SignOutButton, UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 import {
   SidebarContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { SettingsDialog } from "@/components/settings-dialog"
@@ -21,16 +18,7 @@ export function NavUser({
     avatar: string
   }
 }) {
-  const { isMobile } = useSidebar()
   const [settingsOpen, setSettingsOpen] = useState(false)
-
-  // Get initials for avatar fallback
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
 
   return (
     <>

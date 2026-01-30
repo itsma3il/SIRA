@@ -6,11 +6,9 @@
 
 ---
 
-## 🔍 Quick Search
+## Quick Search
 
 Press **`Ctrl+K`** (or **`⌘K`** on Mac) to search all documentation instantly!
-
-See [Documentation Search Guide](./USING_DOC_SEARCH.md) for details.
 
 ---
 
@@ -21,9 +19,10 @@ See [Documentation Search Guide](./USING_DOC_SEARCH.md) for details.
 ### What is SIRA?
 
 SIRA combines cutting-edge AI technology with comprehensive academic data to provide:
-- **Personalized Recommendations**: Tailored university program suggestions based on your unique profile
-- **Real-time AI Advisor**: Interactive chat interface for instant academic guidance
-- **Smart Matching**: Advanced algorithms that consider your grades, interests, budget, and career goals
+- **Chat-Integrated Recommendations**: AI-powered program suggestions generated within conversational interface
+- **Real-time AI Advisor**: Interactive chat with profile context for instant academic guidance
+- **Context-Aware Matching**: Analyzes your profile AND conversation history for better recommendations
+- **Smart Matching**: Advanced algorithms that consider grades, interests, budget, career goals, and chat insights
 - **Comprehensive Database**: Extensive catalog of university programs from Morocco and international institutions
 
 ---
@@ -32,42 +31,39 @@ SIRA combines cutting-edge AI technology with comprehensive academic data to pro
 
 This documentation is organized by audience and use case:
 
-### 📘 For Students & End Users
+### For Students & End Users
 
 | Document | Description | Use When |
 |----------|-------------|----------|
-| **[Getting Started Guide](./USER_GUIDE.md)** | Quick start for new users | First time using SIRA |
-| **[User Manual](./USER_GUIDE.md#detailed-features)** | Complete feature reference | Learning all capabilities |
-| **[FAQ](./USER_GUIDE.md#faq)** | Common questions & answers | Troubleshooting issues |
+| **[Getting Started Guide](./User%20Documentation/USER_GUIDE.md)** | Quick start for new users | First time using SIRA |
+| **[User Manual](./User%20Documentation/USER_GUIDE.md#detailed-features)** | Complete feature reference | Learning all capabilities |
+| **[FAQ](./User%20Documentation/USER_GUIDE.md#faq)** | Common questions & answers | Troubleshooting issues |
 
-### 👨‍💻 For Developers
-
-| Document | Description | Use When |
-|----------|-------------|----------|
-| **[Architecture Overview](./ARCHITECTURE.md)** | System design & components | Understanding system structure |
-| **[API Reference](./API_REFERENCE.md)** | Complete API documentation | Integrating with SIRA |
-| **[Developer Guide](./DEVELOPER_GUIDE.md)** | Coding standards & practices | Contributing to codebase |
-| **[Database Schema](./DATABASE.md)** | Data models & relationships | Working with database |
-| **[Technology Stack](./TECH_STACK.md)** | Technologies & tools used | Understanding tech choices |
-
-### 🚀 For DevOps & Operations
+### For Developers
 
 | Document | Description | Use When |
 |----------|-------------|----------|
-| **[Deployment Guide](./DEPLOYMENT.md)** | Production deployment | Deploying to production |
-| **[Operations Manual](./OPERATIONS.md)** | Running & maintaining SIRA | Day-to-day operations |
-| **[Monitoring Guide](./MONITORING.md)** | System health & performance | Setting up monitoring |
-| **[Security Guide](./SECURITY.md)** | Security implementation | Security audit & hardening |
-| **[Incident Runbooks](./INCIDENT_RUNBOOKS.md)** | Emergency procedures | Handling production incidents |
-| **[Troubleshooting](./TROUBLESHOOTING.md)** | Problem resolution | Debugging issues |
+| **[Architecture Overview](./Developer%20Documentation/ARCHITECTURE.md)** | System design & components | Understanding system structure |
+| **[API Reference](./Developer%20Documentation/API_REFERENCE.md)** | Complete API documentation | Integrating with SIRA |
+| **[Developer Guide](./Developer%20Documentation/DEVELOPER_GUIDE.md)** | Coding standards & practices | Contributing to codebase |
+| **[Database Schema](./Developer%20Documentation/DATABASE.md)** | Data models & relationships | Working with database |
+| **[Technology Stack](./Developer%20Documentation/TECH_STACK.md)** | Technologies & tools used | Understanding tech choices |
 
-### 📊 For Project Managers
+### For DevOps & Operations
+
+| Document | Description | Use When |
+|----------|-------------|----------|
+| **[Deployment Guide](./Operations%20Documentation/DEPLOYMENT.md)** | Production deployment | Deploying to production |
+| **[Operations Manual](./Operations%20Documentation/OPERATIONS.md)** | Running & maintaining SIRA | Day-to-day operations |
+| **[Security Guide](./Operations%20Documentation/SECURITY.md)** | Security implementation | Security audit & hardening |
+| **[Incident Runbooks](./Operations%20Documentation/INCIDENT_RUNBOOKS.md)** | Emergency procedures | Handling production incidents |
+
+### For Project Managers
 
 | Document | Description | Use When |
 |----------|-------------|----------|
 | **[Project Status](./PROJECT_STATUS.md)** | Current development status | Tracking progress |
-| **[Testing Strategy](./TESTING.md)** | Test coverage & quality | Assessing quality |
-| **[Release Notes](./RELEASE_NOTES.md)** | Version history | Tracking changes |
+| **[Testing Strategy](./Developer%20Documentation/TESTING.md)** | Test coverage & quality | Assessing quality |
 
 ---
 
@@ -76,9 +72,9 @@ This documentation is organized by audience and use case:
 ### Common Tasks
 
 - **Search Documentation** → Press `Ctrl+K` (or `⌘K` on Mac) from anywhere
-- **Install & Run SIRA Locally** → [Developer Guide - Setup](./DEVELOPER_GUIDE.md#setup)
-- **Deploy to Production** → [Deployment Guide](./DEPLOYMENT.md)
-- **Create API Integration** → [API Reference](./API_REFERENCE.md)
+- **Install & Run SIRA Locally** → [Developer Guide - Setup](./Developer%20Documentation/DEVELOPER_GUIDE.md#setup)
+- **Deploy to Production** → [Deployment Guide](./Operations%20Documentation/DEPLOYMENT.md)
+- **Create API Integration** → [API Reference](./Developer%20Documentation/API_REFERENCE.md)
 - **Report a Bug** → [GitHub Issues](https://github.com/yourorg/sira/issues)
 - **Get Help** → [Support Channels](#support)
 
@@ -160,7 +156,7 @@ This documentation is organized by audience and use case:
 
 ## Key Features
 
-### ✨ For Students
+### For Students
 
 - **Multi-Profile Management**: Create separate profiles for different academic paths
 - **AI-Powered Recommendations**: Get personalized program suggestions based on your profile
@@ -169,7 +165,7 @@ This documentation is organized by audience and use case:
 - **Feedback System**: Rate recommendations and help improve the system
 - **Mobile-Responsive**: Access from any device
 
-### 🔧 For Developers
+### For Developers
 
 - **RESTful API**: Well-documented endpoints with OpenAPI/Swagger
 - **Server-Sent Events**: Real-time streaming for recommendations and chat
@@ -178,7 +174,7 @@ This documentation is organized by audience and use case:
 - **Docker Support**: One-command local development setup
 - **Hot Reload**: Fast development iteration
 
-### 🛡️ For Operations
+### For Operations
 
 - **Production-Ready**: Comprehensive deployment automation
 - **Monitoring**: Prometheus metrics + Grafana dashboards
@@ -194,24 +190,24 @@ This documentation is organized by audience and use case:
 ### Current Version: 1.0.0
 
 **Release Date:** January 30, 2026  
-**Status:** ✅ Production Ready
+**Status:** Production Ready
 
 **Key Metrics:**
 - **Phases Completed:** 8/8 (100%)
 - **Tests Passing:** 100/110 (91%)
 - **Code Coverage:** 52%
-- **Security Audit:** ✅ Passed
-- **Performance:** ✅ Optimized
-- **Documentation:** ✅ Complete (6,000+ lines)
+- **Security Audit:** Passed
+- **Performance:** Optimized
+- **Documentation:** Complete (6,000+ lines)
 
 ### Recent Achievements
 
-- ✅ Phase 8 Complete: Testing & deployment preparation
-- ✅ 100+ tests passing with 91% success rate
-- ✅ Comprehensive security hardening
-- ✅ Production deployment automation
-- ✅ Monitoring and alerting configured
-- ✅ Complete documentation suite
+- Phase 8 Complete: Testing & deployment preparation
+- 100+ tests passing with 91% success rate
+- Comprehensive security hardening
+- Production deployment automation
+- Monitoring and alerting configured
+- Complete documentation suite
 
 ### What's Next
 
@@ -231,10 +227,10 @@ See [Project Status](./PROJECT_STATUS.md) for detailed roadmap.
 
 ### For New Developers
 
-1. **Setup**: Follow [Developer Guide - Setup](./DEVELOPER_GUIDE.md#setup)
-2. **Architecture**: Read [Architecture Overview](./ARCHITECTURE.md)
-3. **Standards**: Review [Developer Guide - Coding Standards](./DEVELOPER_GUIDE.md#coding-standards)
-4. **First PR**: Check [Contributing Guidelines](./DEVELOPER_GUIDE.md#contributing)
+1. **Setup**: Follow [Developer Guide - Setup](./Developer%20Documentation/DEVELOPER_GUIDE.md#setup)
+2. **Architecture**: Read [Architecture Overview](./Developer%20Documentation/ARCHITECTURE.md)
+3. **Standards**: Review [Developer Guide - Coding Standards](./Developer%20Documentation/DEVELOPER_GUIDE.md#coding-standards)
+4. **First PR**: Check [Contributing Guidelines](./Developer%20Documentation/DEVELOPER_GUIDE.md#contributing)
 
 ### For Existing Developers
 
@@ -261,29 +257,28 @@ git checkout -b feature/your-feature-name
 ### Getting Help
 
 **For Users:**
-- 📧 Email: support@sira.platform
-- 💬 Live Chat: Available in-app
-- 📖 FAQ: [User Guide FAQ](./USER_GUIDE.md#faq)
+- Email: support@sira.platform
+- Live Chat: Available in-app
+- FAQ: [User Guide FAQ](./User%20Documentation/USER_GUIDE.md#faq)
 
 **For Developers:**
-- 🐛 Bug Reports: [GitHub Issues](https://github.com/yourorg/sira/issues)
-- 💡 Feature Requests: [GitHub Discussions](https://github.com/yourorg/sira/discussions)
-- 📚 Documentation: This repository
-- 💬 Developer Chat: [Discord/Slack]
+- Bug Reports: [GitHub Issues](https://github.com/yourorg/sira/issues)
+- Feature Requests: [GitHub Discussions](https://github.com/yourorg/sira/discussions)
+- Documentation: This repository
+- Developer Chat: [Discord/Slack]
 
 ### Contributing
 
 We welcome contributions! Please read:
-- [Developer Guide](./DEVELOPER_GUIDE.md)
-- [Contributing Guidelines](./DEVELOPER_GUIDE.md#contributing)
-- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Developer Guide](./Developer%20Documentation/DEVELOPER_GUIDE.md)
+- [Contributing Guidelines](./Developer%20Documentation/DEVELOPER_GUIDE.md#contributing)
 
 ### Security
 
 Found a security vulnerability?
 - **DO NOT** open a public issue
 - Email: security@sira.platform
-- See [Security Policy](./SECURITY.md#reporting-vulnerabilities)
+- See [Security Policy](./Operations%20Documentation/SECURITY.md#reporting-vulnerabilities)
 
 ---
 

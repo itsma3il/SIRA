@@ -201,7 +201,7 @@ export default function Home() {
                 Ready to Discover Your Future?
               </h2>
               <p className="text-muted-foreground">
-                Join thousands of students who have found their ideal academic programs with SIRA's AI-powered recommendations.
+                Join thousands of students who have found their ideal academic programs with SIRA&apos;s AI-powered recommendations.
               </p>
             </div>
             <Button asChild size="lg" className="gap-2">

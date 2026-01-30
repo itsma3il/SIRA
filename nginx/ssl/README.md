@@ -23,13 +23,13 @@ sudo apt-get install certbot python3-certbot-nginx
 
 2. Obtain certificates:
 ```bash
-sudo certbot certonly --nginx -d yourdomain.com -d www.yourdomain.com -d api.yourdomain.com
+sudo certbot certonly --nginx -d itsma3il.com -d www.itsma3il.com -d api.itsma3il.com
 ```
 
 3. Copy certificates to this directory:
 ```bash
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem ./nginx/ssl/
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem ./nginx/ssl/
+sudo cp /etc/letsencrypt/live/itsma3il.com/fullchain.pem ./nginx/ssl/
+sudo cp /etc/letsencrypt/live/itsma3il.com/privkey.pem ./nginx/ssl/
 sudo chmod 644 ./nginx/ssl/fullchain.pem
 sudo chmod 600 ./nginx/ssl/privkey.pem
 ```
@@ -82,7 +82,7 @@ Test your SSL configuration:
 openssl x509 -in fullchain.pem -text -noout
 
 # Test SSL connection
-openssl s_client -connect yourdomain.com:443
+openssl s_client -connect itsma3il.com:443
 
 # Online SSL test
 # Visit: https://www.ssllabs.com/ssltest/

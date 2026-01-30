@@ -28,11 +28,13 @@ export function SessionRenameDialog({
 }: SessionRenameDialogProps) {
   const [title, setTitle] = useState(currentTitle);
 
+  // Sync title when dialog opens with a different current title
   useEffect(() => {
-    if (open) {
+    if (open && title !== currentTitle) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTitle(currentTitle);
     }
-  }, [open, currentTitle]);
+  }, [open, currentTitle, title]);
 
   const handleRename = () => {
     const trimmed = title.trim();

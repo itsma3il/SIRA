@@ -5,7 +5,7 @@ This document contains step-by-step procedures for responding to common producti
 
 ---
 
-## 🔴 Critical Incidents
+## Critical Incidents
 
 ### 1. Application Down / 5xx Errors
 
@@ -44,8 +44,8 @@ docker-compose -f docker-compose.prod.yml restart
 
 4. **Verify Health**:
 ```bash
-curl https://api.yourdomain.com/health
-curl https://yourdomain.com
+curl https://api.itsma3il.com/health
+curl https://itsma3il.com
 ```
 
 **Root Cause Investigation**:
@@ -187,7 +187,7 @@ docker-compose -f docker-compose.prod.yml up -d backend
 
 1. **Check Certificate Expiration**:
 ```bash
-echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates
+echo | openssl s_client -servername itsma3il.com -connect itsma3il.com:443 2>/dev/null | openssl x509 -noout -dates
 ```
 
 2. **Renew Let's Encrypt Certificate**:
@@ -199,8 +199,8 @@ docker-compose -f docker-compose.prod.yml stop nginx
 sudo certbot renew
 
 # Copy new certificates
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem nginx/ssl/
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem nginx/ssl/
+sudo cp /etc/letsencrypt/live/itsma3il.com/fullchain.pem nginx/ssl/
+sudo cp /etc/letsencrypt/live/itsma3il.com/privkey.pem nginx/ssl/
 
 # Restart nginx
 docker-compose -f docker-compose.prod.yml start nginx
@@ -208,7 +208,7 @@ docker-compose -f docker-compose.prod.yml start nginx
 
 3. **Verify New Certificate**:
 ```bash
-./scripts/ssl_validation.sh yourdomain.com
+./scripts/ssl_validation.sh itsma3il.com
 ```
 
 **Prevention**:
@@ -218,7 +218,7 @@ docker-compose -f docker-compose.prod.yml start nginx
 
 ---
 
-## 🟡 High Priority Incidents
+## High Priority Incidents
 
 ### 5. High Error Rate (2-5%)
 
@@ -353,7 +353,7 @@ watch -n 5 'docker stats --no-stream sira_backend_prod'
 
 ---
 
-## 🟢 Low Priority Incidents
+##  Low Priority Incidents
 
 ### 8. Slow Recommendation Generation
 
@@ -451,11 +451,11 @@ gzip -t /backups/latest_backup.sql.gz
 
 | Role | Contact | Escalation Path |
 |------|---------|-----------------|
-| On-Call Engineer | oncall@yourdomain.com | → Engineering Lead |
-| Engineering Lead | lead@yourdomain.com | → CTO |
-| Database Admin | dba@yourdomain.com | → Engineering Lead |
-| Security Team | security@yourdomain.com | → CISO |
-| DevOps | devops@yourdomain.com | → Engineering Lead |
+| On-Call Engineer | oncall@itsma3il.com | → Engineering Lead |
+| Engineering Lead | lead@itsma3il.com | → CTO |
+| Database Admin | dba@itsma3il.com | → Engineering Lead |
+| Security Team | security@itsma3il.com | → CISO |
+| DevOps | devops@itsma3il.com | → Engineering Lead |
 
 ---
 
@@ -500,8 +500,8 @@ docker-compose -f docker-compose.prod.yml restart
 docker logs <container_name> --tail=100 --follow
 
 # Check health endpoints
-curl https://api.yourdomain.com/health
-curl https://api.yourdomain.com/health/system
+curl https://api.itsma3il.com/health
+curl https://api.itsma3il.com/health/system
 
 # Database backup
 docker exec sira-backend /app/scripts/backup_db.sh
