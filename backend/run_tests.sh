@@ -87,6 +87,9 @@ fi
 echo -e "${YELLOW}Running command:${NC} $PYTEST_CMD"
 echo ""
 
+# Set PYTHONPATH to include the current directory
+export PYTHONPATH=/app:$PYTHONPATH
+
 # Run tests
 if $PYTEST_CMD; then
     echo ""

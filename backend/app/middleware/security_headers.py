@@ -46,12 +46,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # Content Security Policy
         if self.enable_csp:
+            # Allow CDN resources for Swagger UI and ReDoc documentation
             csp_directives = [
                 "default-src 'self'",
-                "script-src 'self'",
-                "style-src 'self' 'unsafe-inline'",  # Some UI frameworks need inline styles
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
                 "img-src 'self' data: https:",
-                "font-src 'self' data:",
+                "font-src 'self' data: https://fonts.gstatic.com",
                 "connect-src 'self'",
                 "frame-ancestors 'none'",
                 "base-uri 'self'",

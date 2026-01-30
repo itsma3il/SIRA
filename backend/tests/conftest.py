@@ -53,6 +53,12 @@ def test_client() -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
+def test_session(test_db) -> Generator[Session, None, None]:
+    """Alias for test_db fixture for compatibility."""
+    yield test_db
+
+
+@pytest.fixture
 def mock_auth_token() -> str:
     """Mock JWT token for testing authenticated endpoints."""
     return "mock_bearer_token"
@@ -62,6 +68,23 @@ def mock_auth_token() -> str:
 def mock_user_id() -> str:
     """Mock user ID for testing."""
     return "user_123456"
+
+
+@pytest.fixture
+def authenticated_client(test_client, monkeypatch) -> TestClient:
+    """Create test client with mocked authentication."""
+    from app.core.security import verify_clerk_token
+    
+    # Mock the verify_clerk_token function to always return a valid user
+    def mock_verify_token(token: str):
+        return {
+            "sub": "user_test_123",
+            "email": "test@example.com",
+            "user_id": "clerk_user_123"
+        }
+    
+    monkeypatch.setattr("app.core.security.verify_clerk_token", mock_verify_token)
+    return test_client
 
 
 @pytest.fixture

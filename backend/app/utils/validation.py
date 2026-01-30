@@ -46,11 +46,18 @@ def sanitize_html(value: str | None) -> str | None:
     if value is None:
         return None
     
-    # Remove HTML tags
-    value = re.sub(r"<[^>]*>", "", value)
-    
-    # Remove script content
+    # Remove script tags and their content FIRST (before removing other tags)
     value = re.sub(r"<script[^>]*>.*?</script>", "", value, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Remove other dangerous tags and their content
+    value = re.sub(r"<(style|iframe|object|embed)[^>]*>.*?</\1>", "", value, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Remove event handlers and javascript: protocol
+    value = re.sub(r"\bon\w+\s*=\s*['\"]?[^'\"]*['\"]?", "", value, flags=re.IGNORECASE)
+    value = re.sub(r"javascript:", "", value, flags=re.IGNORECASE)
+    
+    # Remove all remaining HTML tags
+    value = re.sub(r"<[^>]*>", "", value)
     
     # Decode common HTML entities to prevent double-encoding
     html_entities = {

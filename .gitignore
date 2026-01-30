@@ -1,33 +1,123 @@
 .github/
 .planning/
 .vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.env.local.*.js
+
+# Environment & Config
 .env
 .env.local
+.env.*.local
+.env.production.local
 .env.development.local
+.env.test.local
+
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+venv/
+.venv/
+env/
+ENV/
+.poetry
+dist/
+build/
+
+# Next.js / Frontend
+frontend/.next/
+frontend/.turbo/
+frontend/out/
+frontend/coverage/
+frontend/.vercel/
+frontend/bun.lockb
 .next/
 out/
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
 dist/
-coverage/
-.turbo/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.hypothesis/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package locks (keep in repo for production)
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
-frontend/.vercel/
-.venv/
-venv/
-__pycache__/
-*.py[cod]
-*.pyo
-*.egg-info/
-.pytest_cache/
-alembic/versions/*.pyc
-backend/.mypy_cache/
-backend/.ruff_cache/
-*.log
-*.sqlite
-*.db
-*.DS_Store
-Thumbs.db
-bun.*
+bun.lock
+Pipfile.lock
+
+# Planning & Documentation
+.planning/
+*.local.md
+
+# Uploads & Generated Files
 uploads/
+tmp/
+temp/
+*.tmp
+
+# Docker
+.dockerignore
+
+# Testing & Coverage
+.nyc_output/
+lcov.info
+
+# CI/CD
+.github/workflows/cache/
+
+# IDE Specific
+.eslintcache
+.stylelintcache

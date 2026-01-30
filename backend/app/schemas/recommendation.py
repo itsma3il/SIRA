@@ -50,7 +50,7 @@ class RecommendationResponse(BaseModel):
     feedback_rating: Optional[int] = None
     feedback_comment: Optional[str] = None
     
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
