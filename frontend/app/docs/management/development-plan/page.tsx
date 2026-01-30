@@ -1,12 +1,7 @@
-import { getMarkdownContent } from '@/lib/markdown';
-import { MarkdownRenderer } from '@/components/markdown-renderer';
+import { DocsMarkdownPage } from '@/components/docs-page';
 
-export default async function DevelopmentPlanPage() {
-  const { content } = await getMarkdownContent('Planning/COMPLETE_DEVELOPMENT_PLAN.md');
-  
+export default function DevelopmentPlanPage() {
   return (
-    <div className="space-y-6">
-      <MarkdownRenderer content={content} />
-    </div>
+    <DocsMarkdownPage markdownPath="Planning/COMPLETE_DEVELOPMENT_PLAN.md" />
   );
 }

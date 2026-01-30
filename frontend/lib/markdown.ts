@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import { extractTocFromMarkdown } from './remark-extract-toc';
+import type { TOCItem } from './remark-extract-toc';
 
 export async function getMarkdownContent(relativePath: string) {
   try {
@@ -9,35 +14,21 @@ export async function getMarkdownContent(relativePath: string) {
     const fileContents = fs.readFileSync(docsPath, 'utf8');
     
     const { data, content } = matter(fileContents);
-    
+
+    const markdownAst = unified().use(remarkParse).use(remarkGfm).parse(content);
+    const toc = extractTocFromMarkdown(markdownAst);
+
     return {
       frontmatter: data,
       content,
+      toc,
     };
   } catch (error) {
     console.error(`Error reading markdown file: ${relativePath}`, error);
     return {
       frontmatter: {},
       content: '# Documentation Not Found\n\nThe requested documentation could not be loaded.',
+      toc: [] as TOCItem[],
     };
   }
-}
-
-export function extractHeadings(markdown: string) {
-  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
-  const headings: { level: number; text: string; id: string }[] = [];
-  
-  let match;
-  while ((match = headingRegex.exec(markdown)) !== null) {
-    const level = match[1].length;
-    const text = match[2].trim();
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
-    
-    headings.push({ level, text, id });
-  }
-  
-  return headings;
 }

@@ -56,8 +56,8 @@ export function DocsSidebar() {
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <ScrollArea className="h-full py-6 pr-6">
+          <SheetContent side="left" className="px-2">
+            <ScrollArea className="h-full py-6 pr-4">
               <SidebarContent />
             </ScrollArea>
           </SheetContent>

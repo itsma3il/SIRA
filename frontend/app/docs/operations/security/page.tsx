@@ -1,6 +1,4 @@
-import fs from "fs";
-import path from "path";
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { DocsMarkdownPage } from "@/components/docs-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,13 +6,8 @@ export const metadata: Metadata = {
   description: "Security features and best practices implementation.",
 };
 
-export default async function SecurityPage() {
-  const docsPath = path.join(process.cwd(), "../docs/Operations Documentation/SECURITY.md");
-  const content = fs.readFileSync(docsPath, "utf-8");
-
+export default function SecurityPage() {
   return (
-    <div className="space-y-6">
-      <MarkdownRenderer content={content} />
-    </div>
+    <DocsMarkdownPage markdownPath="Operations Documentation/SECURITY.md" />
   );
 }

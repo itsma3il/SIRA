@@ -1,12 +1,7 @@
-import { getMarkdownContent } from '@/lib/markdown';
-import { MarkdownRenderer } from '@/components/markdown-renderer';
+import { DocsMarkdownPage } from '@/components/docs-page';
 
-export default async function OperationsManualPage() {
-  const { content } = await getMarkdownContent('Operations Documentation/OPERATIONS.md');
-  
+export default function OperationsManualPage() {
   return (
-    <div className="space-y-6">
-      <MarkdownRenderer content={content} />
-    </div>
+    <DocsMarkdownPage markdownPath="Operations Documentation/OPERATIONS.md" />
   );
 }

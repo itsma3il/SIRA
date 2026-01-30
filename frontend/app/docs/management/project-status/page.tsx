@@ -1,12 +1,7 @@
-import { getMarkdownContent } from '@/lib/markdown';
-import { MarkdownRenderer } from '@/components/markdown-renderer';
+import { DocsMarkdownPage } from '@/components/docs-page';
 
-export default async function ProjectStatusPage() {
-  const { content } = await getMarkdownContent('PROJECT_STATUS.md');
-  
+export default function ProjectStatusPage() {
   return (
-    <div className="space-y-6">
-      <MarkdownRenderer content={content} />
-    </div>
+    <DocsMarkdownPage markdownPath="PROJECT_STATUS.md" />
   );
 }

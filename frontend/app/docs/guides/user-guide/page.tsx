@@ -1,12 +1,7 @@
-import fs from "fs";
-import path from "path";
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { DocsMarkdownPage } from "@/components/docs-page";
 
 export default function UserGuidePage() {
-  const docsPath = path.join(
-    process.cwd(),
-    "../docs/User Documentation/USER_GUIDE.md"
+  return (
+    <DocsMarkdownPage markdownPath="User Documentation/USER_GUIDE.md" />
   );
-  const content = fs.readFileSync(docsPath, "utf-8");
-  return <MarkdownRenderer content={content} />;
 }

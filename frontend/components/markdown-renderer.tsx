@@ -3,6 +3,7 @@
 import React, { memo, lazy, Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -16,61 +17,6 @@ interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
-
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
-}
-
-// Memoized heading components for better performance
-const H1 = memo(({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
-  const text = children?.toString() || "";
-  const id = slugify(text);
-  return (
-    <h1 id={id} className="scroll-m-20 text-4xl font-bold tracking-tight mb-4" {...props}>
-      {children}
-    </h1>
-  );
-});
-H1.displayName = "H1";
-
-const H2 = memo(({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
-  const text = children?.toString() || "";
-  const id = slugify(text);
-  return (
-    <h2 id={id} className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight mt-10 mb-4" {...props}>
-      {children}
-    </h2>
-  );
-});
-H2.displayName = "H2";
-
-const H3 = memo(({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
-  const text = children?.toString() || "";
-  const id = slugify(text);
-  return (
-    <h3 id={id} className="scroll-m-20 text-2xl font-semibold tracking-tight mt-8 mb-4" {...props}>
-      {children}
-    </h3>
-  );
-});
-H3.displayName = "H3";
-
-const H4 = memo(({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
-  const text = children?.toString() || "";
-  const id = slugify(text);
-  return (
-    <h4 id={id} className="scroll-m-20 text-xl font-semibold tracking-tight mt-6 mb-3" {...props}>
-      {children}
-    </h4>
-  );
-});
-H4.displayName = "H4";
 
 // Memoized code component with lazy loading
 const CodeBlock = memo(({ inline, className, children, ...props }: {
@@ -122,11 +68,28 @@ export const MarkdownRenderer = memo(({ content, className }: MarkdownRendererPr
     <div className={cn("prose prose-neutral dark:prose-invert max-w-none", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSlug]}
         components={{
-          h1: H1,
-          h2: H2,
-          h3: H3,
-          h4: H4,
+          h1: ({ node, children, ...props }) => (
+            <h1 className="scroll-m-20 text-4xl font-bold tracking-tight mb-4" {...props}>
+              {children}
+            </h1>
+          ),
+          h2: ({ node, children, ...props }) => (
+            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight mt-10 mb-4" {...props}>
+              {children}
+            </h2>
+          ),
+          h3: ({ node, children, ...props }) => (
+            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mt-8 mb-4" {...props}>
+              {children}
+            </h3>
+          ),
+          h4: ({ node, children, ...props }) => (
+            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight mt-6 mb-3" {...props}>
+              {children}
+            </h4>
+          ),
           p: (props) => (
             <p className="leading-7 not-first:mt-4" {...props} />
           ),
