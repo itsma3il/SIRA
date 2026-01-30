@@ -4,7 +4,6 @@ import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 import {
   SidebarContent,
-  useSidebar,
 } from "@/components/ui/sidebar"
 import { SettingsDialog } from "@/components/settings-dialog"
 import { useState } from "react"

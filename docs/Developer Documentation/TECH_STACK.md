@@ -8,7 +8,7 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 
 ## Frontend Stack
 
-### Core Framework
+### Frontend Core Framework
 
 **Next.js 16**
 - **Type:** React meta-framework with server-side capabilities
@@ -188,7 +188,7 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 - **Configuration:** Environment variables
 - **Documentation:** https://clerk.com/docs
 
-### Development Tools
+### Frontend Development Tools
 
 **ESLint**
 - **Type:** JavaScript/TypeScript linter
@@ -234,7 +234,7 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 
 ## Backend Stack
 
-### Core Framework
+### Backend Core Framework
 
 **FastAPI**
 - **Type:** Modern Python web framework
@@ -441,7 +441,7 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 - **Purpose:** Handle complex types in JSON
 - **Installation:** Optional dependency
 
-### Development Tools
+### Backend Development Tools
 
 **Black**
 - **Type:** Code formatter
@@ -544,7 +544,7 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
 
 ## External Services
 
-### Authentication
+### Authentication Service
 
 **Clerk**
 - **Type:** Auth platform
