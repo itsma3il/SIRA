@@ -361,6 +361,13 @@ async def get_improvement_areas(
     try:
         analytics = get_feedback_analytics(db)
         areas = analytics.identify_improvement_areas()
+        
+        # Log if there was an error in analysis
+        if "_error" in areas:
+            logger.warning(f"Improvement areas analysis partial failure: {areas['_error']}")
+        
+        # Remove error field from response
+        areas.pop("_error", None)
         return areas
     except Exception as e:
         logger.error(f"Error analyzing improvement areas: {str(e)}", exc_info=True)

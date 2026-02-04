@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # Clerk Authentication
     clerk_jwks_url: str | None = None
     clerk_frontend_api: str | None = None
+    clerk_secret_key: str | None = None
     
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     
@@ -28,6 +29,15 @@ class Settings(BaseSettings):
     chunk_size: int = 1000
     chunk_overlap: int = 200
     top_k_results: int = 5
+    
+    # Security
+    secret_key: str | None = None
+    jwt_secret: str | None = None
+    
+    # File Upload Configuration
+    upload_dir: str = "./uploads"
+    max_upload_size: int = 5242880  # 5MB
+    allowed_upload_types: str = "pdf,jpg,jpeg,png"
 
     model_config = {
         "env_file": ".env",

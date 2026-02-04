@@ -56,7 +56,8 @@ export function useChatActions() {
     } finally {
       setSessionsLoading(false);
     }
-  }, [getToken, setSessions, setSessionsLoading, setSessionsError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setSessions, setSessionsLoading, setSessionsError]);
 
   const loadSessionDetail = useCallback(async (sessionId: string) => {
     try {
@@ -80,7 +81,8 @@ export function useChatActions() {
     } finally {
       setSessionLoading(false);
     }
-  }, [getToken, setSessionDetail, setSessionLoading, setSessionError, setMessages, setCurrentSessionId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setSessionDetail, setSessionLoading, setSessionError, setMessages, setCurrentSessionId]);
 
   const createSession = useCallback(async (data: SessionCreate) => {
     try {
@@ -111,7 +113,8 @@ export function useChatActions() {
       toast.error(message);
       throw error;
     }
-  }, [getToken, addSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addSession]);
 
   const updateSessionData = useCallback(
     async (sessionId: string, updates: SessionUpdate) => {
@@ -136,7 +139,8 @@ export function useChatActions() {
         throw error;
       }
     },
-    [getToken, updateSession, loadSessionDetail]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateSession, loadSessionDetail]
   );
 
   const deleteSession = useCallback(async (sessionId: string) => {
@@ -158,7 +162,8 @@ export function useChatActions() {
       toast.error(message);
       return false;
     }
-  }, [getToken, removeSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [removeSession]);
 
   const archiveSession = useCallback(async (sessionId: string) => {
     try {
@@ -178,12 +183,15 @@ export function useChatActions() {
       }
       
       toast.success("Conversation archived");
+      // Reload sessions list to update sidebar
+      await loadSessions();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to archive conversation";
       toast.error(message);
       throw error;
     }
-  }, [getToken, updateSession, setSessionDetail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateSession, setSessionDetail]);
 
   const restoreSession = useCallback(async (sessionId: string) => {
     try {
@@ -203,12 +211,15 @@ export function useChatActions() {
       }
       
       toast.success("Conversation restored");
+      // Reload sessions list to update sidebar
+      await loadSessions();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to restore conversation";
       toast.error(message);
       throw error;
     }
-  }, [getToken, updateSession, setSessionDetail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateSession, setSessionDetail]);
 
   // ============================================================================
   // Profiles API
@@ -233,7 +244,8 @@ export function useChatActions() {
     } finally {
       setProfilesLoading(false);
     }
-  }, [getToken, setProfiles, setProfilesLoading, setProfilesError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setProfiles, setProfilesLoading, setProfilesError]);
 
   return {
     // Sessions

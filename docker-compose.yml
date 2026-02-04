@@ -33,6 +33,9 @@ services:
     environment:
       # Override DB URL for Docker network (uses service name 'db' instead of localhost)
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-sira}
+      # Disable SSL verification for Pinecone (development mode)
+      - PINECONE_SKIP_SSL=true
+      - GRPC_CLIENT_CHANNEL_TARGET_SSL_CERT_VERIFY=false
     ports:
       - "8000:8000"
     volumes:
@@ -49,8 +52,8 @@ services:
   # -----------------------------
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./frontend/Dockerfile
       # 1. Pass non-secret public vars as ARGs
       args:
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}

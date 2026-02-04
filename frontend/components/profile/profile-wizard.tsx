@@ -224,7 +224,7 @@ export function ProfileWizard({
             onSubmit={(event) => {
                 event.preventDefault()
             }}
-            className="grid gap-4"
+            className="grid gap-4 p-4"
         >
             <Card className="p-4">
                 <div className="grid gap-4">

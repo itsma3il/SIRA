@@ -87,7 +87,7 @@ export function ChatMessage({ message, recommendationSummary, sessionId, onFeedb
               </div>
             )
           ) : (
-            // Show typing indicator while streaming regular message, content when done
+            // Show typing indicator while streaming regular message with no content yet, otherwise show content with markdown
             message.isStreaming && !message.content ? (
               <TypingIndicator />
             ) : (

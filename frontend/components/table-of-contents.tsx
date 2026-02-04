@@ -15,7 +15,7 @@ interface TableOfContentsProps {
 }
 
 // Debounce utility for performance
-function debounce<T extends (...args: unknown[]) => void>(
+function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

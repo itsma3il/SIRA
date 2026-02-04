@@ -202,7 +202,7 @@ CLERK_SECRET_KEY=sk_test_xxxxxxxxxx
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard/profile/new
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard/profiles/new
 ```
 
 ### 3. Generate Secrets

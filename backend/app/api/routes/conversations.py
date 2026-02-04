@@ -76,6 +76,36 @@ async def list_sessions(
         raise HTTPException(status_code=500, detail="Failed to list sessions")
 
 
+@router.get("/sessions/archived/list", response_model=SessionListResponse)
+async def list_archived_sessions(
+    profile_id: Optional[UUID] = Query(None, description="Filter by profile"),
+    limit: int = Query(50, ge=1, le=100, description="Max sessions to return"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db_session)
+):
+    """
+    List user's archived conversation sessions with time-period grouping.
+    
+    - Shows only archived sessions
+    - Groups by: Today, Yesterday, Last 7 days, Last month
+    - Includes last message preview
+    """
+    try:
+        service = get_conversation_service()
+        result = service.get_user_sessions(
+            db=db,
+            user_id=current_user.id,
+            profile_id=profile_id,
+            status="archived",  # Force archived status
+            limit=limit
+        )
+        logger.info(f"Listing archived sessions: total={result.total}, groups={len(result.sessions)}")
+        return result
+    except Exception as e:
+        logger.error(f"Error listing archived sessions: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to list archived sessions")
+
+
 @router.get("/sessions/{session_id}", response_model=SessionDetailResponse)
 async def get_session(
     session_id: UUID,

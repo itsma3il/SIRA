@@ -113,7 +113,7 @@ export default function ProfileDetailPage() {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 p-4 sm:p-6 overflow-auto">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />

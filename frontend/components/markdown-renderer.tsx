@@ -113,7 +113,7 @@ export const MarkdownRenderer = memo(({ content, className }: MarkdownRendererPr
           blockquote: (props) => (
             <blockquote className="mt-6 border-l-2 border-muted-foreground pl-6 italic text-muted-foreground [&:not(:first-child)]:mt-6" {...props} />
           ),
-          code: CodeBlock as React.ComponentType<{ inline?: boolean; className?: string; children: React.ReactNode }>,
+          code: (props: any) => <CodeBlock {...props} />,
           table: (props) => (
             <div className="my-6 w-full overflow-y-auto">
               <table className="w-full border-collapse" {...props} />

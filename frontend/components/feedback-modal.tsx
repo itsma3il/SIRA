@@ -15,6 +15,7 @@ interface FeedbackModalProps {
   onSubmit: (feedback: RecommendationFeedback) => Promise<void>;
   initialRating?: number;
   initialComment?: string;
+  disabled?: boolean;
 }
 
 export function FeedbackModal({ 
@@ -22,7 +23,8 @@ export function FeedbackModal({
   onOpenChange, 
   onSubmit, 
   initialRating, 
-  initialComment 
+  initialComment,
+  disabled
 }: FeedbackModalProps) {
   const [rating, setRating] = useState<number>(initialRating || 0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
@@ -70,7 +72,7 @@ export function FeedbackModal({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={disabled ? () => {} : onOpenChange}>
       <DialogContent className="sm:max-w-131.25" aria-describedby="feedback-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -183,7 +185,7 @@ export function FeedbackModal({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={submitting}
+            disabled={submitting || disabled}
             className="w-full sm:w-auto"
             type="button"
           >
@@ -191,7 +193,7 @@ export function FeedbackModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={rating === 0 || submitting}
+            disabled={rating === 0 || submitting || disabled}
             className="w-full sm:w-auto"
             type="submit"
             aria-label={rating === 0 ? "Please select a rating first" : "Submit feedback"}

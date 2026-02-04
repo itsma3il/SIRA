@@ -54,15 +54,17 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     if (!isLoaded) return;
-    loadSessions();
-  }, [isLoaded, loadSessions]);
+    void loadSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
     if (profiles.length === 0 && !profilesLoading) {
-      loadProfiles();
+      void loadProfiles();
     }
-  }, [isLoaded, profiles.length, profilesLoading, loadProfiles]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
   // ============================================================================
   // Action Handlers

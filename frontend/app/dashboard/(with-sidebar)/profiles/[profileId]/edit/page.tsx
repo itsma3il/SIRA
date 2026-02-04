@@ -81,7 +81,7 @@ export default function EditProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="grid gap-4">
+      <div className="grid gap-4 p-4 sm:p-6 overflow-auto">
         <header className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />
           <div>

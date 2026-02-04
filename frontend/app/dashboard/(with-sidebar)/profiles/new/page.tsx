@@ -64,7 +64,7 @@ export default function NewProfilePage() {
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 p-4 sm:p-6 overflow-y-auto border">
       <header className="flex items-center gap-3">
         <SidebarTrigger className="-ml-1" />
         <div>

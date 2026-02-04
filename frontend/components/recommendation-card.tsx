@@ -22,7 +22,7 @@ import { toast } from "sonner";
 
 interface RecommendationCardProps {
   recommendation: Recommendation;
-  onFeedbackSubmitted?: (recommendationId: string, feedback: RecommendationFeedback) => void;
+  onFeedbackSubmitted?: (recommendationId: string, feedback: RecommendationFeedback) => void | Promise<void>;
 }
 
 export function RecommendationCard({ recommendation, onFeedbackSubmitted }: RecommendationCardProps) {
@@ -32,6 +32,7 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
   const [copied, setCopied] = useState(false);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [reloadingSession, setReloadingSession] = useState(false);
   const [currentFeedback, setCurrentFeedback] = useState<RecommendationFeedback | null>(
     recommendation.feedback_rating
       ? {
@@ -79,25 +80,50 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
       const token = await getToken();
       if (!token) throw new Error("Not authenticated");
 
-      await api.recommendations.submitFeedback(
-        token,
-        recommendation.id,
-        feedback
-      );
+      // Retry logic for recommendations that might not be fully indexed yet
+      let lastError: Error | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await api.recommendations.submitFeedback(
+            token,
+            recommendation.id,
+            feedback
+          );
+          
+          setCurrentFeedback(feedback);
+          
+          logger.logFeedbackSubmission(
+            recommendation.id,
+            feedback.feedback_rating,
+            !!feedback.feedback_comment
+          );
 
-      setCurrentFeedback(feedback);
-      
-      logger.logFeedbackSubmission(
-        recommendation.id,
-        feedback.feedback_rating,
-        !!feedback.feedback_comment
-      );
+          toast.success("Feedback Submitted ! Thank you for your feedback!");
 
-      toast.success("Feedback Submitted ! Thank you for your feedback!");
-
-      if (onFeedbackSubmitted) {
-        onFeedbackSubmitted(recommendation.id, feedback);
+          if (onFeedbackSubmitted) {
+            setReloadingSession(true);
+            await onFeedbackSubmitted(recommendation.id, feedback);
+            setReloadingSession(false);
+          }
+          return; // Success, exit early
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error("Unknown error");
+          
+          // Check if it's a 404 (might be a timing issue)
+          const is404 = lastError.message.includes("404") || lastError.message.includes("not found");
+          if (is404 && attempt < 2) {
+            // Wait and retry
+            await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+            continue;
+          }
+          
+          // Not a 404 or last attempt, throw error
+          throw error;
+        }
       }
+      
+      // If we get here, all retries failed
+      throw lastError || new Error("Failed to submit feedback");
     } catch (error) {
       logger.error("Failed to submit feedback", error);
       toast.error("Failed to submit feedback. Please try again.");
@@ -317,6 +343,7 @@ export function RecommendationCard({ recommendation, onFeedbackSubmitted }: Reco
         onSubmit={handleFeedbackSubmit}
         initialRating={currentFeedback?.feedback_rating}
         initialComment={currentFeedback?.feedback_comment}
+        disabled={submittingFeedback || reloadingSession}
       />
     </>
   );

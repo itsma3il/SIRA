@@ -15,7 +15,6 @@ import { Card } from "@/components/ui/card";
 import { useConversationChat } from "@/hooks/use-conversation-chat";
 import { useChatStore } from "@/stores/chat-store";
 import { useChatActions } from "@/hooks/use-chat-actions";
-import { api } from "@/lib/api";
 
 export default function ChatSessionPage() {
   const params = useParams<{ sessionId: string }>();
@@ -98,21 +97,11 @@ export default function ChatSessionPage() {
     }
   };
 
-  const handleFeedback = async (recommendationId: string, feedback: import("@/lib/types/recommendation").RecommendationFeedback) => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-      
-      await api.recommendations.submitFeedback(token, recommendationId, feedback);
-      toast.success("Thank you for your feedback!");
-      
-      // Reload session to update recommendation feedback
-      if (sessionId) {
-        await loadSessionDetail(sessionId);
-      }
-    } catch (error) {
-      console.error("Failed to submit feedback:", error);
-      toast.error("Failed to submit feedback. Please try again.");
+  const handleFeedback = async (_recommendationId: string, _feedback: import("@/lib/types/recommendation").RecommendationFeedback) => {
+    // RecommendationCard already submits feedback.
+    // This callback only refreshes session detail to reflect feedback updates.
+    if (sessionId) {
+      await loadSessionDetail(sessionId);
     }
   };
 

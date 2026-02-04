@@ -1,5 +1,6 @@
 """Pinecone vector database utilities for SIRA."""
 import logging
+import os
 from typing import List, Dict, Any, Optional
 from pinecone import Pinecone, ServerlessSpec
 from llama_index.core import VectorStoreIndex, Document
@@ -10,6 +11,10 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# Disable SSL verification for development (can cause SSL errors with some networks)
+# Set PINECONE_SKIP_SSL=false in production
+SKIP_SSL = os.getenv("PINECONE_SKIP_SSL", "true").lower() == "true"
+
 
 class PineconeManager:
     """Manages Pinecone vector database operations."""
@@ -19,7 +24,14 @@ class PineconeManager:
         if not settings.pinecone_api_key:
             raise ValueError("PINECONE_API_KEY not configured")
         
-        self.pc = Pinecone(api_key=settings.pinecone_api_key)
+        # Initialize Pinecone with optional SSL bypass
+        pc_kwargs = {"api_key": settings.pinecone_api_key}
+        if SKIP_SSL:
+            logger.warning("⚠️ SSL verification disabled for Pinecone (development mode)")
+            # Set environment variable to disable SSL verification
+            os.environ["GRPC_CLIENT_CHANNEL_TARGET_SSL_CERT_VERIFY"] = "false"
+        
+        self.pc = Pinecone(**pc_kwargs)
         self.index_name = settings.pinecone_index_name
         self.embedding_model = MistralAIEmbedding(
             api_key=settings.mistral_api_key,

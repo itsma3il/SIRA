@@ -12,6 +12,7 @@ from app.api.deps import get_session
 from app.core.security import get_current_user, get_current_user_flexible
 from app.db import session_scope
 from app.models.user import User
+from app.models.recommendation import Recommendation
 from app.repositories import profile_repository
 from app.schemas.recommendation import (
     RecommendationCreate,
@@ -222,8 +223,10 @@ async def get_recommendation(
     
     Verifies that the recommendation belongs to a profile owned by the current user.
     """
-    service = get_recommendation_service()
-    recommendation = service.get_recommendation_by_id(recommendation_id)
+    # Get recommendation within session to avoid detached instance errors
+    recommendation = session.query(Recommendation).filter(
+        Recommendation.id == recommendation_id
+    ).first()
     
     if not recommendation:
         raise HTTPException(
@@ -254,10 +257,11 @@ async def submit_feedback(
     
     Feedback is used to improve recommendation quality over time.
     """
-    service = get_recommendation_service()
+    # Get recommendation and verify ownership - fetch within session
+    recommendation = session.query(Recommendation).filter(
+        Recommendation.id == recommendation_id
+    ).first()
     
-    # Get recommendation and verify ownership
-    recommendation = service.get_recommendation_by_id(recommendation_id)
     if not recommendation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -271,17 +275,24 @@ async def submit_feedback(
             detail="You don't have permission to provide feedback for this recommendation"
         )
     
-    # Submit feedback
+    # Update feedback directly within the session
     try:
-        updated = service.submit_feedback(
-            recommendation_id=recommendation_id,
-            rating=feedback.feedback_rating,
-            comment=feedback.feedback_comment
-        )
-        return RecommendationResponse.model_validate(updated)
+        recommendation.feedback_rating = feedback.feedback_rating
+        recommendation.feedback_comment = feedback.feedback_comment
+        session.commit()
+        
+        # Fetch fresh instance to ensure proper serialization
+        updated_rec = session.query(Recommendation).filter(
+            Recommendation.id == recommendation_id
+        ).first()
+        
+        logger.info(f"Updated feedback for recommendation {recommendation_id}")
+        return RecommendationResponse.model_validate(updated_rec)
     
-    except ValueError as e:
+    except Exception as e:
+        logger.error(f"Error submitting feedback: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to submit feedback"
         )
+

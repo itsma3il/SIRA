@@ -104,6 +104,8 @@ export function useConversationChat(): UseConversationChatResult {
         });
       }
 
+      const wasRecommendationStream = isRecommendationStream.current;
+
       // Update Zustand store
       setIsStreaming(false);
       if (isRecommendationStream.current) {
@@ -113,7 +115,8 @@ export function useConversationChat(): UseConversationChatResult {
 
       const active = activeRequestRef.current;
       if (active) {
-        void loadSession(active.token, active.sessionId);
+        // Load session with a callback to link recommendations
+        void loadSession(active.token, active.sessionId, 0, wasRecommendationStream);
         void loadSessions(active.token);
       }
 
@@ -160,16 +163,37 @@ export function useConversationChat(): UseConversationChatResult {
     []
   );
 
-  const loadSession = useCallback(async (token: string, sessionId: string, retryCount = 0) => {
+  const loadSession = useCallback(async (token: string, sessionId: string, retryCount = 0, isRecommendationStreamComplete = false) => {
     try {
       setSessionLoading(true);
       setSessionError(null);
       const detail = await api.conversations.getSession(token, sessionId);
       setSessionDetail(detail);
       
-      // Update both local state and Zustand store
-      setMessages(detail.messages ?? []);
-      setMessagesInStore(detail.messages ?? []);
+      // If this was a recommendation stream completion, link the latest recommendation to the temp message
+      if (isRecommendationStreamComplete && detail.recommendations && detail.recommendations.length > 0) {
+        const latestRec = detail.recommendations[detail.recommendations.length - 1];
+        const updatedMessages = (detail.messages ?? []).map((message) => {
+          // Find the recommendation message that was just created
+          if (message.metadata?.type === "recommendation_generated" && message.id.includes("temp-recommendation")) {
+            return {
+              ...message,
+              metadata: {
+                ...message.metadata,
+                recommendation_id: latestRec.id,
+              }
+            };
+          }
+          return message;
+        });
+        
+        setMessages(updatedMessages);
+        setMessagesInStore(updatedMessages);
+      } else {
+        // Update both local state and Zustand store
+        setMessages(detail.messages ?? []);
+        setMessagesInStore(detail.messages ?? []);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unable to load session";
       
@@ -182,7 +206,7 @@ export function useConversationChat(): UseConversationChatResult {
           const newToken = await (window as any).Clerk?.session?.getToken();
           if (newToken && newToken !== token) {
             // console.log("[useConversationChat] Token refreshed, retrying...");
-            return loadSession(newToken, sessionId, retryCount + 1);
+            return loadSession(newToken, sessionId, retryCount + 1, isRecommendationStreamComplete);
           }
         } catch (refreshError) {
           console.error("[useConversationChat] Token refresh failed:", refreshError);

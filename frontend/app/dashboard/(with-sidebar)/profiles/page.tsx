@@ -114,7 +114,7 @@ export default function ProfilesPage() {
   }, [profiles, search, sortBy]);
 
   return (
-    <div className="grid gap-4 p-4 sm:p-6">
+    <div className="grid gap-4 p-4 sm:p-6 overflow-auto">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="-ml-1" />
@@ -175,11 +175,11 @@ export default function ProfilesPage() {
           <p className="text-sm text-muted-foreground">Loading profiles...</p>
         </Card>
       ) : error ? (
-        <Card className="p-4">
+        <Card className="p-4 overflow-auto">
           <p className="text-sm text-destructive">{error}</p>
         </Card>
       ) : filteredProfiles.length === 0 ? (
-        <Card className="p-4">
+        <Card className="p-4 overflow-auto">
           <div className="rounded-md border border-dashed border-border p-8 text-center">
             <p className="text-sm font-medium">No profiles found</p>
             <p className="text-xs text-muted-foreground">

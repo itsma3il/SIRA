@@ -53,7 +53,7 @@ def get_by_user(
     db: Session,
     user_id: UUID,
     profile_id: Optional[UUID] = None,
-    status: Optional[str] = None,  # Changed from "active" to None
+    status: Optional[str] = "active",  # Default to active sessions only
     limit: int = 50
 ) -> List[ConversationSession]:
     """Get sessions for a user, optionally filtered by profile and status."""

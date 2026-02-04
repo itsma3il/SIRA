@@ -132,21 +132,7 @@ For API issues, contact: support@sira-academic.com
         environment=settings.environment,
     )
 
-    # Add rate limiting middleware (before logging to avoid logging rate-limited requests)
-    # Development: 120 req/min, 2000 req/hour
-    # Production: Consider lowering or using Redis-backed rate limiting
-    app.add_middleware(
-        RateLimitMiddleware,
-        requests_per_minute=120,
-        requests_per_hour=2000,
-        exclude_paths=["/health", "/", "/docs", "/openapi.json", "/redoc"],
-    )
-
-    # Add logging middleware
-    app.add_middleware(ErrorLoggingMiddleware)
-    app.add_middleware(LoggingMiddleware)
-    
-    # CORS configuration
+    # CORS configuration - ADD THIS FIRST so it wraps everything
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -160,6 +146,20 @@ For API issues, contact: support@sira-academic.com
             "X-RateLimit-Remaining-Hour",
         ],
     )
+
+    # Add rate limiting middleware (before logging to avoid logging rate-limited requests)
+    # Development: 120 req/min, 2000 req/hour
+    # Production: Consider lowering or using Redis-backed rate limiting
+    app.add_middleware(
+        RateLimitMiddleware,
+        requests_per_minute=120,
+        requests_per_hour=2000,
+        exclude_paths=["/health", "/", "/docs", "/openapi.json", "/redoc"],
+    )
+
+    # Add logging middleware
+    app.add_middleware(ErrorLoggingMiddleware)
+    app.add_middleware(LoggingMiddleware)
 
     # Register routers
     app.include_router(health.router)

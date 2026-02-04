@@ -5,6 +5,7 @@ import { shadcn } from "@clerk/themes";
 import { ThemeProvider } from "next-themes";
 import { useTheme } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { UserSync } from "@/components/user-sync";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <ThemeAwareClerkProvider>
+          <UserSync />
           {children}
         <Toaster position="top-right" closeButton theme="system" />
       </ThemeAwareClerkProvider>

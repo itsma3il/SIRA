@@ -190,19 +190,21 @@ class RecommendationService:
             profile = profile_repository.get_by_id(db, profile_id)
             if not profile:
                 raise ValueError(f"Profile {profile_id} not found")
-            db.refresh(profile)
-        
-        query_text = profile_to_query(profile)
-        
-        if use_fallback:
-            programs, strategy = await retrieve_with_fallback(profile, top_k=top_k)
-        else:
-            programs = await retrieve_relevant_programs(profile, top_k=top_k)
-        
-        if not programs:
-            raise ValueError("No relevant programs found")
-        
-        user_prompt = create_user_prompt(profile, programs)
+            
+            # Generate query while profile is still attached to session
+            query_text = profile_to_query(profile)
+            
+            # Retrieve programs while profile is still attached to session
+            if use_fallback:
+                programs, strategy = await retrieve_with_fallback(profile, top_k=top_k)
+            else:
+                programs = await retrieve_relevant_programs(profile, top_k=top_k)
+            
+            if not programs:
+                raise ValueError("No relevant programs found")
+            
+            # Create user prompt while profile is still attached to session
+            user_prompt = create_user_prompt(profile, programs)
         
         # Add conversation context for subsequent recommendations
         if conversation_context:

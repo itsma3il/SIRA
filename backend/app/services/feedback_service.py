@@ -197,54 +197,79 @@ class FeedbackAnalytics:
         Returns:
             Dict with recommendations for improvement
         """
-        # Get recent low-rated recommendations
-        low_rated = self.get_low_rated_recommendations(threshold=2, limit=20)
-        
-        # Analyze common patterns
-        issues = []
-        
-        # Check for retrieval issues (low scores)
-        low_retrieval_count = 0
-        for rec in low_rated:
-            if rec.retrieved_context:
-                docs = rec.retrieved_context.get("documents", [])
-                if docs and max(doc.get("score", 0) for doc in docs) < 0.5:
-                    low_retrieval_count += 1
-        
-        if low_retrieval_count > len(low_rated) * 0.3:  # More than 30%
-            issues.append({
-                "area": "retrieval_quality",
-                "severity": "high",
-                "description": "Many low-rated recommendations have poor retrieval scores",
-                "suggestion": "Consider improving query construction or adding more diverse data to vector DB"
-            })
-        
-        # Check average rating
-        avg_rating = self.get_average_rating(days=30)
-        if avg_rating < 3.5:
-            issues.append({
-                "area": "overall_quality",
-                "severity": "high",
-                "description": f"Average rating is low: {avg_rating:.2f}/5.0",
-                "suggestion": "Review prompt engineering and recommendation logic"
-            })
-        
-        # Check feedback rate
-        trends = self.get_feedback_trends(days=30)
-        if trends["feedback_rate"] < 20:  # Less than 20%
-            issues.append({
-                "area": "feedback_collection",
-                "severity": "medium",
-                "description": f"Low feedback rate: {trends['feedback_rate']:.1f}%",
-                "suggestion": "Encourage users to provide feedback with better UI prompts"
-            })
-        
-        return {
-            "total_issues_identified": len(issues),
-            "issues": issues,
-            "low_rated_sample_size": len(low_rated),
-            "analysis_date": datetime.utcnow().isoformat()
-        }
+        try:
+            # Get recent low-rated recommendations
+            low_rated = self.get_low_rated_recommendations(threshold=2, limit=20)
+            
+            # Analyze common patterns
+            issues = []
+            
+            # Check for retrieval issues (low scores)
+            low_retrieval_count = 0
+            for rec in low_rated:
+                try:
+                    if rec.retrieved_context and isinstance(rec.retrieved_context, dict):
+                        docs = rec.retrieved_context.get("documents", [])
+                        if docs and isinstance(docs, list) and len(docs) > 0:
+                            scores = []
+                            for doc in docs:
+                                if isinstance(doc, dict) and "score" in doc:
+                                    try:
+                                        score = float(doc.get("score", 0))
+                                        scores.append(score)
+                                    except (ValueError, TypeError):
+                                        pass
+                            if scores and max(scores) < 0.5:
+                                low_retrieval_count += 1
+                except Exception as doc_error:
+                    logger.debug(f"Error processing retrieved_context for rec {rec.id}: {doc_error}")
+                    continue
+            
+            if len(low_rated) > 0 and low_retrieval_count > len(low_rated) * 0.3:  # More than 30%
+                issues.append({
+                    "area": "retrieval_quality",
+                    "severity": "high",
+                    "description": "Many low-rated recommendations have poor retrieval scores",
+                    "suggestion": "Consider improving query construction or adding more diverse data to vector DB"
+                })
+            
+            # Check average rating
+            avg_rating = self.get_average_rating(days=30)
+            if avg_rating > 0 and avg_rating < 3.5:
+                issues.append({
+                    "area": "overall_quality",
+                    "severity": "high",
+                    "description": f"Average rating is low: {avg_rating:.2f}/5.0",
+                    "suggestion": "Review prompt engineering and recommendation logic"
+                })
+            
+            # Check feedback rate
+            trends = self.get_feedback_trends(days=30)
+            if trends and isinstance(trends, dict):
+                feedback_rate = trends.get("feedback_rate", 0)
+                if isinstance(feedback_rate, (int, float)) and feedback_rate < 20:  # Less than 20%
+                    issues.append({
+                        "area": "feedback_collection",
+                        "severity": "medium",
+                        "description": f"Low feedback rate: {feedback_rate:.1f}%",
+                        "suggestion": "Encourage users to provide feedback with better UI prompts"
+                    })
+            
+            return {
+                "total_issues_identified": len(issues),
+                "issues": issues,
+                "low_rated_sample_size": len(low_rated),
+                "analysis_date": datetime.utcnow().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error in identify_improvement_areas: {str(e)}", exc_info=True)
+            # Return a safe fallback response
+            return {
+                "total_issues_identified": 0,
+                "issues": [],
+                "low_rated_sample_size": 0,
+                "analysis_date": datetime.utcnow().isoformat()
+            }
     
     def log_feedback_submission(
         self,

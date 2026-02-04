@@ -72,7 +72,7 @@ export default function RecommendationDetailPage() {
 
   if (error || !recommendation) {
     return (
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-auto">
         <div className="max-w-4xl mx-auto">
           <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
             <p className="text-sm text-destructive">{error || "Recommendation not found"}</p>
@@ -101,7 +101,7 @@ export default function RecommendationDetailPage() {
         </Button>
         <h1 className="text-xl font-semibold">Recommendation Details</h1>
       </header>
-      <div className="flex-1 space-y-6 p-8 pt-6">
+      <div className="flex-1 space-y-6 p-8 pt-6 overflow-auto">
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Metadata Card */}
