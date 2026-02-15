@@ -3,7 +3,7 @@ services:
   # DATABASE
   # -----------------------------
   db:
-    image: postgres:17-alpine
+    image: docker.io/library/postgres:17-alpine
     container_name: sira_db
     restart: unless-stopped
     environment:
@@ -57,10 +57,6 @@ services:
       # 1. Pass non-secret public vars as ARGs
       args:
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-      # 2. Pass sensitive keys as SECRETS (secure build)
-      secrets:
-        - clerk_publishable_key
-        - clerk_secret_key
     container_name: sira_frontend
     restart: unless-stopped
     env_file: .env
@@ -78,15 +74,6 @@ services:
       - /app/.next
     depends_on:
       - backend
-
-# -----------------------------
-# SECRETS CONFIGURATION
-# -----------------------------
-secrets:
-  clerk_publishable_key:
-    environment: "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-  clerk_secret_key:
-    environment: "CLERK_SECRET_KEY"
 
 volumes:
   db_data:

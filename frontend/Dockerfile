@@ -1,5 +1,5 @@
 # Base image
-FROM oven/bun:1-alpine AS base
+FROM docker.io/oven/bun:1-alpine AS base
 WORKDIR /app
 
 # 1. Install Dependencies
@@ -21,14 +21,7 @@ COPY ./docs ../docs
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 
-# CRITICAL FIX HERE:
-# Removed the word "ENV" from the shell command chain.
-# Just use 'NODE_ENV=production' directly before 'bun run build'.
-RUN --mount=type=secret,id=clerk_publishable_key \
-    --mount=type=secret,id=clerk_secret_key \
-    export NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$(cat /run/secrets/clerk_publishable_key) && \
-    export CLERK_SECRET_KEY=$(cat /run/secrets/clerk_secret_key) && \
-    NODE_ENV=production bun run build
+RUN NODE_ENV=production bun run build
 
 # 3. Production Runner
 FROM base AS runner
