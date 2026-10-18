@@ -6,15 +6,15 @@ from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.mistralai import MistralAIEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 
+from app.core.config import get_settings
 from app.core.ai_providers.base import (
     BaseLLMProvider,
-    EmbeddingProviderType,
     LLMProviderType,
+    EmbeddingProviderType,
 )
-from app.core.ai_providers.deepseek import DeepSeekLLMProvider
-from app.core.ai_providers.gemini import GeminiEmbedding, GeminiLLMProvider
 from app.core.ai_providers.mistral import MistralLLMProvider
-from app.core.config import get_settings
+from app.core.ai_providers.deepseek import DeepSeekLLMProvider
+from app.core.ai_providers.gemini import GeminiLLMProvider, GeminiEmbedding
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 def get_llm_provider(provider_name: Optional[str] = None) -> BaseLLMProvider:
     """
     Factory to retrieve configured LLM provider.
-
+    
     Args:
         provider_name: Optional explicit provider override.
-
+        
     Returns:
         Instance of BaseLLMProvider.
     """
@@ -74,11 +74,11 @@ def get_embedding_provider(
 ) -> BaseEmbedding:
     """
     Factory to retrieve configured Embedding provider compatible with LlamaIndex.
-
+    
     Args:
         provider_name: Optional explicit provider override.
         output_dimension: Optional target vector dimension.
-
+        
     Returns:
         Instance of BaseEmbedding.
     """
@@ -138,10 +138,10 @@ def get_embedding_provider(
 def get_embedding_dimension(provider_name: Optional[str] = None) -> int:
     """
     Get expected vector dimension for the active embedding provider.
-
+    
     Args:
         provider_name: Optional explicit provider override.
-
+        
     Returns:
         Integer vector dimension.
     """
