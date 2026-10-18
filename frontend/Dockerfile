@@ -5,9 +5,8 @@ WORKDIR /app
 # 1. Install Dependencies
 FROM base AS deps
 # Create a temp directory to install deps (better caching)
-RUN mkdir -p /temp/dev
-COPY ./frontend/package.json ./frontend/bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+COPY ./frontend/package.json /temp/dev/
+RUN cd /temp/dev && bun install
 
 # 2. Build Stage
 FROM base AS builder
@@ -20,6 +19,9 @@ COPY ./docs ../docs
 # ARGs for non-sensitive public vars
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 RUN NODE_ENV=production bun run build
 

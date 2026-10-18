@@ -400,6 +400,25 @@ SIRA uses a modern, production-ready technology stack focused on reliability, sc
   - `mistral-embed` - For embeddings
 - **Installation:** `uv add mistralai`
 
+**DeepSeek AI (OpenAI SDK)**
+- **Type:** LLM provider via OpenAI-compatible API
+- **Purpose:** High-performance reasoning and cost-effective generation
+- **Models:**
+  - `deepseek-chat` (DeepSeek-V3) - General and conversational orientation
+  - `deepseek-reasoner` (DeepSeek-R1) - In-depth reasoning and complex evaluations
+- **API Base:** `https://api.deepseek.com`
+- **Installation:** `uv add openai`
+
+**Google GenAI SDK (Gemini)**
+- **Type:** Multi-modal LLM and embedding provider SDK
+- **Version:** 2.31.0+ (`google-genai`)
+- **Purpose:** Ultra-fast orientation generation, streaming, and Matryoshka embeddings
+- **Models:**
+  - `gemini-3.8-flash` / `gemini-2.0-flash` - Fast, capable reasoning and streaming
+  - `gemini-embedding-001` - Variable-dimension embedding (supports 768, 1024, 1536, 3072)
+- **Installation:** `uv add google-genai`
+
+
 ### Testing
 
 **pytest**

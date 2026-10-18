@@ -10,10 +10,9 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
 
-# Install dependencies first (better caching)
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    uv pip install --system -r requirements.txt
+# Copy requirements and install
+COPY requirements.txt .
+RUN uv pip install --system -r requirements.txt
 
 # Stage 2: Final Runtime
 FROM python:3.11-slim
@@ -28,5 +27,4 @@ COPY . .
 
 EXPOSE 8000
 
-# We use the command in docker-compose, but this is a good default
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

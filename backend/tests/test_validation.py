@@ -166,9 +166,30 @@ class TestValidateURL:
             with pytest.raises(ValueError):
                 validate_url(url)
 
+    def test_relative_urls(self):
+        """Test relative upload URLs are accepted."""
+        relative_urls = [
+            "/api/upload/files/7b48169992f14300.pdf",
+            "/uploads/transcripts/document.pdf",
+        ]
+        for url in relative_urls:
+            assert validate_url(url) == url
+
+    def test_relative_url_traversal_rejected(self):
+        """Test path traversal in relative URLs is rejected."""
+        traversal_urls = [
+            "/api/upload/../../etc/passwd",
+            "/uploads/../secrets.env",
+        ]
+        for url in traversal_urls:
+            with pytest.raises(ValueError):
+                validate_url(url)
+
     def test_none_url(self):
-        """Test None URL returns None."""
+        """Test None or empty URL returns None."""
         assert validate_url(None) is None
+        assert validate_url("") is None
+        assert validate_url("   ") is None
 
 
 class TestValidateGPA:

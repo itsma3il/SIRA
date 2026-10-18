@@ -25,7 +25,6 @@ REQUIRED_VARS = {
         "NEXT_PUBLIC_API_BASE_URL",
     ],
     "ai_services": [
-        "MISTRAL_API_KEY",
         "PINECONE_API_KEY",
         "PINECONE_ENVIRONMENT",
         "PINECONE_INDEX_NAME",
@@ -40,6 +39,8 @@ FORBIDDEN_VALUES = {
     "POSTGRES_PASSWORD": ["postgres", "password", "CHANGE_ME"],
     "SECRET_KEY": ["secret", "CHANGE_ME", "your-secret-key"],
     "MISTRAL_API_KEY": ["your_mistral_api_key", "CHANGE_ME"],
+    "DEEPSEEK_API_KEY": ["your_deepseek_api_key", "CHANGE_ME"],
+    "GEMINI_API_KEY": ["your_gemini_api_key", "CHANGE_ME"],
     "PINECONE_API_KEY": ["your_pinecone_api_key", "CHANGE_ME"],
 }
 
@@ -48,9 +49,12 @@ MIN_LENGTHS = {
     "POSTGRES_PASSWORD": 12,
     "SECRET_KEY": 32,
     "MISTRAL_API_KEY": 20,
+    "DEEPSEEK_API_KEY": 20,
+    "GEMINI_API_KEY": 20,
     "PINECONE_API_KEY": 20,
     "CLERK_SECRET_KEY": 20,
 }
+
 
 
 def validate_environment() -> Tuple[bool, List[str]]:
@@ -73,10 +77,23 @@ def validate_environment() -> Tuple[bool, List[str]]:
     print(f"\nValidating {env_type} environment...\n")
     
     # Check required variables
+    llm_prov = os.getenv("LLM_PROVIDER", "mistral").lower()
+    emb_prov = os.getenv("EMBEDDING_PROVIDER", "mistral").lower()
+
     for category, vars_list in REQUIRED_VARS.items():
         print(f"\n[{category.upper()}]")
-        for var in vars_list:
+        category_vars = list(vars_list)
+        if category == "ai_services":
+            if llm_prov == "mistral" or emb_prov == "mistral":
+                category_vars.append("MISTRAL_API_KEY")
+            if llm_prov == "deepseek" or emb_prov == "deepseek":
+                category_vars.append("DEEPSEEK_API_KEY")
+            if llm_prov == "gemini" or emb_prov == "gemini":
+                category_vars.append("GEMINI_API_KEY")
+
+        for var in category_vars:
             value = os.getenv(var)
+
             
             if value is None:
                 errors.append(f"  ✗ {var}: MISSING (required)")

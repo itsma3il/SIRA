@@ -1,7 +1,8 @@
 """Application configuration loaded from environment variables."""
 from functools import lru_cache
-from pydantic_settings import BaseSettings
 from typing import List
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "SIRA API"
@@ -20,10 +21,29 @@ class Settings(BaseSettings):
     pinecone_environment: str | None = None
     pinecone_index_name: str = "sira-academic-programs"
     
+    # AI Provider Selection ("mistral", "deepseek", "gemini")
+    llm_provider: str = "mistral"
+    embedding_provider: str = "mistral"
+    embedding_dimension: int | None = None
+    
     # Mistral AI Configuration
     mistral_api_key: str | None = None
     mistral_embedding_model: str = "mistral-embed"
     mistral_llm_model: str = "mistral-large-latest"
+    
+    # DeepSeek Configuration
+    deepseek_api_key: str | None = None
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_llm_model: str = "deepseek-chat"
+    deepseek_embedding_model: str = "deepseek-embed"
+    deepseek_embedding_base_url: str | None = None
+    deepseek_embedding_dimension: int = 1536
+    
+    # Google Gemini Configuration
+    gemini_api_key: str | None = None
+    gemini_llm_model: str = "gemini-3.8-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dimension: int = 1024
     
     # RAG Configuration
     chunk_size: int = 1000
@@ -38,12 +58,30 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     max_upload_size: int = 5242880  # 5MB
     allowed_upload_types: str = "pdf,jpg,jpeg,png"
+    
+    @field_validator(
+        "gemini_llm_model",
+        "gemini_embedding_model",
+        "deepseek_llm_model",
+        "deepseek_embedding_model",
+        "mistral_llm_model",
+        "mistral_embedding_model",
+        "llm_provider",
+        "embedding_provider",
+        mode="before",
+    )
+    @classmethod
+    def empty_str_to_default(cls, v, info):
+        if not v or (isinstance(v, str) and not v.strip()):
+            return cls.model_fields[info.field_name].default
+        return v.strip()
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
     }
+
 
 
 @lru_cache(maxsize=1)

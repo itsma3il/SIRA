@@ -4,8 +4,7 @@ import logging
 from typing import AsyncGenerator, Dict, List, Optional, Tuple
 from uuid import UUID
 
-from mistralai import Mistral
-
+from app.core.ai_providers import get_llm_provider, BaseLLMProvider
 from app.core.config import get_settings
 from app.db import session_scope
 from app.models.profile import Profile
@@ -27,13 +26,9 @@ settings = get_settings()
 class RecommendationService:
     """Service for generating AI-powered academic recommendations."""
     
-    def __init__(self):
-        """Initialize Mistral AI client."""
-        if not settings.mistral_api_key:
-            raise ValueError("MISTRAL_API_KEY not configured")
-        
-        self.client = Mistral(api_key=settings.mistral_api_key)
-        self.model = settings.mistral_llm_model
+    def __init__(self, llm_provider: Optional[BaseLLMProvider] = None):
+        """Initialize recommendation service with LLM provider."""
+        self.llm_provider = llm_provider or get_llm_provider()
     
     async def generate_recommendation(
         self,
@@ -134,7 +129,7 @@ class RecommendationService:
     
     async def _call_llm(self, user_prompt: str) -> str:
         """
-        Call Mistral AI LLM with retry logic.
+        Call configured LLM provider.
         
         Args:
             user_prompt: User prompt with profile + context
@@ -143,17 +138,15 @@ class RecommendationService:
             LLM response text
         """
         try:
-            response = self.client.chat.complete(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ]
+            return await self.llm_provider.complete(
+                messages=messages,
                 temperature=0.7,
                 max_tokens=2000
             )
-            
-            return response.choices[0].message.content
         
         except Exception as e:
             logger.error(f"LLM call failed: {str(e)}")
@@ -216,21 +209,17 @@ class RecommendationService:
         full_response = []
         
         try:
-            stream = self.client.chat.stream(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ]
+            async for chunk in self.llm_provider.stream(
+                messages=messages,
                 temperature=0.7,
                 max_tokens=2000
-            )
-            
-            for chunk in stream:
-                if chunk.data.choices[0].delta.content:
-                    content = chunk.data.choices[0].delta.content
-                    full_response.append(content)
-                    yield content
+            ):
+                full_response.append(chunk)
+                yield chunk
         
         except Exception as e:
             logger.error(f"Streaming failed: {str(e)}")

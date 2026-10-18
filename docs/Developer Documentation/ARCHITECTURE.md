@@ -55,9 +55,11 @@
 ┌───────▼──────┐  ┌──────▼─────┐  ┌──▼───▼──┐  ┌────────▼────────┐
 │   DATABASE   │  │   CACHE    │  │ AI/ML   │  │  EXTERNAL APIs  │
 │              │  │            │  │ LAYER   │  │                 │
-│ PostgreSQL   │  │   Redis    │  │         │  │ - Mistral AI    │
-│ + JSONB      │  │ (Optional) │  │ LlamaIdx│  │ - Pinecone      │
-│              │  │            │  │ + RAG   │  │ - Clerk Auth    │
+│ PostgreSQL   │  │   Redis    │  │ LlamaIdx│  │ - Mistral AI    │
+│ + JSONB      │  │ (Optional) │  │ Providers│ │ - DeepSeek AI   │
+│              │  │            │  │ (Multi) │  │ - Google Gemini │
+│              │  │            │  │         │  │ - Pinecone      │
+│              │  │            │  │         │  │ - Clerk Auth    │
 └──────────────┘  └────────────┘  └─────────┘  └─────────────────┘
 ```
 
@@ -206,11 +208,11 @@ RecommendationService
     └─ Generate Context-Aware Query String
     ↓
 RAG Service
-    ├─ Generate Query Embedding (Mistral)
+    ├─ Generate Query Embedding (Mistral / Gemini / DeepSeek)
     ├─ Semantic Search (Pinecone)
     └─ Metadata Filtering (GPA, Budget, Preferences)
     ↓
-LLM Service (Mistral AI)
+LLM Service (Mistral AI / DeepSeek / Google Gemini)
     ├─ System Prompt (Academic Advisor with Chat Context)
     ├─ User Prompt (Profile + Chat History + Retrieved Programs)
     └─ Stream Response

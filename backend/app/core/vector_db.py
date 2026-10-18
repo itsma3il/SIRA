@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional
 from pinecone import Pinecone, ServerlessSpec
 from llama_index.core import VectorStoreIndex, Document
 from llama_index.vector_stores.pinecone import PineconeVectorStore
-from llama_index.embeddings.mistralai import MistralAIEmbedding
+from app.core.ai_providers import get_embedding_provider, get_embedding_dimension
 from app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -33,25 +33,25 @@ class PineconeManager:
         
         self.pc = Pinecone(**pc_kwargs)
         self.index_name = settings.pinecone_index_name
-        self.embedding_model = MistralAIEmbedding(
-            api_key=settings.mistral_api_key,
-            model_name=settings.mistral_embedding_model
-        )
+        self.embedding_model = get_embedding_provider()
         
-        logger.info(f"Initialized PineconeManager with index: {self.index_name}")
+        logger.info(f"Initialized PineconeManager with index: {self.index_name} (provider: {settings.embedding_provider})")
     
     def create_index_if_not_exists(
         self, 
-        dimension: int = 1024,  # Mistral embed dimension
+        dimension: Optional[int] = None,
         metric: str = "cosine"
     ) -> None:
         """
         Create Pinecone index if it doesn't exist.
         
         Args:
-            dimension: Vector dimension (1024 for Mistral embeddings)
+            dimension: Vector dimension (defaults to configured embedding provider dimension)
             metric: Distance metric (cosine, euclidean, dotproduct)
         """
+        if dimension is None:
+            dimension = get_embedding_dimension()
+
         try:
             existing_indexes = [index.name for index in self.pc.list_indexes()]
             

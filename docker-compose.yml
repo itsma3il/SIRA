@@ -39,8 +39,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app # Hot reload
-      - uploads_data:/app/uploads # Persistent file storage
+      - ./backend:/app:z # Hot reload
+      - uploads_data:/app/uploads:z # Persistent file storage
     depends_on:
       db:
         condition: service_healthy
@@ -57,6 +57,7 @@ services:
       # 1. Pass non-secret public vars as ARGs
       args:
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     container_name: sira_frontend
     restart: unless-stopped
     env_file: .env
@@ -69,7 +70,7 @@ services:
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:z
       - /app/node_modules
       - /app/.next
     depends_on:

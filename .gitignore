@@ -121,3 +121,4 @@ lcov.info
 # IDE Specific
 .eslintcache
 .stylelintcache
+docker-compose.yml
